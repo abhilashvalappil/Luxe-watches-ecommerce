@@ -1,0 +1,396 @@
+<%- include('../layouts/navbar.ejs') %>
+
+<body>
+    <!-- Page Preloder -->
+    <div id="preloder">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Offcanvas Menu Begin -->
+    <div class="offcanvas-menu-overlay"></div>
+    <div class="offcanvas-menu-wrapper">
+        <div class="offcanvas__option">
+            <div class="offcanvas__links">
+                <a href="#">Sign in</a>
+                <a href="#">FAQs</a>
+            </div>
+            <div class="offcanvas__top__hover">
+                <span>Usd <i class="arrow_carrot-down"></i></span>
+                <ul>
+                    <li>USD</li>
+                    <li>EUR</li>
+                    <li>USD</li>
+                </ul>
+            </div>
+        </div>
+        <div class="offcanvas__nav__option">
+            <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a>
+            <a href="#"><img src="img/icon/heart.png" alt=""></a>
+            <a href="#"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
+            <div class="price">$0.00</div>
+        </div>
+        <div id="mobile-menu-wrap"></div>
+        <div class="offcanvas__text">
+            <p>Free shipping, 30-day return or refund guarantee.</p>
+        </div>
+    </div>
+    <!-- Offcanvas Menu End -->
+
+    <!-- Header Section Begin -->
+    <!-- <header class="header">
+        <div class="header__top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-6 col-md-7">
+                        <div class="header__top__left">
+                            <p>Free shipping, 30-day return or refund guarantee.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-5">
+                        <div class="header__top__right">
+                            <div class="header__top__links">
+                                <a href="#">Sign in</a>
+                                <a href="#">FAQs</a>
+                            </div>
+                            <div class="header__top__hover">
+                                <span>Usd <i class="arrow_carrot-down"></i></span>
+                                <ul>
+                                    <li>USD</li>
+                                    <li>EUR</li>
+                                    <li>USD</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-3">
+                    <div class="header__logo">
+                        <a href="./index.html"><img src="img/logo.png" alt=""></a>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <nav class="header__menu mobile-menu">
+                        <ul>
+                            <li><a href="./index.html">Home</a></li>
+                            <li class="active"><a href="./shop.html">Shop</a></li>
+                            <li><a href="#">Pages</a>
+                                <ul class="dropdown">
+                                    <li><a href="./about.html">About Us</a></li>
+                                    <li><a href="./shop-details.html">Shop Details</a></li>
+                                    <li><a href="./shopping-cart.html">Shopping Cart</a></li>
+                                    <li><a href="./checkout.html">Check Out</a></li>
+                                    <li><a href="./blog-details.html">Blog Details</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="./blog.html">Blog</a></li>
+                            <li><a href="./contact.html">Contacts</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-lg-3 col-md-3">
+                    <div class="header__nav__option">
+                        <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a>
+                        <a href="#"><img src="img/icon/heart.png" alt=""></a>
+                        <a href="#"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
+                        <div class="price">$0.00</div>
+                    </div>
+                </div>
+            </div>
+            <div class="canvas__open"><i class="fa fa-bars"></i></div>
+        </div>
+    </header> -->
+    <!-- Header Section End -->
+
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>Shopping Cart</h4>
+                        <div class="breadcrumb__links">
+                            <a href="./index.html">Home</a>
+                            <a href="./shop.html">Shop</a>
+                            <span>Shopping Cart</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+
+    <!-- Shopping Cart Section Begin -->
+    <section class="shopping-cart spad">
+        <div class="container">
+            <% if (userCart.length === 0) { %>
+                <div class="empty-cart-message">
+                    <h3>Your cart is empty</h3>
+                    <a href="/shop" class="primary-btn">Continue Shopping</a>
+                </div>
+            <% } else { %>
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="shopping__cart__table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% userCart.forEach(item => { %>
+                                    <tr>
+                                        <td class="product__cart__item">
+                                            <div class="product__cart__item__pic">
+                                                <img src="/uploadedImages/<%= item.productDetails.images[0] %>" alt="">
+                                            </div>
+                                            <div class="product__cart__item__text">
+                                                <h6><%= item.productDetails.name %></h6>
+                                                <h5><%= item.productDetails.price %></h5>
+                                            </div>
+                                        </td>
+                                        <td class="quantity__item">
+                                            <div class="quantity">
+                                                <div class="pro-qty-2">
+                                                    <input type="number" value="<%= item.quantity %>" min="1"  max="5" class="quantity-input" data-product-id="<%= item.productId %>" data-price="<%= item.productDetails.price %>">
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="cart__price" data-product-id="<%= item.productId %>"> <span class="price-value">₹<%= item.productDetails.price * item.quantity %></span></td>
+                                        <td class="cart__close">
+                                            <button class="btn btn-danger remove-from-cart" data-product-id="<%= item.productId %>">Remove</button>
+                                        </td>
+                                    </tr>
+                                <% }) %>                                
+                                
+                                 
+                                <!-- <tr>
+                                    <td class="product__cart__item">
+                                        <div class="product__cart__item__pic">
+                                            <img src="img/shopping-cart/cart-3.jpg" alt="">
+                                        </div>
+                                        <div class="product__cart__item__text">
+                                            <h6>Basic Flowing Scarf</h6>
+                                            <h5>$98.49</h5>
+                                        </div>
+                                    </td>
+                                    <td class="quantity__item">
+                                        <div class="quantity">
+                                            <div class="pro-qty-2">
+                                                <input type="text" value="1">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="cart__price">$ 47.00</td>
+                                    <td class="cart__close"><i class="fa fa-close"></i></td>
+                                </tr> -->
+                                <tr>
+                                    <td class="product__cart__item">
+                                        <div class="product__cart__item__pic">
+                                            <img src="img/shopping-cart/cart-4.jpg" alt="">
+                                        </div>
+                                        <div class="product__cart__item__text">
+                                            <h6>Basic Flowing Scarf</h6>
+                                            <h5>$98.49</h5>
+                                        </div>
+                                    </td>
+                                    <td class="quantity__item">
+                                        <div class="quantity">
+                                            <div class="pro-qty-2">
+                                                <input type="text" value="1">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="cart__price">$ 30.00</td>
+                                    <td class="cart__close"><i class="fa fa-close"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="continue__btn">
+                                <a href="/shop">Continue Shopping</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6">
+                            <div class="continue__btn update__btn">
+                                <a href="#"><i class="fa fa-spinner"></i> Update cart</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="cart__discount">
+                        <h6>Discount codes</h6>
+                        <form action="#">
+                            <input type="text" placeholder="Coupon code">
+                            <button type="submit">Apply</button>
+                        </form>
+                    </div>
+                    <div class="cart__total">
+                        <h6>Cart total</h6>
+                        <ul>
+                            <!-- <li>Subtotal <span>$ 169.50</span></li>
+                            <li>Total <span>$ 169.50</span></li> -->
+                            <li>Subtotal <span> <span class="subtotal-value"><%= totalPrice  %></span></span></li>
+                            <li>Total <span> <span class="total-value"><%= totalPrice  %></span></span></li>
+                        </ul>
+                        <!-- <a href="/checkout" class="primary-btn">Proceed to checkout</a> -->
+                        <a href="/checkout" class="primary-btn">Proceed to checkout</a>
+
+                    </div>
+                </div>
+            </div>
+            <% } %>
+        </div>
+    </section>
+    <!-- Shopping Cart Section End -->
+
+    <script>
+        document.querySelectorAll('.remove-from-cart').forEach(button => {
+            button.addEventListener('click', async function(event) {
+                event.preventDefault();
+        
+                const productId = this.getAttribute('data-product-id');
+        
+                try {
+                    const response = await fetch('/removefromcart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ productId })
+                    });
+        
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+        
+                    const data = await response.json();
+        
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: data.message
+                        }).then(() => {
+                            window.location.href = '/cart';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: data.message
+                        });
+                    }
+        
+                } catch (error) {
+                    console.log(error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'An error occurred',
+                        text: error.message
+                    });
+                }
+            });
+        });
+        </script>
+        
+   
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const MAX_QUANTITY = 5;
+
+
+    function updatePrice(input) {
+        const productId = input.getAttribute('data-product-id');
+        const pricePerUnit = parseFloat(input.getAttribute('data-price'));
+        const priceCell = document.querySelector(`.cart__price[data-product-id="${productId}"] .price-value`);
+        
+        let newQuantity = parseInt(input.value, 10);
+
+        if (isNaN(newQuantity) || newQuantity < 1) {
+            newQuantity = 1;
+            input.value = newQuantity;  
+        }
+
+        if (newQuantity > MAX_QUANTITY) {
+            alert(`We are sorry, only ${MAX_QUANTITY} units allowed in each order.`);
+            newQuantity = MAX_QUANTITY;  
+            input.value = MAX_QUANTITY;  
+        }
+
+        const newPrice = pricePerUnit * newQuantity;
+        priceCell.textContent = newPrice.toFixed(2);  
+    }
+
+     
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('input', function() {
+            updatePrice(this);
+        });
+    });
+
+     
+    document.querySelector('.update__btn a').addEventListener('click', function(event) {
+        event.preventDefault();  
+
+        let subtotal = 0;
+        let total = 0;
+        const cartData = [];
+
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            updatePrice(input);  
+
+            const productId = input.getAttribute('data-product-id');
+            const newQuantity = parseInt(input.value, 10);
+            const itemTotal = parseFloat(document.querySelector(`.cart__price[data-product-id="${productId}"] .price-value`).textContent);
+
+            subtotal += itemTotal;  
+
+            
+            cartData.push({
+                productId: productId,
+                quantity: newQuantity
+            });
+        });
+
+        total = subtotal;
+
+        document.querySelector('.subtotal-value').textContent = subtotal.toFixed(2);
+        document.querySelector('.total-value').textContent = total.toFixed(2);
+
+        fetch('/update-cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(cartData)
+        })
+         
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Cart updated successfully!');
+            } else {
+                console.error('Failed to update cart:', data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+});
+
+    </script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+ 
+    <%- include('../layouts/footer.ejs') %>

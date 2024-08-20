@@ -1,0 +1,350 @@
+<%- include('../layouts/navbar.ejs') %>
+
+ 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Checkout</h2>
+    <div class="row">
+        <!-- Address Selection -->
+        <div class="col-md-7">
+            <h4>Shipping Address</h4>
+            <div class="mb-3">
+                <label for="savedAddress" class="form-label">Select a saved address</label>
+                <select class="form-select" id="savedAddress" onchange="populateEditAddressModal()">
+                    <option selected>Choose an address...</option>
+                    <% if (address && address.address.length > 0) { %>
+                        <% address.address.forEach(function(addr) { %>
+                            <option value="<%= addr._id %>" data-address='<%= JSON.stringify(addr) %>'>
+                                <%= addr.name %>, <%= addr.address %>, <%= addr.locality %>, <%= addr.city %>, <%= addr.state %>, <%= addr.pincode %>, <%= addr.landmark %>, <%= addr.phone %>
+                            </option>
+                        <% }); %>
+                    <% } else { %>
+                        <option>No addresses found</option>
+                    <% } %>
+                </select>
+                
+            </div>
+
+            <div class="mb-3">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editAddressModal">Edit Selected Address</button>
+                <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addAddressModal">Add New Address</button>
+            </div>
+
+            <!-- Cart Summary -->
+            <h4 class="mt-4">Your Cart</h4>
+            <ul class="list-group mb-3">
+                <!-- Loop through cartedProducts -->
+                <% cartedProducts.forEach(function(product) { %>
+                    <li class="list-group-item d-flex justify-content-between lh-sm">
+                        <div class="d-flex">
+                            <!-- Product Image -->
+                            <img src="/uploadedImages/<%= product.images[0] %>" alt="Product Image" class="img-fluid me-3" style="width: 60px; height: 60px;">
+                            <div>
+                                <h6 class="my-0"><%= product.name %></h6>
+                                <small class="text-muted"><%= product.description %></small>
+                            </div>
+                        </div>
+                        <span class="text-muted">₹<%= product.price * product.quantity %></span>
+                    </li>
+                <% }); %>
+                <!-- Total Amount -->
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>Total Amount</span>
+                    <strong>₹<%= cartedProducts.reduce((total, product) => total + (product.price * product.quantity), 0) %></strong>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Payment Details -->
+        <div class="col-md-5">
+            <h4>Payment Details</h4>
+            <div class="my-3">
+                <!-- <div class="form-check">
+                    <input id="credit" name="paymentMethod" type="radio" class="form-check-input" checked required>
+                    <label class="form-check-label" for="credit">Credit card</label>
+                </div>
+                <div class="form-check">
+                    <input id="debit" name="paymentMethod" type="radio" class="form-check-input" required>
+                    <label class="form-check-label" for="debit">Debit card</label>
+                </div>
+                <div class="form-check">
+                    <input id="paypal" name="paymentMethod" type="radio" class="form-check-input" required>
+                    <label class="form-check-label" for="paypal">PayPal</label>
+                </div> -->
+                <div class="form-check">
+                    <input id="cash" name="paymentMethod" type="radio" class="form-check-input" required>
+                    <label class="form-check-label" for="cash">cash on delivery</label>
+                </div>
+            </div>
+            <!-- <div id="card-details" class="row gy-3">
+                <div class="col-md-6">
+                    <label for="cc-name" class="form-label">Name on card</label>
+                    <input type="text" class="form-control" id="cc-name" placeholder="" required>
+                    <small class="text-muted">Full name as displayed on card</small>
+                </div>
+                <div class="col-md-6">
+                    <label for="cc-number" class="form-label">Credit card number</label>
+                    <input type="text" class="form-control" id="cc-number" placeholder="" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="cc-expiration" class="form-label">Expiration</label>
+                    <input type="text" class="form-control" id="cc-expiration" placeholder="" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="cc-cvv" class="form-label">CVV</label>
+                    <input type="text" class="form-control" id="cc-cvv" placeholder="" required>
+                </div>
+            </div> -->
+            <hr class="my-4">
+            <button id="placeOrderBtn" class="w-100 btn btn-primary btn-lg" type="submit">Place Order</button>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Address Modal -->
+<div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content custom-modal-height">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" id="editAddressId<%= address._id %>" value="<%= address._id %>" name="addressId">
+                    <div class="mb-3">
+                        <label for="editName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="editName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPhone" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="editPhone">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPincode" class="form-label">Pincode</label>
+                        <input type="text" class="form-control" id="editPincode">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editLocality" class="form-label">Locality</label>
+                        <input type="text" class="form-control" id="editLocality">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAddress" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="editAddress">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editCity" class="form-label">City</label>
+                        <input type="text" class="form-control" id="editCity">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="editState" class="form-label">State</label>
+                            <input type="text" class="form-control" id="editState">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="editLandmark" class="form-label">Landmark</label>
+                            <input type="text" class="form-control" id="editLandmark">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAddressType" class="form-label">Address Type</label>
+                        <select class="form-select" id="editAddressType">
+                            <option value="Home">Home</option>
+                            <option value="Work">Work</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="update-button" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Custom CSS to control modal height -->
+<style>
+    .custom-modal-height {
+        max-height: 70vh; /* Set max height to 70% of the viewport height */
+        overflow-y: auto; /* Enable scrolling if content overflows */
+    }
+</style>
+
+
+<!-- Add Address Modal -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content custom-modal-height">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <!-- Fields for adding address -->
+                    <div class="mb-3">
+                        <label for="newName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="newName" placeholder="Enter your full name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPhone" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="newPhone" placeholder="Enter your phone number">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newPincode" class="form-label">Pincode</label>
+                        <input type="text" class="form-control" id="newPincode" placeholder="Enter pincode">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newLocality" class="form-label">Locality</label>
+                        <input type="text" class="form-control" id="newLocality" placeholder="Enter locality">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newAddress" class="form-label">Address</label>
+                        <input type="text" class="form-control" id="newAddress" placeholder="Enter your address">
+                    </div>
+                    <div class="mb-3">
+                        <label for="newCity" class="form-label">City</label>
+                        <input type="text" class="form-control" id="newCity" placeholder="Enter city">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="newState" class="form-label">State</label>
+                            <input type="text" class="form-control" id="newState" placeholder="Enter state">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="newLandmark" class="form-label">Landmark</label>
+                            <input type="text" class="form-control" id="newLandmark" placeholder="Enter landmark">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newAddressType" class="form-label">Address Type</label>
+                        <select class="form-select" id="newAddressType">
+                            <option selected>Choose type...</option>
+                            <option value="Home">Home</option>
+                            <option value="Work">Work</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="save-btn" class="btn btn-primary">Save Address</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+ 
+<style>
+    .custom-modal-height {
+        max-height: 70vh;  
+        overflow-y: auto; 
+    }
+</style>
+<script src="assets/userProfile/checkoutFetch.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+<%- include('../layouts/footer.ejs') %>
+
+<script>
+    document.querySelectorAll('input[name="paymentMethod"]').forEach(function(elem) {
+        elem.addEventListener('change', function() {
+            const cardDetails = document.getElementById('card-details');
+            if (this.id === 'cash') {
+                cardDetails.style.display = 'none';
+            } else {
+                cardDetails.style.display = 'block';
+            }
+        });
+    });
+</script>
+
+<script>
+    function populateEditAddressModal() {
+    const selectedOption = document.querySelector('#savedAddress').selectedOptions[0];
+    const address = JSON.parse(selectedOption.getAttribute('data-address'));
+
+    if (address) {
+        document.querySelector('#editName').value = address.name;
+        document.querySelector('#editPhone').value = address.phone;
+        document.querySelector('#editPincode').value = address.pincode;
+        document.querySelector('#editLocality').value = address.locality;
+        document.querySelector('#editAddress').value = address.address;
+        document.querySelector('#editCity').value = address.city;
+        document.querySelector('#editState').value = address.state;
+        document.querySelector('#editLandmark').value = address.landmark;
+        document.querySelector('#editAddressType').value = address.addressType || "Home";
+
+        document.querySelector('#editAddressId').value = address._id;
+    }
+}
+
+</script>
+
+<script>
+    document.getElementById('placeOrderBtn').addEventListener('click', async function() {
+
+        const addressSelect = document.getElementById('savedAddress');
+        const selectedAddressId = addressSelect.value;
+     
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').id;
+        const cartItems = "<%= JSON.stringify(cartedProducts) %>"
+     
+        const orderData = {
+            addressId: selectedAddressId,
+            paymentMethod: paymentMethod,
+            cartItems: cartItems
+        };
+         
+    
+        try {
+            const response = await fetch('/place-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(orderData)
+            });
+    
+            const data = await response.json();
+    
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: data.message
+                }).then(() => {
+                    window.location.href = `/show-orderConfirm/${data.orderId}`;
+                });
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: data.message
+                });
+            }
+        } catch (error) {
+            console.error('Error placing order:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'An error occurred',
+                text: 'Please try again later.'
+            });
+        }
+    });
+    </script>
+    
+
+ 
+ 

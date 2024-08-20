@@ -1,0 +1,69 @@
+
+    <style>
+        /* Custom styles for the sidebar */
+        .sidebar {
+            height: 100vh; 
+            width: 250px;
+            /* position: sticky; */
+            top: 60px; /* Adjust this value to create space between header and sidebar */
+            left: 0;
+            background-color: #dde2e8;
+            padding-top: 20px;
+            /* z-index: 1000;  */
+            height: calc(65vh - 60px)
+        }
+        .sidebar a {
+            font-size: 16px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+        }
+        .sidebar a:hover {
+            color: #007bff;
+            text-decoration: none;
+            background-color: #e9ecef;
+        }
+        .sidebar i {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+     
+    <div class="sidebar">
+        <div class="container">
+            <h4 class="text-center">User Profile</h4>
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="/profile"><i class="fas fa-user"></i>Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/editprofile"><i class="fas fa-user-edit"></i>Edit Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/orders"><i class="fas fa-box"></i>Orders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/wishlist"><i class="fas fa-heart"></i>Wishlist</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/change-password"><i class="fas fa-key"></i>Change Password</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/referral"><i class="fas fa-gift"></i>Referral</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/address"><i class="fas fa-map-marker-alt"></i>Addresses</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

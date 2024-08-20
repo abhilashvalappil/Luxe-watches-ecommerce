@@ -1,0 +1,386 @@
+
+<%- include('../layouts/navbar.ejs') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Addresses</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Custom styles for the sidebar */
+       
+        /* .sidebar a {
+            font-size: 16px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            color: #007bff;
+            background-color: #e9ecef;
+        } */
+        /* .sidebar i {
+            margin-right: 10px;
+        } */
+        /* .content {
+            padding: 20px;
+        } */
+        /* .address-card {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            background-color: #ffffff; /* White background for cards */
+        /* }
+        .address-card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .card-title {
+            color: #007bff; /* Primary blue color */
+        /* } */
+        .edit-btn {
+            background-color: #ffc107; 
+            border: none;
+            color: #fff;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            border: none;
+            color: #fff;
+        }
+        .edit-btn:hover {
+            background-color: #e0a800; 
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .modal-header {
+            background-color: #007bff; 
+            color: #fff;
+        }
+        .modal-dialog {
+            max-width: 600px; 
+        }
+        .modal-content {
+            border-radius: 8px;
+        }
+        .modal-body {
+            max-height: 400px; 
+            overflow-y: auto; 
+            background-color: #ffffff; 
+        }
+        .form-control {
+            border-radius: 0.25rem;
+        }
+        textarea.form-control {
+            max-height: 100px; 
+        }
+        .btn-primary {
+            background-color: #007bff; 
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3; 
+        }
+        .form-group label {
+            color: #333; 
+        } 
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+   
+    <div class="container mt-3">
+        <div class="row">
+          <div class="col-md-3">
+            <%- include('../layouts/sidebar.ejs') %>
+          </div>
+          
+          <div class="col-md-9">
+             <div class="content">
+        <div class="container">
+            <h1 class="mb-4 text-center text-primary">Your Addresses</h1>
+            <button class="btn btn-primary mb-4" data-toggle="modal" data-target="#addAddressModal">Add New Address</button>
+            
+            <!-- Address List -->
+            <div class="row" id="address-list">
+
+                <% if (Array.isArray(addressData) && addressData.length > 0) { %>
+                <% addressData.forEach(address => {  %>
+                <!-- Address Card Example -->
+                <div class="col-md-4">
+                    <div class="card address-card">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= address.addressType %></h5>
+                            <p class="card-text">
+                                <strong>Name:</strong> <%= address.name %> <br>
+                                <strong>Phone:</strong> <%= address.phone %><br>
+                                <strong>Pincode:</strong><%= address.pincode %><br>
+                                <strong>Locality:</strong><%= address.locality %><br>
+                                <strong>Address:</strong> <%= address.address %><br>
+                                <strong>City:</strong> <%= address.city %><br>
+                                <strong>State:</strong> <%= address.state %><br>
+                                <strong>Landmark:</strong> <%= address.landmark %><br>
+                                <strong>Address Type:</strong> <%= address.addressType %>
+                            </p>
+                            <p>
+                                <button class="btn edit-btn" data-toggle="modal" data-target='#editAddressModal<%= address._id %>' data-address-id="<%= address._id %>">Edit</button>
+                                <button class="btn delete-btn" data-address-id="<%= address._id %>" data-toggle="modal" data-target="#deleteAddressModal<%= address._id %>">Delete</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="modal fade" id='deleteAddressModal<%= address._id %>' tabindex="-1" role="dialog" aria-labelledby='deleteAddressModalLabel<%= address._id %>' aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteAddressModalLabel<%= address._id %>">Do you want to delete the address?</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <button class="btn delete-btn delete-btn-conform" data-address-id="<%= address._id %>" id="confirmDeleteButton<%= address._id %>">Delete</button>
+                                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+         <!-- Edit Address Modal -->
+    <div class="modal fade" id='editAddressModal<%= address._id %>' tabindex="-1" role="dialog" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-address-form">
+                        
+    
+                        <!-- Fields will be filled dynamically with JS -->
+                        <input type="hidden" id="edit-address-id<%= address._id %>" value="<%= address._id %>">
+                        <div class="form-group">
+                            <label for="edit-name">Name</label>
+                            <input type="text" class="form-control" id="edit-name<%= address._id %>" value="<%= address.name  %>" required> 
+                            <div id="name-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-phone">Phone</label>
+                            <input type="text" class="form-control" id="edit-phone<%= address._id %>" value="<%= address.phone  %>" required>
+                            <div id="phone-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-pincode">Pincode</label>
+                            <input type="text" class="form-control" id="edit-pincode<%= address._id %>" value="<%= address.pincode  %>" required>
+                            <div id="pincode-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-locality">Locality</label>
+                            <input type="text" class="form-control" id="edit-locality<%= address._id %>" value="<%= address.locality  %>" required>
+                            <div id="locality-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-address">Address</label>
+                            <input type="text"  class="form-control" id="edit-address<%= address._id %>" rows="3" value="<%= address.address  %>" required>
+                            <div id="address-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-city">City</label>
+                            <input type="text" class="form-control" id="edit-city<%= address._id %>" value="<%= address.city  %>" required>
+                            <div id="city-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-state">State</label>
+                            <input type="text" class="form-control" id="edit-state<%= address._id %>" value="<%= address.state  %>" required>
+                            <div id="state-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-landmark">Landmark</label>
+                            <input type="text" class="form-control" id="edit-landmark<%= address._id %>" value="<%= address.landmark  %>">
+                            <div id="landmark-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-address-type">Address Type</label>
+                            <select class="form-control" id="edit-address-type<%= address._id %>" value="<%= address.addressType  %>" required>
+                                <option value="home">Home</option>
+                                <option value="office">Office</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <button type="submit" id="update-btn<%= address._id %>" class="update-address-btn btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                <% })  %>
+                <% } else { %>
+                    <p>No addresses found.</p>
+                <% } %>
+                <!-- Repeat address columns for other addresses -->
+                <!-- <div class="col-md-4">
+                    <div class="card address-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Office</h5>
+                            <p class="card-text">
+                                <strong>Name:</strong> Jane Doe<br>
+                                <strong>Phone:</strong> +1 234-567-8902<br>
+                                <strong>Pincode:</strong> 62704<br>
+                                <strong>Locality:</strong> Suite 101<br>
+                                <strong>Address:</strong> 456 Elm St<br>
+                                <strong>City:</strong> Springfield<br>
+                                <strong>State:</strong> IL<br>
+                                <strong>Landmark:</strong> Next to City Hall<br>
+                                <strong>Address Type:</strong> Office
+                            </p>
+                            <button class="btn edit-btn" data-toggle="modal" data-target="#editAddressModal" data-address-id="2">Edit</button>
+                            <button class="btn delete-btn" data-address-id="2">Delete</button>
+                        </div>
+                    </div>
+                </div> -->
+                
+                <!-- Add more address cards here as needed -->
+            </div>
+        </div>
+    </div>
+        
+            </div>
+        </div>
+    </div>
+    <div class="mt-5"></div>
+ 
+  
+    <!-- Add Address Modal -->
+    <div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addAddressModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAddressModalLabel">Add New Address</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-address-form">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" required>
+                            <div id="name-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="text" class="form-control" id="phone" required>
+                            <div id="phone-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pincode">Pincode</label>
+                            <input type="text" class="form-control" id="pincode" required>
+                            <div id="pincode-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="locality">Locality</label>
+                            <input type="text" class="form-control" id="locality" required>
+                            <div id="locality-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <textarea class="form-control" id="address" rows="3" required></textarea>
+                            <div id="address-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" class="form-control" id="city" required>
+                            <div id="city-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" class="form-control" id="state" required>
+                            <div id="state-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="landmark">Landmark</label>
+                            <input type="text" class="form-control" id="landmark">
+                            <div id="landmark-error" class="message" style="color: red;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="address-type">Address Type</label>
+                            <select class="form-control" id="addresstype" required>
+                                <option value="home">Home</option>
+                                <option value="office">Office</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <button type="submit" id="addAddress-btn" class="btn btn-primary">Add Address</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Add Address Modal
+            $('#addAddressModal').on('shown.bs.modal', function () {
+                $('#add-address-form')[0].reset(); // Reset the form fields
+            });
+
+            // Edit Address Modal
+            // $('#editAddressModal').on('show.bs.modal', function (event) {
+            //     var button = $(event.relatedTarget);
+            //     var addressId = button.data('address-id');
+                // Fetch the address details using the addressId and populate the form
+                // For demo purposes, we'll just use static values
+            //     $('#edit-address-id').val(addressId);
+            //     $('#edit-name').val('Jane Doe');
+            //     $('#edit-phone').val('+1 234-567-8902');
+            //     $('#edit-pincode').val('62704');
+            //     $('#edit-locality').val('Suite 101');
+            //     $('#edit-address').val('456 Elm St');
+            //     $('#edit-city').val('Springfield');
+            //     $('#edit-state').val('IL');
+            //     $('#edit-landmark').val('Next to City Hall');
+            //     $('#edit-address-type').val('office');
+            // });
+
+       
+
+    
+            $('#add-address-form').on('submit', function(event) {
+                event.preventDefault();
+                alert('Address added successfully!');
+                $('#addAddressModal').modal('hide');
+            });
+
+        
+            $('#edit-address-form').on('submit', function(event) {
+                event.preventDefault();
+                alert('Address updated successfully!');
+                $('#editAddressModal').modal('hide');
+            });
+        });
+    </script>
+</body>
+</html>
+
+ 
+<script src="assets/userProfile/js/userAddress.js" ></script>
+
+
+<%- include('../layouts/footer.ejs') %>

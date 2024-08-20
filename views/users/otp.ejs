@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      margin-top: 50px;
+    }
+    .verification-code-input {
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      text-align: center;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin: 5px;
+    }
+    .illustration {
+      max-width: 100%;
+    }
+    .otp-card {
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="row">
+      <!-- Illustration Section -->
+      <div class="col-md-6 d-none d-md-block">
+        <img src="/homeAssets/img/banner/banner-2.jpg" alt="Illustration" class="illustration">
+      </div>
+      <!-- OTP Verification Section -->
+      <div class="col-md-6 d-flex align-items-center justify-content-center">
+        <div class="otp-card p-4 bg-white">
+          <h5 class="text-center">Verification Code</h5>
+          <p class="text-center">We have sent the verification code to your email address</p>
+          <form id="otpForm" action="/verifyOtp" method="post" class="text-center">
+            <div class="d-flex justify-content-center mb-4">
+              <input type="text" id="otp1" class="verification-code-input" maxlength="1" required>
+              <input type="text" id="otp2" class="verification-code-input" maxlength="1" required>
+              <input type="text" id="otp3" class="verification-code-input" maxlength="1" required>
+              <input type="text" id="otp4" class="verification-code-input" maxlength="1" required>
+              <input type="text" id="otp5" class="verification-code-input" maxlength="1" required>
+              <input type="text" id="otp6" class="verification-code-input" maxlength="1" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Confirm</button>
+            <div id="otpTimer" class="mt-3 text-center"></div> 
+            <div class="mt-3">
+              <a href="/resendOtp?email=<%= email %>" id="resendOtp" style="display: none;">Didn't receive OTP? <span>Resend OTP</span></a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+     const forgot = JSON.parse('<%- JSON.stringify(isForgot) %>'.replace(/&#34;/g, '"'));
+    const inputs = document.querySelectorAll('.verification-code-input');
+    inputs.forEach((input, index) => {
+      input.addEventListener('keyup', (e) => {
+        if (e.keyCode === 8 && index > 0 && !input.value) {
+          inputs[index - 1].focus();
+        } else if (index < inputs.length - 1 && input.value) {
+          inputs[index + 1].focus();
+        }
+      });
+    });
+
+     
+    function startOtpTimer(duration, display, resendButton){
+      let timer = duration,minutes,seconds;
+      const interval = setInterval(function(){
+        minutes = parseInt(timer / 60, 10)
+        seconds = parseInt(timer % 60, 10)
+
+        minutes = minutes < 0 ? "0" + minutes : minutes;
+        seconds = seconds < 0 ? "0" + seconds : seconds;
+
+        display.textContent = minutes + ":" + seconds;
+
+        if(--timer < 0){
+          clearInterval(interval);
+          resendButton.style.display = 'block';
+        }
+
+      },1000)
+    }
+
+    document.addEventListener('DOMContentLoaded',(event) => {
+      const duration = 60;
+      const display = document.querySelector('#otpTimer');
+      const resendButton = document.querySelector('#resendOtp');
+
+      startOtpTimer(duration, display, resendButton);
+    })
+
+
+    document.getElementById('otpForm').addEventListener('submit', async function(event){
+      event.preventDefault();
+
+      const otp = [
+        document.getElementById('otp1').value,
+        document.getElementById('otp2').value,
+        document.getElementById('otp3').value,
+        document.getElementById('otp4').value,
+        document.getElementById('otp5').value,
+        document.getElementById('otp6').value,
+      ].join('');
+
+      try {
+
+        const response = await fetch('/verifyOtp',{
+          method: 'POST',
+          headers:{
+            'Content-Type' : 'application/json'
+          },
+          body: JSON.stringify({otp}),
+        });
+
+        const result = await response.json();
+        
+        if(response.ok){
+          Swal.fire({
+            icon: 'success',
+            title: result.message
+          }).then(() => {
+            if (forgot) {
+              window.location.href = '/resetPassword';
+            }else{
+              window.location.href = '/login';
+            }
+          })
+           
+          
+        }else{
+          Swal.fire({
+            icon: 'error',
+            title: result.message
+          })
+        
+        }
+        
+      } catch (error) {
+        console.log(error.message);
+      }
+    });
+    
+
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+</body>
+</html>

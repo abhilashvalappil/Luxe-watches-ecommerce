@@ -1,0 +1,204 @@
+ 
+ <%- include('../layouts/adminHeader.ejs') %>
+
+ 
+ 
+ <!--start sidebar-->
+ <aside class="sidebar-wrapper" data-simplebar="true">
+   <div class="sidebar-header">
+     <div class="logo-icon">
+       <img src="assets/images/logo-icon.png" class="logo-img" alt="">
+     </div>
+     <div class="logo-name flex-grow-1">
+       <h5 class="mb-0">Dashboard</h5>
+     </div>
+     <div class="sidebar-close">
+       <span class="material-icons-outlined">close</span>
+     </div>
+   </div>
+   <div class="sidebar-nav">
+       <!--navigation-->
+       <ul class="metismenu" id="sidenav">
+         <li>
+           <a href="javascript:;" class="has-arrow">
+             <div class="parent-icon"><i class="material-icons-outlined">home</i>
+             </div>
+             <div class="menu-title">Dashboard</div>
+           </a>
+           <ul>
+             <li><a href="index.html"><i class="material-icons-outlined">arrow_right</i>Analysis</a>
+             </li>
+             <li><a href="index2.html"><i class="material-icons-outlined">arrow_right</i>eCommerce</a>
+             </li>
+           </ul>
+         </li>
+         <li>
+          <a href="javascript:;" class="has-arrow">
+            <div class="parent-icon"><i class="material-icons-outlined">people</i>
+            </div>
+            <div class="menu-title">Users</div>
+          </a>
+          <ul>
+            <li><a href="/admin/users"><i class="material-icons-outlined">arrow_right</i>Users List</a>
+            </li>
+            <li><a href="widgets-static.html"><i class="material-icons-outlined">arrow_right</i>User Details</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="/admin/category" class="arrow_right" >
+            <div class="parent-icon"><i class="material-icons-outlined">category</i>
+            </div>
+            <div class="menu-title">Category</div>
+          </a>
+          </li>
+          <li>
+            <a href="/admin/products" class="arrow_right" >
+              <div class="parent-icon"><i class="material-icons-outlined">shopping_cart</i>
+              </div>
+              <div class="menu-title">products</div>
+            </a>
+          </li>
+           
+   </div>
+ </aside> 
+ <!--end sidebar-->
+ 
+ 
+   <!--start main wrapper-->
+   <main class="main-wrapper">
+     <div class="main-content">
+       
+ 
+         <div class="row g-3">
+          
+           <div class="col-auto flex-grow-1 overflow-auto">
+             <div class="btn-group position-static">
+               <div class="btn-group position-static">
+                 <!-- <button type="button" class="btn btn-filter dropdown-toggle px-4" data-bs-toggle="dropdown" aria-expanded="false">
+                   Country
+                 </button> -->
+                 <!-- <ul class="dropdown-menu">
+                   <li><a class="dropdown-item" href="javascript:;">Action</a></li>
+                   <li><a class="dropdown-item" href="javascript:;">Another action</a></li>
+                   <li><hr class="dropdown-divider"></li>
+                   <li><a class="dropdown-item" href="javascript:;">Something else here</a></li>
+                 </ul> -->
+               </div>
+               <div class="btn-group position-static">
+                 
+               </div>
+               <div class="btn-group position-static">
+             
+               </div>
+             </div>  
+           </div>
+           <div class="col-auto">
+             <div class="d-flex align-items-center gap-2 justify-content-lg-end">
+                <!-- <button class="btn btn-filter px-4"><i class="bi bi-box-arrow-right me-2"></i>Export</button> -->
+                <a href="/admin/addcategory"><button class="btn btn-primary px-4"><i class="bi bi-plus-lg me-2"></i>Add Category</button></a>
+             </div>
+           </div>
+         </div><!--end row-->
+ 
+         <div class="card mt-4">
+           <div class="card-body">
+             <div class="customer-table">
+               <div class="table-responsive white-space-nowrap">
+                  <table class="table align-middle">
+                   <thead class="table-light">     
+                     <tr>
+                       <th>
+                         <input class="form-check-input" type="checkbox">
+                       </th>
+                       <th>SL.No</th>
+                       <th>Name</th>
+                       <th>Description</th>
+                       <!-- <th>Status</th> -->
+                       <th>Action</th>
+                       <th>Edit</th>
+                     </tr>
+                    </thead>
+                    <tbody>
+
+                      <% for(let i=0; i<category.length; i++){ %>
+                      <tr>
+                        <td>
+                          <input class="form-check-input" type="checkbox">
+                        </td>
+                        <td>
+                         <a class="d-flex align-items-center gap-3" href="javascript:;">
+                           <div class="customer-pic">
+                             <!-- <img src="assets/images/avatars/01.png" class="rounded-circle" width="40" height="40" alt=""> -->
+                           </div>
+                           <p class="mb-0 customer-name fw-bold"><%= i+1 %></p>
+                         </a>
+                        </td>
+                        <td>
+                           <a href="javascript:;" class="font-text1"><%= category[i].name %></a>
+                        </td>
+                        <td><%= category[i].description %></td>
+                        <!-- <td><a href="" class="badge badge-info"><%=category[i].listedAt ?  "Unlisted" : "Listed"%></a></td> -->
+                      
+                        <td>
+                          <button onclick="listCategory('<%= category[i]._id %>', this)" 
+                            class="category-button btn btn-sm <%= category[i].is_listed ? 'btn-success' : 'btn-danger' %> rounded font-sm" 
+                            data-id="<%= category[i]._id %>">
+                            <%= category[i].is_listed ? 'Unlist' : 'List' %>
+                          </button>
+                        </td>
+                       
+                        <td><a href="/admin/editcategory/<%= category[i]._id %>" class="btn btn-secondary">Edit</a></td>
+                      </tr> 
+                      <% } %>
+                     
+                    </tbody>
+                  </table>
+               </div>
+             </div>
+           </div>
+         </div>
+        
+ 
+     </div>
+   </main>
+   <!--end main wrapper-->
+ 
+ 
+     <!--start overlay-->
+     <div class="overlay btn-toggle"></div>
+     <!--end overlay-->
+
+     <%- include('../layouts/adminFooter.ejs') %>
+
+     <script>
+       async function listCategory(categoryId, buttonElement){
+        try {
+
+          const response =  await fetch(`/admin/listcategory/${categoryId}`,{
+            method:'PUT',
+            headers:{
+              'Content-Type': 'application/json'
+            }
+          })
+
+          const data = await response.json();
+        
+          if(data.is_listed === true){
+            buttonElement.textContent = 'Unlist';
+            buttonElement.classList.remove('btn-danger');
+            buttonElement.classList.add('btn-success');
+          }else{
+            buttonElement.textContent = 'List';
+            buttonElement.classList.remove('btn-success');
+            buttonElement.classList.add('btn-danger');
+          }
+          
+        } catch (error) {
+          console.error(error.message)
+        }
+      }
+
+  
+
+     </script>

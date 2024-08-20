@@ -1,0 +1,168 @@
+<!doctype html>
+<html class="no-js " lang="en">
+
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+<meta name="description" content="Responsive Bootstrap 4 and web Application ui kit.">
+
+<title>:: Aero Bootstrap4 Admin :: Sign In</title>
+<!-- Favicon-->
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<!-- Custom Css -->
+<link rel="stylesheet" href="/adminLoginAssets/plugins/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="/adminLoginAssets/css/style.min.css">
+</head>
+<body class="theme-blush">
+
+<div class="authentication">    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-sm-12">
+                <form id="login-form" class="card auth_form">
+                    <div class="header">
+                        <img class="logo" src="/adminLoginAssets/images/logo.svg" alt="">
+                        <h5>Admin Sign In</h5>
+                        <span>Login to continue</span>
+                    </div>
+
+                    <div class="body">
+                        <% if(typeof message !=='undefined' ){ %>
+                            <p style="color: red;">
+                                <%= message %>
+                            </p>
+                            <% } %>
+                        <!-- <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Username">
+                            <div class="input-group-append">
+                                <span class="input-group-text"><i class="zmdi zmdi-account-circle"></i></span>
+                            </div>
+                        </div> -->
+                        <div class="input-group mb-3">
+                            <input type="text" id="email" name="email" class="form-control" placeholder="Enter Email" autocomplete="email">
+                            <div id="email-error" class="message" style="color: red;"></div>
+                            <div class="input-group-append">
+                                <span class="input-group-text"><i class="zmdi zmdi-email"></i></span>
+                            </div>
+                        </div>                        
+                        <div class="input-group mb-3">
+                            <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" autocomplete="current-password">
+                            <div id="password-error" class="message" style="color: red;"></div>
+                            <div class="input-group-append">                                
+                                <span class="input-group-text"><i class="zmdi zmdi-lock"></i></span>
+                            </div>                            
+                        </div>
+                        <div class="checkbox">
+                            <!-- <input id="remember_me" type="checkbox">
+                            <label for="remember_me">I read and agree to the <a href="javascript:void(0);">terms of usage</a></label> -->
+                        </div>
+                        <!-- <a href="index.html" id="loginButton" class="btn btn-primary btn-block waves-effect waves-light">LOGIN</a> -->
+                        <button type="submit" id="loginButton" class="btn btn-primary btn-block waves-effect waves-light">LOGIN</button>
+                        <div class="signin_with mt-3">
+                            <a class="link" href="sign-in.html">Forgot password?</a>
+                        </div>
+                    </div>
+                </form>
+                <div class="copyright text-center">
+                    <!-- &copy; -->
+                    <!-- <script>document.write(new Date().getFullYear())</script>,
+                    <span><a href="templatespoint.net">Templates Point</a></span> -->
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-12">
+                <div class="card">
+                    <img src="/adminLoginAssets/images/signup.svg" alt="Sign Up" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Jquery Core Js -->
+<script src="/adminLoginAssets/bundles/libscripts.bundle.js"></script>
+<script src="/adminLoginAssets/bundles/vendorscripts.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+    document.getElementById('login-form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const form = document.getElementById('login-form');
+        const email = document.getElementById('email').value
+        const password = document.getElementById('password').value
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            // emailMsg.textContent='Invalid email address.'
+            showError('email-error', 'Invalid email id!');
+
+            return;
+            //isValid=false;
+        } else {
+            hideError('email-error');
+        }
+
+        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        if (!passwordPattern.test(password)) {
+            showError('password-error', 'The password you entered is invalid. Please try again.');
+            return;
+        } else {
+            hideError('password-error')
+        }
+
+        const formData = {
+            email:email,
+            password:password
+        }
+        try {
+            console.log('sess')
+            const response = await fetch('/admin/login', {
+                method:'POST',
+                headers:{
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            const data = await response.json();
+            console.log('Response data:', data);
+             
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: data.message
+                }).then(() => {
+                    window.location.href = '/admin/dashboard'
+                })
+                 
+            }else{
+                alert(data.message)
+            }
+            
+        } catch (error) {
+            console.log(error.message);
+           
+        }
+    })
+
+
+    function showError(errorId,message){
+        let errorElement = document.getElementById(errorId)
+        errorElement.textContent = message;
+    }
+
+    function hideError(errorId){
+        let errorElement = document.getElementById(errorId)
+        errorElement.textContent = "";
+    }
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<!-- Jquery Core Js --> 
+<!-- <script src="/adminLoginAssets/bundles/libscripts.bundle.js"></script> -->
+<!-- <script src="/adminLoginAssets/bundles/vendorscripts.bundle.js"></script> <!-- Lib Scripts Plugin Js  -->
+
+</body>
+</html>

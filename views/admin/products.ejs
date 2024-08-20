@@ -1,0 +1,219 @@
+<%- include('../layouts/adminHeader.ejs') %>
+
+ 
+
+<!--start sidebar-->
+<aside class="sidebar-wrapper" data-simplebar="true">
+  <div class="sidebar-header">
+    <div class="logo-icon">
+      <img src="/adminHomeAssets/images/logo-icon.png" class="logo-img" alt="">
+    </div>
+    <div class="logo-name flex-grow-1">
+      <h5 class="mb-0">Dashboard</h5>
+    </div>
+    <div class="sidebar-close">
+      <span class="material-icons-outlined">close</span>
+    </div>
+  </div>
+  <div class="sidebar-nav">
+      <!--navigation-->
+      <ul class="metismenu" id="sidenav">
+        <li>
+          <a href="javascript:;" class="has-arrow">
+            <div class="parent-icon"><i class="material-icons-outlined">home</i>
+            </div>
+            <div class="menu-title">Dashboard</div>
+          </a>
+          <ul>
+            <li><a href="index.html"><i class="material-icons-outlined">arrow_right</i>Analysis</a>
+            </li>
+            <li><a href="index2.html"><i class="material-icons-outlined">arrow_right</i>eCommerce</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="javascript:;" class="has-arrow">
+            <div class="parent-icon"><i class="material-icons-outlined">people</i>
+            </div>
+            <div class="menu-title">Users</div>
+          </a>
+          <ul>
+            <li><a href="/admin/users"><i class="material-icons-outlined">arrow_right</i>Users List</a>
+            </li>
+            <li><a href="widgets-static.html"><i class="material-icons-outlined">arrow_right</i>User Details</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="/admin/category" class="arrow_right" >
+            <div class="parent-icon"><i class="material-icons-outlined">category</i>
+            </div>
+            <div class="menu-title">Category</div>
+          </a>
+        </li>
+        <li>
+          <a href="/admin/products" class="arrow_right" >
+            <div class="parent-icon"><i class="material-icons-outlined">shopping_cart</i>
+            </div>
+            <div class="menu-title">products</div>
+          </a>
+        </li>
+  </div>
+</aside>
+<!--end sidebar-->
+
+
+  <!--start main wrapper-->
+  <main class="main-wrapper">
+    <div class="main-content" >
+      <!--breadcrumb-->
+      <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">LuxeWatches</div>
+        <div class="ps-3">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+              <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+              </li>
+              <li class="breadcrumb-item active" aria-current="page">Products</li>
+            </ol>
+          </nav>
+        </div>
+  
+      </div>
+ 
+
+      <div class="row g-3">
+       
+        <div class="col-auto flex-grow-1 overflow-auto">
+          <div class="btn-group position-static">
+            <div class="btn-group position-static">
+             
+            </div>
+            
+          </div>
+        </div>
+        <div class="col-auto">
+          <div class="d-flex align-items-center gap-2 justify-content-lg-end">
+            <!-- <button class="btn btn-filter px-4"><i class="bi bi-box-arrow-right me-2"></i>Export</button> -->
+            <a href="/admin/addProduct"><button class="btn btn-primary px-4"><i class="bi bi-plus-lg me-2"></i>Add Product</button></a>
+          </div>
+        </div>
+      </div><!--end row-->
+
+      <div class="card mt-4">
+        <div class="card-body">
+          <div class="product-table">
+            <div class="table-responsive white-space-nowrap">
+              <table class="table align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>
+                      <input class="form-check-input" type="checkbox">
+                    </th>
+                    <th>SL.NO</th>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Brand</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th>Details</th>
+                    <th>Stock</th>
+                    <th>Action</th>
+                    <th>Edit</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  <%console.log(product)%>
+
+                  <% for(let i=0; i<product.length; i++) { %>
+                  
+                  <tr>
+                    <td>
+                      <input class="form-check-input" type="checkbox">
+                    </td>
+                    <td><p> <%= i+1 %> </p></td>
+                    <td>
+                      <div class="d-flex align-items-center gap-3">
+                        <div class="product-box">
+                          <% if (product[i].images && product[i].images.length > 0) { %>
+                            <img src="/uploadedImages/<%= product[i].images[0] %>" width="70" class="rounded-3" alt="Product Image">
+                          <% } else { %>
+                            <img src="/uploadedImages/default-image.jpg" width="70" class="rounded-3" alt="Default Image">
+                          <% } %>
+                          <!-- <p class="mb-0 product-category">Category : Fashion</p> -->
+                        </div>
+                      </div> 
+                    </td>
+                    <td> <%= product[i].name %> </td>
+                    <td> <%= product[i].brand %> </td>
+                    <td>
+                      <%= product[i].price %>
+                      
+                    </td>
+                    <td>
+                      <%= product[i].category %>
+                    
+                    </td>
+                    <td>
+                      <%= product[i].description %>
+                      <!-- <a href="javascript:;">Michle Shoes England</a> -->
+                    </td>
+                     <td> <%= product[i].stock %> </td>
+                     
+                    <td>
+                      <button onclick="listProduct('<%= product[i]._id %>', this)" 
+                        class="product-button btn btn-sm <%= product[i].is_listed ? 'btn-success' : 'btn-danger' %> rounded font-sm" 
+                        data-id="<%= product[i]._id %>">
+                        <%= product[i].is_listed ? 'Unlist' : 'List' %>
+                      </button>
+                    </td>
+                    <td><a href="/admin/editproduct?id=<%= product[i]._id %>" class="btn btn-secondary">Edit</a></td>
+                  </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </main>
+  <!--end main wrapper-->
+
+
+    <!--start overlay-->
+    <div class="overlay btn-toggle"></div>
+    <!--end overlay-->
+
+    <%- include('../layouts/adminFooter.ejs') %>
+
+    <script>
+      async function listProduct(productId, buttonElement){
+        try {
+          const response = await fetch(`/admin/listproduct/${productId}`,{
+            method:'PUT',
+            headers:{
+              'Content-Type' : 'application/json'
+            }
+          })
+
+          const data = await response.json();
+
+          if(data.is_listed === true){
+            buttonElement.textContent = 'Unlist';
+            buttonElement.classList.remove('btn-danger');
+            buttonElement.classList.add('btn-success');
+          }else{
+            buttonElement.textContent = 'List';
+            buttonElement.classList.remove('btn-success');
+            buttonElement.classList.add('btn-danger');
+          }
+        } catch (error) {
+          console.log(error.message)
+        }
+      }
+
+    </script>

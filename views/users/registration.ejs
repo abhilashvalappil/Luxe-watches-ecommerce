@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sign Up Form by Colorlib</title>
+
+    <!-- Font Icon -->
+    <!-- <link rel="stylesheet" href="/fonts/material-icon/css/material-design-iconic-font.min.css"> -->
+
+    <!-- Main css -->
+    <link rel="stylesheet" href="/userSignupAssets/css/style.css">
+</head>
+
+<body>
+
+    <div class="main">
+
+        <!-- Sign up form -->
+        <section class="signup">
+            <div class="container">
+                <div class="signup-content">
+                    <div class="signup-form">
+                        <h2 class="form-title">Sign up</h2>
+                        <form action="/register" method="POST" class="register-form" id="register-form">
+                            <% if(typeof message !=='undefined' ){ %>
+                                <p style="color: green;">
+                                    <%= message %>
+                                </p>
+                                <% } %>
+                                    <div id="message" style="color: red;"></div>
+                                    <div class="form-group">
+                                        <label for="name"><i class="zmdi zmdi-account material-icons-name"></i></label>
+                                        <input type="text" name="name" id="name" placeholder="Your Name" />
+                                        <div id="name-error" class="message" style="color: red;"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email"><i class="zmdi zmdi-email"></i></label>
+                                        <input type="email" name="email" id="email" placeholder="Your Email" />
+                                        <div id="email-error" class="message" style="color: red;"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone"><i class="zmdi zmdi-phone"></i></label>
+                                        <input type="tel" name="phone" id="phone" placeholder="Your Phone Number" />
+                                        <div id="phone-error" class="message" style="color: red;"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="pass"><i class="zmdi zmdi-lock"></i></label>
+                                        <input type="password" name="password" id="pass" placeholder="Password" />
+                                        <div id="password-error" class="message" style="color: red;"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="re_pass"><i class="zmdi zmdi-lock-outline"></i></label>
+                                        <input type="password" name="re_pass" id="re_pass"
+                                            placeholder="Repeat your password" />
+                                            <div id="repassword-error" class="message" style="color: red;"></div>
+                                    </div>
+                                    <!-- <div class="form-group">
+                                <input type="checkbox" name="agree-term" id="agree-term" class="agree-term" />
+                                <label for="agree-term" class="label-agree-term"><span><span></span></span>I agree all statements in  <a href="#" class="term-service">Terms of service</a></label>
+                            </div> -->
+                                    <div class="form-group form-button">
+                                        <input type="submit" name="signup" id="signup" class="form-submit"
+                                            value="Register" />
+                                    </div>
+                        </form>
+                    </div>
+                    <div class="signup-image">
+                        <figure><img src="/userSignupAssets/images/signup-image.jpg" alt="sign up image"></figure>
+                        <a href="/login" class="signup-image-link">I am already member</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- <script src="js/main.js"></script> -->
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('register-form');
+            const messageDiv = document.getElementById('message');
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                messageDiv.innerHTML = '';
+
+                const formData = new FormData(form);
+                const name = formData.get('name');
+                const email = formData.get('email');
+                const phone = formData.get('phone');
+                const password = formData.get('password');
+                const confirmPassword = formData.get('re_pass');
+
+
+                let errorMessage = '';
+                if (name.trim() === '') {
+                    errorMessage += 'Name is required.<br>';
+                }
+
+                const namePattern = /^[a-zA-Z\s'-]{3,50}$/;
+                if (!namePattern.test(name)) {
+                    showError('name-error', 'Name must be required and contain only alphabets, spaces, and numbers and at least 5 characters long.');
+                  return;
+                } else {
+                  hideError('name-error');
+                }
+
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(email)) {
+                    showError('email-error', 'Invalid email address');
+                  return;
+                } else {
+                  hideError('email-error');
+                }
+
+                const phonePattern = /^[6-9]\d{9}$/;
+                if (!phonePattern.test(phone)) {
+                    showError('phone-error', 'Invalid phone number!');
+                  return;
+                } else {
+                  hideError('phone-error');
+                }
+
+                const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+                if (!passwordPattern.test(password)) {
+                    showError('password-error', 'Password must be at least 8 characters long and contain at least one letter and one number.');
+                  return;
+                } else {
+                  hideError('password-error');
+                }
+
+                if (password !== confirmPassword) {
+                    showError('repassword-error', 'Passwords doesnot match.');
+                  return;
+                } else {
+                  hideError('repassword-error');
+                }
+
+                if (errorMessage) {
+                    messageDiv.innerHTML = errorMessage;
+                    return;
+                }
+
+
+                try {
+                    const response = await fetch('/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            email: email,
+                            phone: phone,
+                            password: password,
+                            confirmPassword: confirmPassword
+                        })
+                    });
+
+                    if (response.ok) {
+                        window.location.href = '/otp';
+
+                    } else {
+                        const result = await response.json();
+                        messageDiv.innerHTML = result.message || 'Registration failed';
+                    }
+                } catch (error) {
+                    messageDiv.innerHTML = 'An error occurred: ' + error.message;
+                }
+            });
+        });
+
+
+        function showError(errorId, message) {
+            let errorElement = document.getElementById(errorId);
+            errorElement.textContent = message;
+        }
+
+        function hideError(errorId) {
+            let errorElement = document.getElementById(errorId);
+            errorElement.textContent = '';
+        }
+
+    </script>
+</body>
+
+</html>

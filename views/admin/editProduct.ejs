@@ -1,0 +1,407 @@
+<%- include('../layouts/adminHeader.ejs') %>
+
+    <!--start sidebar-->
+    <aside class="sidebar-wrapper" data-simplebar="true">
+      <div class="sidebar-header">
+        <div class="logo-icon">
+          <img src="/adminHomeAssets/images/logo-icon.png" class="logo-img" alt="">
+        </div>
+        <div class="logo-name flex-grow-1">
+          <h5 class="mb-0">Dashboard</h5>
+        </div>
+        <div class="sidebar-close">
+          <span class="material-icons-outlined">close</span>
+        </div>
+      </div>
+      <div class="sidebar-nav">
+        <!--navigation-->
+        <ul class="metismenu" id="sidenav">
+          <li>
+            <a href="javascript:;" class="has-arrow">
+              <div class="parent-icon"><i class="material-icons-outlined">home</i>
+              </div>
+              <div class="menu-title">Dashboard</div>
+            </a>
+            <ul>
+              <li><a href="index.html"><i class="material-icons-outlined">arrow_right</i>Analysis</a>
+              </li>
+              <li><a href="index2.html"><i class="material-icons-outlined">arrow_right</i>eCommerce</a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a href="javascript:;" class="has-arrow">
+              <div class="parent-icon"><i class="material-icons-outlined">people</i>
+              </div>
+              <div class="menu-title">Users</div>
+            </a>
+            <ul>
+              <li><a href="/admin/users"><i class="material-icons-outlined">arrow_right</i>Users List</a>
+              </li>
+              <li><a href="widgets-static.html"><i class="material-icons-outlined">arrow_right</i>User Details</a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <a href="/admin/category" class="arrow_right">
+              <div class="parent-icon"><i class="material-icons-outlined">category</i>
+              </div>
+              <div class="menu-title">Category</div>
+            </a>
+          </li>
+          <li>
+            <a href="/admin/products" class="arrow_right">
+              <div class="parent-icon"><i class="material-icons-outlined">shopping_cart</i>
+              </div>
+              <div class="menu-title">products</div>
+            </a>
+          </li>
+      </div>
+    </aside>
+    <!--end sidebar-->
+
+
+    <!--start main wrapper-->
+    <main class="main-wrapper">
+      <div class="main-content">
+        <!--breadcrumb-->
+        <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+          <div class="breadcrumb-title pe-3">LuxeWatches</div>
+          <div class="ps-3">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb mb-0 p-0">
+                <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Edit Product</li>
+              </ol>
+            </nav>
+          </div>
+
+
+
+        </div>
+        <!--end breadcrumb-->
+        <form id="editProductForm" method="post" action="/admin/editproduct" enctype="multipart/form-data">
+          <input type="hidden" id="productId" name="productId" value="<%= product._id %>">
+          <div class="row">
+            <div class="col-12 col-lg-8">
+              <div class="card">
+                <div class="card-body">
+                  <div class="mb-4">
+                    <h5 class="mb-3">Name</h5>
+                    <input type="text" id="name" name="name" value="<%= product.name%>" class="form-control" placeholder="write product name here....">
+                    <div id="name-error" class="message" style="color: red;"></div>
+                  </div>
+                  <div class="mb-4">
+                    <h5 class="mb-3">Product Description</h5>
+                    <textarea class="form-control" id="description" name="description" cols="4" rows="6"
+                      placeholder="write a description here.."><%= product.description%></textarea>
+                    <div id="description-error" class="message" style="color: red;"></div>
+                  </div>
+                  <div class="mb-4">
+                    <h5 class="mb-3">Add Images</h5>
+                    <!-- <input id="fancy-file-upload" type="file" name="files" accept=".jpg, .png, image/jpeg, image/png" multiple> -->
+                    <div class="image-upload-container" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                      <div class="image-upload">
+                        <label class="btn btn-primary"
+                          style="display: flex; align-items: center; background-color: #007bff; border: none; color: white; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px;">
+                          <i class="bx bx-image-add" style="margin-right: 5px;"></i> Upload Image 1
+                          <input type="file" name="image1" accept=".jpg, .png, image/jpeg, image/png" hidden
+                            onchange="previewImage(event, 'imagePreview1')">
+                        </label>
+                        <% if(product.images[0]) { %>
+                        <img id="imagePreview1" src="/uploadedImages/<%= product.images[0] %>" alt="Image 1 Preview" style="display: block; max-width: 100px;">
+                        <% } %>
+                      </div>
+                      <div class="image-upload">
+                        <label class="btn btn-primary"
+                          style="display: flex; align-items: center; background-color: #007bff; border: none; color: white; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px;">
+                          <i class="bx bx-image-add" style="margin-right: 5px;"></i> Upload Image 2
+                          <input type="file" name="image2" accept=".jpg, .png, image/jpeg, image/png" hidden
+                            onchange="previewImage(event, 'imagePreview2')">
+                        </label>
+                        <% if(product.images[1]) { %>
+                        <img id="imagePreview2" src="/uploadedImages/<%= product.images[1] %>" alt="Image 2 Preview" style="display: block; max-width: 100px;">
+                        <% } %>
+                      </div>
+                      <div class="image-upload">
+                        <label class="btn btn-primary"
+                          style="display: flex; align-items: center; background-color: #007bff; border: none; color: white; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px;">
+                          <i class="bx bx-image-add" style="margin-right: 5px;"></i> Upload Image 3
+                          <input type="file" name="image3" accept=".jpg, .png, image/jpeg, image/png" hidden
+                            onchange="previewImage(event, 'imagePreview3')">
+                        </label>
+                        <% if(product.images[2]) { %>
+                        <img id="imagePreview3" src="/uploadedImages/<%= product.images[2] %>" alt="Image 3 Preview" style="display: block; max-width: 100px;">
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-4" style="margin-top: 60px;">
+                    <h5 class="mb-3">Inventory</h5>
+
+                    <div class="row g-3">
+                      <!-- <div class="col-12">
+                        <label for="Collection" class="form-label">Price</label>
+                        <input type="text" class="form-control" id="Collection" placeholder="Enter Price">
+                      </div> -->
+
+                      <div class="d-flex gap-3">
+                        <div class="flex-fill">
+                          <label for="OriginalPrice" class="form-label">Selling Price</label>
+                          <input type="number" class="form-control" id="price" name="price" value="<%= product.price%>" placeholder="Enter Price">
+                          <div id="price-error" class="message" style="color: red;"></div>
+                        </div>
+                        <!-- <div class="flex-fill">
+                            <label for="DiscountedPrice" class="form-label">Discounted Price</label>
+                            <input type="text" class="form-control" id="DiscountedPrice" placeholder="Enter Discounted Price" oninput="calculateDiscount()">
+                        </div> -->
+                        <!-- <div class="flex-fill">
+                            <label for="DiscountPercentage" class="form-label">Discount Percentage</label>
+                            <input type="text" class="form-control" id="DiscountPercentage" placeholder="Discount Percentage" readonly>
+                        </div> -->
+                      </div>
+
+
+                      <!-- 
+                      <div class="col-12">
+                        <label for="Collection" class="form-label">Stock</label>
+                        <input type="text" class="form-control" id="Collection" placeholder="Enter Stock in Number">
+                      </div> -->
+
+                      <div style="margin-top: 40px;">
+                        <h5 style="margin-bottom: 20px;">Organize</h5>
+
+                        <div class="d-flex gap-3">
+                          <div class="flex-fill">
+                            <label for="AddCategory" class="form-label">Category</label>
+                            <select class="form-select" id="AddCategory" name="category">
+                              <% if(categoryData.length !== 0){ %>
+                              <% for(let i=0; i<categoryData.length; i++) { %>
+                              <option value="<%= categoryData[i].name %>" <% if (categoryData[i].name === product.category) { %> selected <% } %>><%= categoryData[i].name %></option>
+                              <% } %>
+                              <% } %>
+                            </select>
+                          </div>
+                          <div class="flex-fill">
+                            <label for="Brand" class="form-label">Brand</label>
+                            <input type="text" class="form-control" id="brand" name="brand"value="<%= product.brand%>"  placeholder="Enter Brand Name">
+                            <div id="brand-error" class="message" style="color: red;"></div>
+                          </div>
+                          <div class="flex-fill">
+                            <label for="Model" class="form-label">Model</label>
+                            <input type="text" class="form-control" id="model" name="model" value="<%= product.model%>" placeholder="Enter Model">
+                            <div id="model-error" class="message" style="color: red;"></div>
+                          </div>
+                        </div>
+
+                        <div class="col-12" style="margin-top: 40px;">
+                          <!-- <h5 class="mb-3">Additional Details</h5> -->
+                          <div class="d-flex gap-3">
+                            <div class="flex-fill">
+                              <label for="DialColor" class="form-label">Dial Color</label>
+                              <input type="text" class="form-control" id="dialColor" name="dialColor" value="<%= product.dialColor%>" placeholder="Enter Dial Color">
+                              <div id="dialColor-error" class="message" style="color: red;"></div>
+                            </div>
+                            <div class="flex-fill">
+                              <label for="StrapColor" class="form-label">Strap Color</label>
+                              <input type="text" class="form-control" id="strapColor" name="strapColor" value="<%= product.strapColor%>" placeholder="Enter Strap Color">
+                              <div id="strap-error" class="message" style="color: red;"></div>
+                            </div>
+                            <div class="flex-fill">
+                              <label for="InStock" class="form-label">In Stock</label>
+                              <input type="number" class="form-control" id="quantity" name="stock" value="<%= product.stock%>"
+                                placeholder="Enter Stock Quantity">
+                              <div id="stock-error" class="message" style="color: red;"></div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-3" style="margin-top: 80px;">
+                          <button type="button" class="btn btn-outline-danger flex-fill"><i
+                              class="bi bi-x-circle me-2"></i>Discard</button>
+                          <button id="savebutton" type="submit" class="btn btn-outline-success flex-fill"><i
+                              class="bi bi-cloud-download me-2"></i>Save</button>
+                        </div>
+
+                        <div class="col-12 col-lg-9">
+                          <div class="tab-content">
+
+                            <div class="tab-pane fade show active" id="Shipping">
+                              <div class="d-flex flex-column h-100">
+
+                                <div class="flex-1">
+
+                                </div>
+                                <div class="mb-4">
+                                  <div class="form-check mb-1">
+
+                                  </div>
+                                </div>
+                                <!-- <p class="fs--1 fw-semi-bold mb-0">See our <a class="fw-bold" href="#!">Delivery terms and conditions </a>for details.</p> -->
+                              </div>
+                            </div>
+
+
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-4">
+
+
+              </div>
+
+            </div><!--end row-->
+          </div>
+        </form>
+    </main>
+    <!--end main wrapper-->
+
+
+    <!--start overlay-->
+    <div class="overlay btn-toggle"></div>
+    <!--end overlay-->
+    <script>
+      function previewImage(event, imagePreviewId) {
+        const input = event.target;
+        const reader = new FileReader();
+        reader.onload = function () {
+          const dataURL = reader.result;
+          const imagePreview = document.getElementById(imagePreviewId);
+          imagePreview.src = dataURL;
+          imagePreview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    
+      document.getElementById('savebutton').addEventListener('click', async function (event) {
+        event.preventDefault();
+    
+        const form = document.getElementById('editProductForm');
+        let formData = new FormData(form);
+
+        formData.category =  document.getElementById('AddCategory').value;
+
+        const name = document.getElementById('name').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const price = document.getElementById('price').value.trim();
+        const brand = document.getElementById('brand').value.trim();
+        const model = document.getElementById('model').value.trim();
+        const dialColor = document.getElementById('dialColor').value.trim();
+        const strapColor = document.getElementById('strapColor').value.trim();
+        const stock = document.getElementById('quantity').value.trim();
+    
+        const nameRegex = /^[a-zA-Z0-9\s]+$/;
+        if (!nameRegex.test(name) || name.length < 5) {
+          showError('name-error', 'Name must be required and contain only alphabets, spaces, and numbers and at least 5 characters long.');
+          return;
+        } else {
+          hideError('name-error');
+        }
+    
+        const descriptionRegex = /^[a-zA-Z0-9\s!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]+$/;
+        if (!descriptionRegex.test(description) || description.length < 6) {
+          showError('description-error', 'Description must contain only alphabets, spaces, numbers, and symbols, and must be at least 6 characters long.')
+          return;
+        } else {
+          hideError('description-error');
+        }
+    
+        const priceRegex = /^\d+$/;
+        if (!priceRegex.test(price) || price <= 0) {
+          showError('price-error', 'Invalid Price!')
+          return;
+        } else {
+          hideError('price-error');
+        }
+    
+        const brandRegex = /^[a-zA-Z\s]+$/;
+        if (!brandRegex.test(brand) || brand.length < 4) {
+          showError('brand-error', 'Brand must contain only alphabets and spaces, and must be at least 4 characters long.')
+          return;
+        } else {
+          hideError('brand-error');
+        }
+    
+        const modelRegex = /^[a-zA-Z0-9\s-]{1,20}$/;
+        if (!modelRegex.test(model) || model.length < 1) {
+          showError('model-error', 'Model cannot be empty, cannot exceed 20 characters in length, and must contain only alphanumeric characters, spaces, or dashes.')
+          return;
+        } else {
+          hideError('model-error');
+        }
+    
+        const dialRegex = /^[a-zA-Z\s]+$/;
+        if (!dialRegex.test(dialColor) || dialColor.length < 3) {
+          showError('dialColor-error', 'Dial color cannot be empty and must only contain letters and spaces, and be at least 3 characters in length.')
+          return;
+        } else {
+          hideError('dialColor-error')
+        }
+    
+        const strapRegex = /^[a-zA-Z\s-]{3,30}$/;
+        if (!strapRegex.test(strapColor) || strapColor.length < 3) {
+          showError('strap-error', 'Strap color is invalid. Please use only letters, spaces, or dashes and ensure the length is between 3 and 30 characters.')
+          return;
+        } else {
+          hideError('strap-error')
+        }
+    
+        const stockRegex = /^\d+$/;
+        if (!stockRegex.test(stock) || stock < 0) {
+          showError('stock-error', 'Invalid stock value. Ensure it is a positive integer without any spaces or symbols.')
+          return;
+        } else {
+          hideError('stock-error')
+        }
+    
+        try {
+          const response = await fetch('/admin/editproduct', {
+            method: 'POST',
+            body: formData
+          });
+    
+          const data = await response.json();
+    
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: data.message
+            }).then(() => {
+              window.location.href = '/admin/products';
+            });
+          } else {
+            Swal.fire({
+              icon: 'warning',
+              title: data.warning
+            }).then(() => {
+              window.location.href = '/admin/products';
+            });
+          }
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'An error occurred',
+            text: error.warning
+          });
+        }
+      });
+    
+      function showError(errorId, message) {
+        let errorElement = document.getElementById(errorId);
+        errorElement.textContent = message;
+      }
+    
+      function hideError(errorId) {
+        let errorElement = document.getElementById(errorId);
+        errorElement.textContent = '';
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+
+       <%- include('../layouts/adminFooter.ejs') %>
