@@ -336,31 +336,9 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Add Address Modal
             $('#addAddressModal').on('shown.bs.modal', function () {
-                $('#add-address-form')[0].reset(); // Reset the form fields
+                $('#add-address-form')[0].reset();  
             });
-
-            // Edit Address Modal
-            // $('#editAddressModal').on('show.bs.modal', function (event) {
-            //     var button = $(event.relatedTarget);
-            //     var addressId = button.data('address-id');
-                // Fetch the address details using the addressId and populate the form
-                // For demo purposes, we'll just use static values
-            //     $('#edit-address-id').val(addressId);
-            //     $('#edit-name').val('Jane Doe');
-            //     $('#edit-phone').val('+1 234-567-8902');
-            //     $('#edit-pincode').val('62704');
-            //     $('#edit-locality').val('Suite 101');
-            //     $('#edit-address').val('456 Elm St');
-            //     $('#edit-city').val('Springfield');
-            //     $('#edit-state').val('IL');
-            //     $('#edit-landmark').val('Next to City Hall');
-            //     $('#edit-address-type').val('office');
-            // });
-
-       
-
     
             $('#add-address-form').on('submit', function(event) {
                 event.preventDefault();

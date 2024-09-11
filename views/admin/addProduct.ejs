@@ -1,65 +1,6 @@
 <%- include('../layouts/adminHeader.ejs') %>
+<%- include('../layouts/adminPanelSidebar.ejs') %>
  
-
-    <!--start sidebar-->
-    <aside class="sidebar-wrapper" data-simplebar="true">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <img src="/adminHomeAssets/images/logo-icon.png" class="logo-img" alt="">
-        </div>
-        <div class="logo-name flex-grow-1">
-          <h5 class="mb-0">Dashboard</h5>
-        </div>
-        <div class="sidebar-close">
-          <span class="material-icons-outlined">close</span>
-        </div>
-      </div>
-      <div class="sidebar-nav">
-        <!--navigation-->
-        <ul class="metismenu" id="sidenav">
-          <li>
-            <a href="javascript:;" class="has-arrow">
-              <div class="parent-icon"><i class="material-icons-outlined">home</i>
-              </div>
-              <div class="menu-title">Dashboard</div>
-            </a>
-            <ul>
-              <li><a href="index.html"><i class="material-icons-outlined">arrow_right</i>Analysis</a>
-              </li>
-              <li><a href="index2.html"><i class="material-icons-outlined">arrow_right</i>eCommerce</a>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <a href="javascript:;" class="has-arrow">
-              <div class="parent-icon"><i class="material-icons-outlined">people</i>
-              </div>
-              <div class="menu-title">Users</div>
-            </a>
-            <ul>
-              <li><a href="/admin/users"><i class="material-icons-outlined">arrow_right</i>Users List</a>
-              </li>
-              <li><a href="widgets-static.html"><i class="material-icons-outlined">arrow_right</i>User Details</a>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <a href="/admin/category" class="arrow_right">
-              <div class="parent-icon"><i class="material-icons-outlined">category</i>
-              </div>
-              <div class="menu-title">Category</div>
-            </a>
-          </li>
-          <li>
-            <a href="/admin/products" class="arrow_right">
-              <div class="parent-icon"><i class="material-icons-outlined">shopping_cart</i>
-              </div>
-              <div class="menu-title">products</div>
-            </a>
-          </li>
-      </div>
-    </aside>
-    <!--end sidebar-->
 
 
     <!--start main wrapper-->
@@ -120,6 +61,7 @@
                             </label>
                         </div>
                     </div>
+                    
                     <div id="image-previews" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
                 </div>
                 
@@ -130,8 +72,8 @@
                       <div style="max-width: 100%; max-height: 100%;">
                         <img id="imageToCrop" src="" alt="Image to Crop" style="max-width: 100%; max-height: 500px;">
                       </div>
-                      <button onclick="cropImage()" class="btn btn-success mt-3">Crop & Save</button>
-                      <button onclick="closeCropModal()" class="btn btn-secondary mt-3">Cancel</button>
+                      <button onclick="cropImage()" id="cropSave" class="btn btn-success mt-3">Crop & Save</button>
+                      <button onclick="closeCropModal()" id="cropCancel" class="btn btn-secondary mt-3">Cancel</button>
                     </div>
                   </div>
                   <div class="overlay btn-toggle" style="display: none;"></div>
@@ -166,19 +108,31 @@
                         <div class="d-flex gap-3">
                           <div class="flex-fill">
                             <label for="AddCategory" class="form-label">Category</label>
-                            <select class="form-select" id="AddCategory" name="category">
+                            <select class="form-select" id="addCategory" name="category">
                               <% if(categoryData.length !== 0){ %>
                               <% for(let i=0; i<categoryData.length; i++) { %>
-                              <option value="<%= categoryData[i].name %>"><%= categoryData[i].name %></option>
+                              <option value="<%= categoryData[i]._id %>"><%= categoryData[i].name %></option>
                               <% } %>
                               <% } %>
                             </select>
                           </div>
+
                           <div class="flex-fill">
+                            <label for="addBrand" class="form-label">Brand</label>
+                            <select class="form-select" id="addBrand" name="brand">
+                              <% if(brandData.length !== 0){ %>
+                              <% for(let i=0; i<brandData.length; i++) { %>
+                              <option value="<%= brandData[i]._id %>"><%= brandData[i].brandName %></option>
+                              <% } %>
+                              <% } %>
+                            </select>
+                          </div>
+
+                          <!-- <div class="flex-fill">
                             <label for="Brand" class="form-label">Brand</label>
                             <input type="text" class="form-control" id="brand" name="brand" placeholder="Enter Brand Name">
                             <div id="brand-error" class="message" style="color: red;"></div>
-                          </div>
+                          </div> -->
                           <div class="flex-fill">
                             <label for="Model" class="form-label">Model</label>
                             <input type="text" class="form-control" id="model" name="model" placeholder="Enter Model">
@@ -263,7 +217,18 @@
     <script>
 
 let selectedFiles = [];
+// let imageData = []
 let cropper;
+
+document.getElementById('cropSave',).addEventListener('click', async function(event) {
+  event.preventDefault();  
+});
+
+document.getElementById('cropCancel').addEventListener('click', async function(event){
+  event.preventDefault()
+});
+
+
 
 function handleFiles(event) {
   const files = Array.from(event.target.files);
@@ -274,13 +239,13 @@ function handleFiles(event) {
     return;
   }
 
-  selectedFiles = newFiles.slice(0, 10); // Limit the maximum number of images if needed
+  selectedFiles = newFiles.slice(0, 5);  
   updateImagePreviews();
 }
 
 function updateImagePreviews() {
   const previewContainer = document.getElementById('image-previews');
-  previewContainer.innerHTML = ''; // Clear existing previews
+  previewContainer.innerHTML = '';
 
   selectedFiles.forEach((file, index) => {
     const reader = new FileReader();
@@ -297,6 +262,7 @@ function updateImagePreviews() {
   });
 }
 
+
 function openCropModal(imageSrc, index) {
   const cropModal = document.getElementById('cropModal');
   const overlay = document.querySelector('.overlay');
@@ -306,19 +272,23 @@ function openCropModal(imageSrc, index) {
   cropModal.style.display = 'block';
   overlay.style.display = 'block';
 
+  if (cropper) {
+    cropper.destroy();
+  }
+
   cropper = new Cropper(imageToCrop, {
     aspectRatio: 1,
     viewMode: 1,
   });
 
-  cropModal.dataset.index = index; // Save the index of the image being cropped
+  cropModal.dataset.index = index;
 }
 
 function cropImage() {
-  const index = document.getElementById('cropModal').dataset.index;
+  const index = parseInt(document.getElementById('cropModal').dataset.index);
   const croppedCanvas = cropper.getCroppedCanvas();
   croppedCanvas.toBlob((blob) => {
-    const croppedFile = new File([blob], selectedFiles[index].name, { type: 'image/jpeg' });
+    const croppedFile = new File([blob], `cropped_image_${index}.jpg`, { type: 'image/jpeg' });
     selectedFiles[index] = croppedFile;
     updateImagePreviews();
     closeCropModal();
@@ -332,163 +302,110 @@ function closeCropModal() {
   cropModal.style.display = 'none';
   overlay.style.display = 'none';
 
-  cropper.destroy();
+  if (cropper) {
+    cropper.destroy();
+  }
 }
-
-
-//        let selectedImages = [];
-
-// function handleImageUpload(event) {
-//   const input = event.target;
-//   const files = Array.from(input.files);
-
-//   if (files.length < 3) {
-//     alert("Please select at least 3 images.");
-//     return;
-//   }
-
-//   const imagePreviews = document.getElementById('imagePreviews');
-//   imagePreviews.innerHTML = ''; // Clear previous images
-//   selectedImages = [];
-
-//   files.forEach((file, index) => {
-//     const reader = new FileReader();
-//     reader.onload = function (e) {
-//       const imgElement = document.createElement('img');
-//       imgElement.src = e.target.result;
-//       imgElement.style.maxWidth = '100px';
-//       imgElement.style.cursor = 'pointer';
-//       imgElement.addEventListener('click', () => openCropper(imgElement, index));
-//       imagePreviews.appendChild(imgElement);
-//       selectedImages.push(file); // Add file to selectedImages array
-//     };
-//     reader.readAsDataURL(file);
-//   });
-// }
-
-// function openCropper(imageElement, index) {
-//   const cropper = new Cropper(imageElement, {
-//     aspectRatio: 1, // Example aspect ratio, adjust as needed
-//     viewMode: 1,
-//     autoCropArea: 1,
-//     movable: true,
-//     crop(event) {
-//       console.log(event.detail.x);
-//       console.log(event.detail.y);
-//       console.log(event.detail.width);
-//       console.log(event.detail.height);
-//       console.log(event.detail.rotate);
-//       console.log(event.detail.scaleX);
-//       console.log(event.detail.scaleY);
-//     },
-//     cropend() {
-//       const croppedCanvas = cropper.getCroppedCanvas();
-//       croppedCanvas.toBlob((blob) => {
-//         selectedImages[index] = blob; // Replace original file with cropped image blob
-//         imageElement.src = croppedCanvas.toDataURL(); // Update image preview with cropped image
-//         cropper.destroy(); // Destroy cropper instance
-//       });
-//     }
-//   });
-// }
-
-      // function previewImage(event, imagePreviewId) {
-      //   const input = event.target;
-      //   const reader = new FileReader();
-      //   reader.onload = function () {
-      //     const dataURL = reader.result;
-      //     const imagePreview = document.getElementById(imagePreviewId);
-      //     imagePreview.src = dataURL;
-      //     imagePreview.style.display = 'block';
-      //   };
-      //   reader.readAsDataURL(input.files[0]);
-      // }
+ 
     
+      
       document.getElementById('savebutton').addEventListener('click', async function (event) {
         event.preventDefault();
-    
-        const form = document.getElementById('addProductForm');
-        let formData = new FormData(form);
 
-        formData.category =  document.getElementById('AddCategory').value;
+      const form = document.getElementById('addProductForm');
+      
 
         const name = document.getElementById('name').value.trim();
         const description = document.getElementById('description').value.trim();
         const price = document.getElementById('price').value.trim();
-        const brand = document.getElementById('brand').value.trim();
         const model = document.getElementById('model').value.trim();
         const dialColor = document.getElementById('dialColor').value.trim();
         const strapColor = document.getElementById('strapColor').value.trim();
         const stock = document.getElementById('quantity').value.trim();
-    
+
+  
         const nameRegex = /^[a-zA-Z0-9\s]+$/;
-        if (!nameRegex.test(name) || name.length < 5) {
-          showError('name-error', 'Name must be required and contain only alphabets, spaces, and numbers and at least 5 characters long.');
-          return;
-        } else {
-          hideError('name-error');
-        }
+    if (!nameRegex.test(name) || name.length < 5) {
+      showError('name-error', 'Name must be required and contain only alphabets, spaces, and numbers and at least 5 characters long.');
+      return;
+    } else {
+      hideError('name-error');
+    }
+
+    const descriptionRegex = /^[a-zA-Z0-9\s!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]+$/;
+    if (!descriptionRegex.test(description) || description.length < 6) {
+      showError('description-error', 'Description must contain only alphabets, spaces, numbers, and symbols, and must be at least 6 characters long.')
+      return;
+    } else {
+      hideError('description-error');
+    }
+
+    const priceRegex = /^\d+$/;
+    if (!priceRegex.test(price) || price <= 0) {
+      showError('price-error', 'Invalid Price!')
+      return;
+    } else {
+      hideError('price-error');
+    }
+
+    const modelRegex = /^[a-zA-Z0-9\s-]{1,20}$/;
+    if (!modelRegex.test(model) || model.length < 1) {
+      showError('model-error', 'Model cannot be empty, cannot exceed 20 characters in length, and must contain only alphanumeric characters, spaces, or dashes.')
+      return;
+    } else {
+      hideError('model-error');
+    }
+
+    const dialRegex = /^[a-zA-Z\s]+$/;
+    if (!dialRegex.test(dialColor) || dialColor.length < 3) {
+      showError('dialColor-error', 'Dial color cannot be empty and must only contain letters and spaces, and be at least 3 characters in length.')
+      return;
+    } else {
+      hideError('dialColor-error')
+    }
+
+    const strapRegex = /^[a-zA-Z\s-]{3,30}$/;
+    if (!strapRegex.test(strapColor) || strapColor.length < 3) {
+      showError('strap-error', 'Strap color is invalid. Please use only letters, spaces, or dashes and ensure the length is between 3 and 30 characters.')
+      return;
+    } else {
+      hideError('strap-error')
+    }
+
+    const stockRegex = /^\d+$/;
+    if (!stockRegex.test(stock) || stock < 0) {
+      showError('stock-error', 'Invalid stock value. Ensure it is a positive integer without any spaces or symbols.')
+      return;
+    } else {
+      hideError('stock-error')
+    }
+
+
+        
+        const formData = new FormData();
+        
+      selectedFiles.forEach((file, index) => {
+     formData.append('images', file, `image_${index}.jpg`);
+    });
+
+   
+    formData.append('name', document.getElementById('name').value);
+    formData.append('description', document.getElementById('description').value);
+    formData.append('price', document.getElementById('price').value);
+    formData.append('category', document.getElementById('addCategory').value);
+    formData.append('brand', document.getElementById('addBrand').value);
+    formData.append('model', document.getElementById('model').value);
+    formData.append('dialColor', document.getElementById('dialColor').value);
+    formData.append('strapColor', document.getElementById('strapColor').value);
+    formData.append('stock', document.getElementById('quantity').value);
     
-        const descriptionRegex = /^[a-zA-Z0-9\s!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]+$/;
-        if (!descriptionRegex.test(description) || description.length < 6) {
-          showError('description-error', 'Description must contain only alphabets, spaces, numbers, and symbols, and must be at least 6 characters long.')
-          return;
-        } else {
-          hideError('description-error');
-        }
     
-        const priceRegex = /^\d+$/;
-        if (!priceRegex.test(price) || price <= 0) {
-          showError('price-error', 'Invalid Price!')
-          return;
-        } else {
-          hideError('price-error');
-        }
-    
-        const brandRegex = /^[a-zA-Z\s]+$/;
-        if (!brandRegex.test(brand) || brand.length < 4) {
-          showError('brand-error', 'Brand must contain only alphabets and spaces, and must be at least 4 characters long.')
-          return;
-        } else {
-          hideError('brand-error');
-        }
-    
-        const modelRegex = /^[a-zA-Z0-9\s-]{1,20}$/;
-        if (!modelRegex.test(model) || model.length < 1) {
-          showError('model-error', 'Model cannot be empty, cannot exceed 20 characters in length, and must contain only alphanumeric characters, spaces, or dashes.')
-          return;
-        } else {
-          hideError('model-error');
-        }
-    
-        const dialRegex = /^[a-zA-Z\s]+$/;
-        if (!dialRegex.test(dialColor) || dialColor.length < 3) {
-          showError('dialColor-error', 'Dial color cannot be empty and must only contain letters and spaces, and be at least 3 characters in length.')
-          return;
-        } else {
-          hideError('dialColor-error')
-        }
-    
-        const strapRegex = /^[a-zA-Z\s-]{3,30}$/;
-        if (!strapRegex.test(strapColor) || strapColor.length < 3) {
-          showError('strap-error', 'Strap color is invalid. Please use only letters, spaces, or dashes and ensure the length is between 3 and 30 characters.')
-          return;
-        } else {
-          hideError('strap-error')
-        }
-    
-        const stockRegex = /^\d+$/;
-        if (!stockRegex.test(stock) || stock < 0) {
-          showError('stock-error', 'Invalid stock value. Ensure it is a positive integer without any spaces or symbols.')
-          return;
-        } else {
-          hideError('stock-error')
-        }
-    
+   
         try {
           const response = await fetch('/admin/addproduct', {
             method: 'POST',
-            body: formData
+           
+            body: formData,
           });
     
           const data = await response.json();
@@ -505,7 +422,7 @@ function closeCropModal() {
               icon: 'warning',
               title: data.warning
             }).then(() => {
-              // window.location.href = '/admin/products';
+             
             });
           }
         } catch (error) {

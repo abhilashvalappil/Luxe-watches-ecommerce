@@ -7,6 +7,7 @@ const config = require('../config/config');
 const userController = require("../controllers/userControllers/userController");
 const cartController = require("../controllers/userControllers/cartController");
 const shopController = require("../controllers/userControllers/shopController");
+const orderController = require("../controllers/userControllers/orderController");
 const auth = require('../middleware/auth');
 const nodemailer = require('nodemailer');
 const passport = require('passport');
@@ -78,15 +79,18 @@ user_route.post('/add-address',userController.addAddress);
 user_route.post('/edit-address', userController.editAddress);
 user_route.post('/delete-address', userController.deleteAddress)
 
-user_route.get('/wishlist',userController.loadWishlist);
+user_route.get('/wishlist',cartController.loadWishlist);
+user_route.get('/get-wishlist',cartController.getWishlist);
+user_route.post('/addToWishlist',cartController.addToWishlist);
+user_route.post('/removeFromWishlist',cartController.removeFromWishlist);
 
 user_route.get('/cart',cartController.loadCart);
 user_route.post('/addToCart', cartController.addToCart);
 user_route.post('/removeFromCart',cartController.removeFromCart);
-user_route.post('/updateQuantity',cartController.updateQuantity)
-user_route.post('/update-cart', cartController.updateCart)
+user_route.post('/update-Quantity',cartController.updateQuantity)
+// user_route.post('/update-cart', cartController.updateCart)
 
-user_route.get('/checkout',auth.isLogin,cartController.loadCheckout);
+user_route.get('/checkout',auth.isLogin,orderController.loadCheckout);
  
 user_route.get('/forgotpassword',userController.forgotPasswordLoad)
 user_route.post('/forgotpassword',userController.forgotPassword);
@@ -94,8 +98,26 @@ user_route.post('/forgotpassword',userController.forgotPassword);
 user_route.get('/resetPassword',userController.resetPasswordLoad);
 user_route.post('/resetPassword',userController.resetPassword);
 
-user_route.post('/place-order/',cartController.placeOrder)
-user_route.get('/show-orderConfirm/:orderid',cartController.loadOrderConfirm)
-user_route.get('/orders',cartController.loadOrders)
+user_route.post('/place-order/',orderController.placeOrder)
+user_route.get('/show-orderConfirm/:orderid',orderController.loadOrderConfirm)
+user_route.get('/orders',orderController.loadOrders)
+
+user_route.post('/verifyPayment',orderController.verifyPayment);
+
+
+
+user_route.get('/order-details/:order_id',orderController.orderDetails);
+
+user_route.post('/cancel-order/:order_id',orderController.cancelOrder);
+// user_route.post('/return-order/:order_id',orderController.requestReturn);
+user_route.post('/return-order',orderController.requestReturn);
+
+user_route.get('/cancel-confirm',orderController.cancelConfirm);
+
+user_route.post('/filter-product',shopController.productFilter);
+
+user_route.get('/wallet',orderController.loadWallet)
+
+user_route.get('/coupons',shopController.loadCoupons);
 
 module.exports = user_route; 

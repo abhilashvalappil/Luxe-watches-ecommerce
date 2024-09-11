@@ -1,64 +1,5 @@
 <%- include('../layouts/adminHeader.ejs') %>
-
-    <!--start sidebar-->
-    <aside class="sidebar-wrapper" data-simplebar="true">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <img src="/adminHomeAssets/images/logo-icon.png" class="logo-img" alt="">
-        </div>
-        <div class="logo-name flex-grow-1">
-          <h5 class="mb-0">Dashboard</h5>
-        </div>
-        <div class="sidebar-close">
-          <span class="material-icons-outlined">close</span>
-        </div>
-      </div>
-      <div class="sidebar-nav">
-        <!--navigation-->
-        <ul class="metismenu" id="sidenav">
-          <li>
-            <a href="javascript:;" class="has-arrow">
-              <div class="parent-icon"><i class="material-icons-outlined">home</i>
-              </div>
-              <div class="menu-title">Dashboard</div>
-            </a>
-            <ul>
-              <li><a href="index.html"><i class="material-icons-outlined">arrow_right</i>Analysis</a>
-              </li>
-              <li><a href="index2.html"><i class="material-icons-outlined">arrow_right</i>eCommerce</a>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <a href="javascript:;" class="has-arrow">
-              <div class="parent-icon"><i class="material-icons-outlined">people</i>
-              </div>
-              <div class="menu-title">Users</div>
-            </a>
-            <ul>
-              <li><a href="/admin/users"><i class="material-icons-outlined">arrow_right</i>Users List</a>
-              </li>
-              <li><a href="widgets-static.html"><i class="material-icons-outlined">arrow_right</i>User Details</a>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <a href="/admin/category" class="arrow_right">
-              <div class="parent-icon"><i class="material-icons-outlined">category</i>
-              </div>
-              <div class="menu-title">Category</div>
-            </a>
-          </li>
-          <li>
-            <a href="/admin/products" class="arrow_right">
-              <div class="parent-icon"><i class="material-icons-outlined">shopping_cart</i>
-              </div>
-              <div class="menu-title">products</div>
-            </a>
-          </li>
-      </div>
-    </aside>
-    <!--end sidebar-->
+<%- include('../layouts/adminPanelSidebar.ejs') %>
 
 
     <!--start main wrapper-->
@@ -178,16 +119,28 @@
                             <select class="form-select" id="AddCategory" name="category">
                               <% if(categoryData.length !== 0){ %>
                               <% for(let i=0; i<categoryData.length; i++) { %>
-                              <option value="<%= categoryData[i].name %>" <% if (categoryData[i].name === product.category) { %> selected <% } %>><%= categoryData[i].name %></option>
+                              <option value="<%= categoryData[i]._id %>" <% if (categoryData[i]._id === product.category) { %> selected <% } %>><%= categoryData[i].name %></option>
                               <% } %>
                               <% } %>
                             </select>
                           </div>
+
                           <div class="flex-fill">
-                            <label for="Brand" class="form-label">Brand</label>
-                            <input type="text" class="form-control" id="brand" name="brand"value="<%= product.brand%>"  placeholder="Enter Brand Name">
-                            <div id="brand-error" class="message" style="color: red;"></div>
+                            <label for="addBrand" class="form-label">Brand</label>
+                            <select class="form-select" id="addBrand" name="brand">
+                              <% if(brandData.length !== 0){ %>
+                              <% for(let i=0; i<brandData.length; i++) { %>
+                              <option value="<%= brandData[i]._id %>" <% if (brandData[i]._id === product.brand) { %> selected <% } %>><%= brandData[i].brandName %></option>
+                              <% } %>
+                              <% } %>
+                            </select>
                           </div>
+
+                          <!-- <div class="flex-fill">
+                            <label for="Brand" class="form-label">Brand</label>
+                            <input type="text" class="form-control" id="brand" name="brand"value=""  placeholder="Enter Brand Name">
+                            <div id="brand-error" class="message" style="color: red;"></div>
+                          </div> -->
                           <div class="flex-fill">
                             <label for="Model" class="form-label">Model</label>
                             <input type="text" class="form-control" id="model" name="model" value="<%= product.model%>" placeholder="Enter Model">
@@ -285,11 +238,10 @@
         let formData = new FormData(form);
 
         formData.category =  document.getElementById('AddCategory').value;
-
+        formData.brand = document.getElementById('addBrand').value;
         const name = document.getElementById('name').value.trim();
         const description = document.getElementById('description').value.trim();
         const price = document.getElementById('price').value.trim();
-        const brand = document.getElementById('brand').value.trim();
         const model = document.getElementById('model').value.trim();
         const dialColor = document.getElementById('dialColor').value.trim();
         const strapColor = document.getElementById('strapColor').value.trim();
@@ -317,14 +269,6 @@
           return;
         } else {
           hideError('price-error');
-        }
-    
-        const brandRegex = /^[a-zA-Z\s]+$/;
-        if (!brandRegex.test(brand) || brand.length < 4) {
-          showError('brand-error', 'Brand must contain only alphabets and spaces, and must be at least 4 characters long.')
-          return;
-        } else {
-          hideError('brand-error');
         }
     
         const modelRegex = /^[a-zA-Z0-9\s-]{1,20}$/;

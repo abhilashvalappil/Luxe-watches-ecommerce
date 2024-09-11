@@ -8,6 +8,7 @@ const Product = require('../../models/productModel');
 const Address = require('../../models/addressModel');
 const user_route = require('../../routes/userRoute');
 const Cart = require('../../models/cartModel');
+const Wallet = require('../../models/walletModel');
 const mongoose = require('mongoose')
 const { ObjectId } = require('mongodb');
 
@@ -320,6 +321,8 @@ const loadHomePage = async (req, res) => {
     try {
 
         const user = req?.session?.user_id;
+        const products = await Product.find(
+            {stock:{$gt:0}}).limit(8)
         if (!user) {
             return res.render('home', { user });
         } else {
@@ -330,7 +333,7 @@ const loadHomePage = async (req, res) => {
             } else {
 
 
-                res.render('home', { user, title: 'home page' });
+                res.render('home', { user,products, title: 'home page' });
             }
         }
 
@@ -623,17 +626,6 @@ const deleteAddress = async (req, res) => {
 
 }
 
-
-const loadWishlist = async (req, res) => {
-    try {
-        const user = req?.session?.user_id;
-
-        res.render('wishlist', { user })
-    } catch (error) {
-
-    }
-}
-
 const forgotPasswordLoad = async (req, res) => {
     try {
         res.render('forgotpassword')
@@ -702,9 +694,12 @@ const resetPassword = async(req,res) => {
     }
 
     } catch (error) {
-        console.log(error)
+        console.error(error)
     }
 }
+
+
+
 
 
 
@@ -726,14 +721,13 @@ module.exports = {
     editProfile,
     loadAddress,
     addAddress,
-    loadWishlist,
     editAddress,
     deleteAddress,
     forgotPasswordLoad,
     forgotPassword,
     resetPasswordLoad,
     resetPassword,
-
+    
 }
 
 

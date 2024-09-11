@@ -12,7 +12,7 @@ const orderSchema = new mongoose.Schema({
             required: true
         },
         quantity:{
-            type: Number,
+            type: Number,   
             required: true,
             default: 1
         },
@@ -27,22 +27,34 @@ const orderSchema = new mongoose.Schema({
         orderStatus:{
             type: String,
             default: 'Pending',
-            enum:['Pending','Processing','Shipped','Delivered','Cancelled','Returned'] 
+            enum:['Pending','Processing','Order confirmed','Failed','Shipped','Delivered','Cancelled','Return requested','Returned'] 
         },
+        returnReason:{
+            type: String,
+        },
+        returnStatus:{
+            type: String,
+            enum:['approved','rejected']
+        }
 
     }],
     paymentMethod:{
         type: String,
         default: 'cash',
-        enum: ['cash', 'RazorPay', 'Wallet']
+        enum: ['cash','Razorpay','Wallet']
+    },
+    razorpayOrderId: {
+        type: String,
+        required: false
     },
     paymentStatus:{
         type:String,
-        default: 'Pending'
+        default: 'Pending',
+        enum: ['Pending', 'Processing', 'Completed', 'Failed', 'Refunded']
     },
     orderDate:{
         type: Date,
-        default: Date.now
+        default: Date.now(),
     },
     address:{
         Name:{

@@ -35,10 +35,6 @@ const productSchema = new mongoose.Schema({
     strapColor:{
         type:String
     },
-    stock:{
-        type:Number,
-        required:true,
-    },
     images:[{
         type:String,
         required:true

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Order Details</h2>
+
+        <!-- Order Summary -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Order Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Order Number:</strong> #123456</p>
+                        <p><strong>Order Date:</strong> August 1, 2024</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Order Status:</strong> Delivered</p>
+                        <p><strong>Delivery Date:</strong> August 5, 2024</p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Total Amount:</strong> ₹5000</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Address -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Shipping Address</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>John Doe</strong></p>
+                <p>1234 Main St, Apt 101</p>
+                <p>City, State, 56789</p>
+                <p>Country</p>
+                <p><strong>Phone:</strong> +1234567890</p>
+            </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Payment Method</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Payment Method:</strong> Credit Card</p>
+                <p><strong>Card Type:</strong> Visa</p>
+                <p><strong>Card Ending:</strong> **** 1234</p>
+                <p><strong>Payment Status:</strong> Paid</p>
+            </div>
+        </div>
+
+        <!-- Ordered Items -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Ordered Items</h5>
+            </div>
+            <div class="card-body">
+                <!-- Item 1 -->
+                <div class="row mb-4">
+                    <div class="col-md-2">
+                        <img src="https://via.placeholder.com/100" alt="Product Image" class="img-fluid">
+                    </div>
+                    <div class="col-md-8">
+                        <h6>Product Name 1</h6>
+                        <p>Color: Black</p>
+                        <p>Quantity: 2</p>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <span class="fw-bold">₹1000</span>
+                    </div>
+                </div>
+                <hr>
+                <!-- Item 2 -->
+                <div class="row mb-4">
+                    <div class="col-md-2">
+                        <img src="https://via.placeholder.com/100" alt="Product Image" class="img-fluid">
+                    </div>
+                    <div class="col-md-8">
+                        <h6>Product Name 2</h6>
+                        <p>Color: Silver</p>
+                        <p>Quantity: 1</p>
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <span class="fw-bold">₹4000</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                <h5>Total: ₹5000</h5>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

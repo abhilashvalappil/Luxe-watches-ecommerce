@@ -1,50 +1,102 @@
+
+<%- include('../layouts/navbar.ejs') %>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders List</title>
-    <!-- Bootstrap CSS -->
+    <title>My Orders</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
-    <div class="container my-5">
-        <h2 class="text-center mb-4">My Orders</h2>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>SL.No</th>
-                        <th>Products</th>
-                        <!-- <th>Date</th> -->
-                        <th>Total Price</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% order.forEach(function (orderItem, index) { %>
-                        <% orderItem.orderedItems.forEach(function(item, itemIndex) { %>
-                        <tr>
-                            <td><%= index + 1 %></td>
-                            <td><%=item.productId.name %></td>  
-    
-                            <td>$<%= item.totalPrice %></td>
-                            <td><span class="badge bg-<%= item.orderStatus === 'Delivered' ? 'success' : item.orderStatus === 'Pending' ? 'warning' : 'danger' %>"><%= item.orderStatus %></span></td>
-                            <td><a href="/order/details/<%= orderItem._id %>" class="btn btn-primary btn-sm">View Details</a></td>
-                        </tr>
-                        <% }) %>
-                    <% }) %>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <div class="container mt-5">
+        <h2 class="mb-4">My Orders</h2>
+        <% order.forEach(function (orderItem, index) { %>
+            <% orderItem.orderedItems.forEach(function(item, itemIndex) { %>
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <img src="/uploadedImages/<%= item.productId.images[0] %>" alt="Product Image" class="img-fluid">
+                            </div>
+                            <div class="col-md-6">
+                                <h5><%= item.productId.name %></h5>
+                                <p>Color: <%= item.productId.strapColor %></p>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <span class="fw-bold">₹<%= item.totalPrice %></span>
+                            </div>
+                            <div class="col-md-2">
+                                <span 
+                                class="badge 
+                                <% if (item.orderStatus === 'Cancelled') { %>
+                                    bg-danger
+                                <% } else if (item.orderStatus === 'Delivered') { %>
+                                    bg-success
+                                <% } else { %>
+                                    bg-warning text-dark
+                                <% } %>">
+                                <%= item.orderStatus %>
+                            </span>
+                                <!-- <p class="text-success">Delivery expected by </p> -->
+                              </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-md-12">
+                                <!-- Delivery status -->
+                                <% if (item.orderStatus === 'Delivered') { %>
+                                    <span class="badge bg-success">Delivery expected by <%= orderItem.deliveryDate %></span>
+                                    <p class="text-success">Your Order has been placed.</p>
+                                <% } else if (item.orderStatus === 'Shipped') { %>
+                                    <span class="badge bg-warning text-dark">Shipped</span>
+                                    <p class="text-warning">Your item has been shipped.</p>
+                                <% } else if (item.orderStatus === 'Cancelled') { %>
+                                    <span class="badge bg-danger">Cancelled on <%= orderItem.cancellationDate %></span>
+                                    <p class="text-danger">You requested a cancellation due to quality issues with the product.</p>
+                                <% } %>
+                            </div>
+                        </div>
+                         <div class="row mt-3">
+                            <div class="col-md-12 text-end">
+                                <!-- View Order Details Button -->
+                                <a href="/order-details/<%= orderItem._id %>" class="btn btn-primary">View Order Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        <% }) %>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <% if (currentPage > 1) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/orders?page=<%= currentPage - 1 %>&limit=<%= limit %>">Previous</a>
+                    </li>
+                <% } %>
+
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                        <a class="page-link" href="/orders?page=<%= i %>&limit=<%= limit %>"><%= i %></a>
+                    </li>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="/orders?page=<%= currentPage + 1 %>&limit=<%= limit %>">Next</a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
+
+<%- include('../layouts/footer.ejs') %>

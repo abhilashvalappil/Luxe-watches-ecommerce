@@ -85,6 +85,7 @@
         .footer a {
             text-decoration: none;
             color: #fff;
+            margin-bottom: 20px;
         }
 
         .more-actions .btn {
@@ -114,7 +115,7 @@
             <p>Your 1 item will be delivered by <strong>Sun, Aug 18th '24</strong>.</p>
         </div>
 
-        <div class="row">
+        <div class="row justify-content-center">
             <!-- Left Column -->
             <div class="col-md-8">
                 <!-- Delivery Address -->
@@ -124,7 +125,6 @@
                     <p><%= order.address.address  %><br><%= order.address.city  %></p>
                     <p><%= order.address.Mobile  %></p>
                     <p>This order is also tracked by <%= order.address.Mobile  %></p>
-                    <button class="btn btn-link">Change</button>
                 </div>
 
                 <!-- Order Summary -->
@@ -142,37 +142,37 @@
                     </div>
                     <% }) %>
 
-                    <p class="text-muted">Delivery requires an OTP</p>
+                    <!-- <p class="text-muted">Delivery requires an OTP</p> -->
                     <div class="d-flex justify-content-between">
                         <button class="btn btn-outline-danger">Cancel</button>
-                        <button class="btn btn-outline-primary">Chat with us</button>
+                        <!-- <button class="btn btn-outline-primary">Chat with us</button> -->
                     </div>
                 </div>
             </div>
 
             <!-- Right Column -->
-            <div class="col-md-4">
+            <!-- <div class="col-md-4"> -->
                 <!-- Rewards Section -->
-                <div class="order-container rewards-section">
+                <!-- <div class="order-container rewards-section">
                     <h5>Your Rewards</h5>
                     <ul>
                         <li>12 SuperCoins Cashback</li>
                         <li>Early Access to this Sale</li>
                     </ul>
-                </div>
+                </div> -->
 
                 <!-- More Actions -->
-                <div class="order-container more-actions">
+                <!-- <div class="order-container more-actions">
                     <button class="btn btn-outline-primary">Prefer contactless delivery?</button>
                     <button class="btn btn-outline-primary">Pay Now</button>
                     <button class="btn btn-outline-primary">Manage</button>
                 </div>
-            </div>
+            </div> -->
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            <a href="#" class="btn btn-primary">Go to My Orders</a>
+            <a href="/orders" class="btn btn-primary">Go to My Orders</a>
         </div>
     </div>
 

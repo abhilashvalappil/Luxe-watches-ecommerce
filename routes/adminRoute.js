@@ -1,6 +1,7 @@
 const express = require('express');
 const admin_route = express();
 const adminController = require('../controllers/adminControllers/adminController');
+const couponController = require('../controllers/adminControllers/couponController');
 const session = require('express-session');
 const config = require('../config/config');
 const path = require('path');
@@ -37,6 +38,12 @@ admin_route.put('/listcategory/:categoryId',adminController.listCategory)
 admin_route.get('/editcategory/:categoryId',adminController.loadEditCategory);
 admin_route.put('/editcategory/:categoryId',adminController.editCategory);
 
+admin_route.get('/brand',adminController.loadBrand);
+admin_route.get('/add-brand',adminController.loadAddBrand);
+admin_route.post('/add-brand',adminController.addBrand);
+admin_route.put('/listbrand/:brandId',adminController.listBrand);
+admin_route.get('/edit-brand/:brandId',adminController.loadEditBrand);
+admin_route.put('/edit-brand/:brandId',adminController.editBrand);
 
 admin_route.get('/products',adminController.loadProducts);
 admin_route.get('/addproduct',adminController.loadAddProduct);
@@ -44,5 +51,20 @@ admin_route.post('/addproduct',upload,adminController.addProduct)
 admin_route.put('/listproduct/:productId',adminController.listProduct);
 admin_route.get('/editproduct',adminController.editProductLoad);
 admin_route.post('/editproduct',upload,adminController.editProduct);
+
+admin_route.get('/orders',adminController.loadOrders);
+admin_route.post('/update-orderstatus',adminController.orderStatusUpdate);
+
+admin_route.get('/order-details/:order_id',adminController.orderDetailsLoad);
+
+admin_route.get('/return-requests',adminController.loadreturnRequests);
+admin_route.post('/update-return-status',adminController.returnStatus);
+
+admin_route.get('/coupon-management', couponController.loadCouponManagement);
+admin_route.post('/add-coupon',couponController.addCoupon);
+// admin_route.patch('/coupons/list',couponController.listCoupon);
+admin_route.put('/toggle-coupon-status/:couponId', couponController.listCoupon);
+
+ 
 
 module.exports = admin_route;

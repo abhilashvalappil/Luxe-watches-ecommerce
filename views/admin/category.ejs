@@ -1,74 +1,25 @@
  
  <%- include('../layouts/adminHeader.ejs') %>
-
+ <%- include('../layouts/adminPanelSidebar.ejs') %>
  
- 
- <!--start sidebar-->
- <aside class="sidebar-wrapper" data-simplebar="true">
-   <div class="sidebar-header">
-     <div class="logo-icon">
-       <img src="assets/images/logo-icon.png" class="logo-img" alt="">
-     </div>
-     <div class="logo-name flex-grow-1">
-       <h5 class="mb-0">Dashboard</h5>
-     </div>
-     <div class="sidebar-close">
-       <span class="material-icons-outlined">close</span>
-     </div>
-   </div>
-   <div class="sidebar-nav">
-       <!--navigation-->
-       <ul class="metismenu" id="sidenav">
-         <li>
-           <a href="javascript:;" class="has-arrow">
-             <div class="parent-icon"><i class="material-icons-outlined">home</i>
-             </div>
-             <div class="menu-title">Dashboard</div>
-           </a>
-           <ul>
-             <li><a href="index.html"><i class="material-icons-outlined">arrow_right</i>Analysis</a>
-             </li>
-             <li><a href="index2.html"><i class="material-icons-outlined">arrow_right</i>eCommerce</a>
-             </li>
-           </ul>
-         </li>
-         <li>
-          <a href="javascript:;" class="has-arrow">
-            <div class="parent-icon"><i class="material-icons-outlined">people</i>
-            </div>
-            <div class="menu-title">Users</div>
-          </a>
-          <ul>
-            <li><a href="/admin/users"><i class="material-icons-outlined">arrow_right</i>Users List</a>
-            </li>
-            <li><a href="widgets-static.html"><i class="material-icons-outlined">arrow_right</i>User Details</a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="/admin/category" class="arrow_right" >
-            <div class="parent-icon"><i class="material-icons-outlined">category</i>
-            </div>
-            <div class="menu-title">Category</div>
-          </a>
-          </li>
-          <li>
-            <a href="/admin/products" class="arrow_right" >
-              <div class="parent-icon"><i class="material-icons-outlined">shopping_cart</i>
-              </div>
-              <div class="menu-title">products</div>
-            </a>
-          </li>
-           
-   </div>
- </aside> 
- <!--end sidebar-->
  
  
    <!--start main wrapper-->
    <main class="main-wrapper">
      <div class="main-content">
-       
+        <!--breadcrumb-->
+      <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+        <div class="breadcrumb-title pe-3">LuxeWatches</div>
+        <div class="ps-3">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 p-0">
+              <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+              </li>
+              <li class="breadcrumb-item active" aria-current="page">Categories</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
  
          <div class="row g-3">
           
@@ -106,7 +57,7 @@
              <div class="customer-table">
                <div class="table-responsive white-space-nowrap">
                   <table class="table align-middle">
-                   <thead class="table-light">     
+                   <thead style="background-color: #343a40 ;font-weight: bold ;font-size: 16px;">  
                      <tr>
                        <th>
                          <input class="form-check-input" type="checkbox">

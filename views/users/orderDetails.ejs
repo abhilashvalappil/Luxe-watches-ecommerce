@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .progress-bar-striped {
+            background: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, rgba(0,0,0,0.2) 50%, rgba(255,255,255,0.2) 75%);
+            background-size: 40px 40px;
+            animation: progress-bar-stripes 1s linear infinite;
+        }
+
+        @keyframes progress-bar-stripes {
+            from {
+                background-position: 40px 0;
+            }
+            to {
+                background-position: 0 0;
+            }
+        }
+
+        .status-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .status-completed {
+            background-color: #28a745; /* Green for completed statuses */
+        }
+
+        .status-pending {
+            background-color: #ffc107; /* Yellow for pending statuses */
+        }
+
+        .status-cancelled {
+            background-color: #dc3545; /* Red for cancelled statuses */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Order Details</h2>
+
+        <!-- Order Summary -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Order Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <p><strong>Order Number:</strong> <%= order._id %></p>
+                        <p><strong>Order Date:</strong> <%= new Date(order.orderDate).toLocaleDateString() %></p>
+                    </div>
+                    <div class="col-md-4">
+                        <p><strong>Total Amount:</strong> ₹<%= order.totalPrice %></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Address -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Shipping Address</h5>
+            </div>
+            <div class="card-body">
+                <p><strong><%= order.address.Name %></strong></p>
+                <p><%= order.address.address %>, <%= order.address.Locality %></p>
+                <p><%= order.address.city %>, <%= order.address.state %> - <%= order.address.PIN %></p>
+                <p><strong>Phone:</strong> +91<%= order.address.Mobile %></p>
+            </div>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Payment Method</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
+                <p><strong>Payment Status:</strong> <%= order.paymentStatus %></p>
+            </div>
+        </div>
+
+        <!-- Ordered Items -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Ordered Items</h5>
+            </div>
+            <div class="card-body">
+                <% order.orderedItems.forEach(item => { %>
+                <div class="row mb-4">
+                    <div class="col-md-2">
+                        <img src="/uploadedImages/<%= item.productId.images[0] %>" alt="Product Image" class="img-fluid">
+                    </div>
+                    <div class="col-md-10">
+                        <h6><%= item.productId.name %></h6>
+                        <p><%= item.productId.strapColor %></p>
+                        <p>Quantity: <%= item.quantity %></p>
+                        <p>Price per Unit: ₹<%= item.price %></p>
+                        <p>Total Price: ₹<%= item.price * item.quantity %></p>
+                        <p>Status: <%= item.orderStatus %></p>
+
+                        <!-- Order Status Bar -->
+                        <div class="d-flex justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="status-icon <% if(item.orderStatus === 'Cancelled') { %> status-cancelled <% } else if(item.orderStatus !== 'Pending') { %> status-completed <% } %>">1</div>
+                                <div class="ms-3">Order Placed</div>
+                            </div>
+                            <% if(item.orderStatus === 'Cancelled') { %>
+                            <div class="d-flex align-items-center">
+                                <div class="status-icon status-cancelled">2</div>
+                                <div class="ms-3">Cancelled</div>
+                            </div>
+                            <% } else { %>
+                            <div class="d-flex align-items-center">
+                                <div class="status-icon <% if(item.orderStatus === 'Shipped') { %> status-completed <% } else { %> status-pending <% } %>">2</div>
+                                <div class="ms-3">Shipped</div>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="status-icon <% if(item.orderStatus === 'Delivered') { %> status-completed <% } else { %> status-pending <% } %>">3</div>
+                                <div class="ms-3">Delivered</div>
+                            </div>
+                            <% } %>
+                        </div>
+                        <div class="progress mt-2">
+                            <% let progress = item.orderStatus === 'Delivered' ? 100 : item.orderStatus === 'Shipped' ? 66 : item.orderStatus === 'Cancelled' ? 0 : 33; %>
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: <%= progress %>%"></div>
+                        </div>
+
+                        <!-- Cancel Order Button -->
+                        <% if (item.orderStatus === 'Pending' || item.orderStatus === 'Processing' || item.orderStatus === 'Shipped') { %>
+                            <form id="cancelForm-<%= order._id %>-<%= item.productId._id %>" action="/cancel-order/<%= order._id %>" method="POST">
+                                <input type="hidden" name="productId" value="<%= item.productId._id %>">
+                                <button id="cancel-btn" type="submit" class="btn btn-danger mt-2" onclick="confirmCancel('<%= order._id %>', '<%= item.productId._id %>')">Cancel Order</button>
+                            </form>
+                        <% } %> 
+                        
+
+                        <!-- Return Order Button -->
+                        <% if (item.orderStatus === 'Delivered' && (item.returnStatus !== 'rejected' && item.returnStatus !== 'approved')) { %>
+                            
+                            <button type="button" class="btn btn-warning btn-sm" onclick="returnOrder('<%= order._id %>', '<%= item.productId._id %>')">Return</button>
+                        <% } %>
+                    </div>
+                </div>
+                <hr>
+                <% }) %>
+            </div>
+            <div class="card-footer text-end">
+                <h5>Total Order Amount: ₹<%= order.totalPrice %></h5>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
+<script>
+
+document.getElementById('cancel-btn').addEventListener('click',async function(event){
+    event.preventDefault()
+})
+    function confirmCancel(orderId, productId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you really want to cancel this order?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, cancel it!',
+            cancelButtonText: 'No, keep it'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(`cancelForm-${orderId}-${productId}`).submit();
+                window.location.href = '/cancel-confirm'
+            }
+        });
+    }
+
+
+
+    function returnOrder(orderId, productId) {
+        Swal.fire({
+            title: 'Return Order',
+            input: 'textarea',
+            inputPlaceholder: 'Enter your reason for return.',
+            inputAttributes: {
+                'aria-label': 'Type your reason here'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Submit',
+            cancelButtonText: 'Cancel',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'You need to write return reason!';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed && result.value) {
+                fetch('/return-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        orderId: orderId,
+                        productId: productId, 
+                        reason: result.value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    Swal.fire('Submitted!', 'Your return request has been submitted.', 'success').then(() => {
+                        window.location.reload(); 
+                     });
+                })
+                .catch(error => {
+                    console.error('Error returning the order:', error);
+                    Swal.fire('Failed!', 'Your return request could not be processed.', 'error');
+                });
+            }
+        });
+    }
+
+    </script>
+    

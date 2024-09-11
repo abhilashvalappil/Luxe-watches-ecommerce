@@ -1,61 +1,7 @@
 <%- include('../layouts/adminHeader.ejs') %>
-
+<%- include('../layouts/adminPanelSidebar.ejs') %>
   <body>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
- 
-    <!--start sidebar-->
-    <aside class="sidebar-wrapper" data-simplebar="true">
-      <div class="sidebar-header">
-        <div class="logo-icon">
-          <img src="/adminHomeAssets/images/logo-icon.png" class="logo-img" alt="">
-        </div>
-        <div class="logo-name flex-grow-1">
-          <h5 class="mb-0">Dashboard</h5>
-        </div>
-        <div class="sidebar-close">
-          <span class="material-icons-outlined">close</span>
-        </div>
-      </div>
-      <div class="sidebar-nav">
-        <!--navigation-->
-        <ul class="metismenu" id="sidenav">
-          <li>
-            <a href="javascript:;" class="has-arrow">
-              <div class="parent-icon"><i class="material-icons-outlined">home</i>
-              </div>
-              <div class="menu-title">Dashboard</div>
-            </a>
-            <ul>
-              <li><a href="index.html"><i class="material-icons-outlined">arrow_right</i>Analysis</a>
-              </li>
-              <li><a href="index2.html"><i class="material-icons-outlined">arrow_right</i>eCommerce</a>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <a href="javascript:;" class="has-arrow">
-              <div class="parent-icon"><i class="material-icons-outlined">widgets</i>
-              </div>
-              <div class="menu-title">Users</div>
-            </a>
-            <ul>
-              <li><a href="/admin/users"><i class="material-icons-outlined">arrow_right</i>Users List</a>
-              </li>
-              <li><a href="widgets-static.html"><i class="material-icons-outlined">arrow_right</i>User Details</a>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <a href="/admin/category" class="arrow_right">
-              <div class="parent-icon"><i class="material-icons-outlined">category</i>
-              </div>
-              <div class="menu-title">Category</div>
-            </a>
-          </li>
-      </div>
-    </aside>
-    <!--end sidebar-->
-
 
     <!--start main wrapper-->
     <main class="main-wrapper">
@@ -107,7 +53,6 @@
                     }
                   </style>
 
-                  <!-- <button id="savebutton"  class="btn btn-primary">Save</button> -->
                   <button class="btn btn-primary" onclick="saveCategory('<%= category._id %>')">Save</button>
 
                   <div class="row g-3">

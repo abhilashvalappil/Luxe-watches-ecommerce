@@ -1,0 +1,122 @@
+<%- include('../layouts/adminHeader.ejs') %>
+<%- include('../layouts/adminPanelSidebar.ejs') %>
+<body>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  
+  
+
+    <!--start main wrapper-->
+    <main class="main-wrapper">
+      <div class="main-content">
+        <!--breadcrumb-->
+        <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+          <h2>Edit Brand</h2>
+          <div class="ps-3">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb mb-0 p-0">
+                <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a></li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+        <!--end breadcrumb-->
+
+        <div class="row">
+          <div class="col-12 col-lg-8">
+            <div class="card">
+              <div class="card-body">
+                <div class="mb-4">
+                  <h5 class="mb-3">Brand Name</h5>
+                  <input value="<%= brand.brandName %>" id="name" type="text" class="form-control" placeholder="Write brand name here....">
+                  <div id="name-error" class="message" style="color: red;"></div>
+                </div>
+                <div class="mb-4">
+                  <h5 class="mb-3">Description</h5>
+                  <textarea id="description" class="form-control" cols="4" rows="6" placeholder="<%= brand.description %>"></textarea>
+                  <div id="description-error" class="message" style="color: red;"></div>
+                </div>
+                <div class="mb-4">
+                  <style>
+                    .btn-primary {
+                      position: absolute;
+                      top: 87%;
+                      left: 45%;
+                    }
+                  </style>
+                  <button class="btn btn-primary" onclick="saveBrand('<%= brand._id %>')">Save</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../layouts/adminFooter.ejs') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+      async function saveBrand(brandId) {
+        try {
+          const brandName = document.getElementById('name').value;
+          const description = document.getElementById('description').value;
+          console.log('the description is........',description)
+
+          const nameRegex =  /^[a-zA-Z\s]+$/;
+          if (!nameRegex.test(brandName) || brandName.length < 4) {
+            showError('name-error', 'Name must be at least 5 characters long and contain only alphabets, spaces, and numbers.');
+            return;
+          } else {
+            hideError('name-error');
+          }
+
+          const descriptionRegex = /^[a-zA-Z0-9\s!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]+$/;
+          if (!descriptionRegex.test(description) || description.length < 6) {
+            showError('description-error', 'Description must be at least 6 characters long and contain only valid characters.');
+            return;
+          } else {
+            hideError('description-error');
+          }
+
+          const response = await fetch(`/admin/edit-brand/${brandId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ brandName, description })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire({
+              icon: 'success',
+              title: data.message
+            }).then(result => {
+              if (result.isConfirmed) {
+                window.location.href = '/admin/brand';
+              }
+            });
+          } else {
+            Swal.fire({
+              icon: 'warning',
+              title: data.message
+            });
+          }
+        } catch (error) {
+          console.log(error.message);
+        }
+      }
+
+      function showError(errorId, message) {
+        let errorElement = document.getElementById(errorId);
+        errorElement.textContent = message;
+      }
+
+      function hideError(errorId) {
+        let errorElement = document.getElementById(errorId);
+        errorElement.textContent = '';
+      }
+    </script>
+  </body>
+</html>

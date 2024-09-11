@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #e9ecef;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        .order-details {
+            margin-top: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+        }
+        .order-details h4 {
+            color: #343a40; /* Updated color */
+            border-bottom: 2px solid #343a40; 
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table th {
+            background-color: #343a40; 
+            color: #ffffff;
+            text-align: center;
+        }
+        .table td {
+            text-align: center;
+        }
+        .table-bordered td, .table-bordered th {
+            border: 1px solid #dee2e6;
+        }
+        .table img {
+            max-width: 100px; 
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4 text-center text-dark">Order Details</h1>
+
+        <!-- Order Information -->
+        <div class="order-details">
+            <h4>Order Information</h4>
+            <table class="table table-bordered">
+                <tbody>
+                    <!-- <tr>
+                        <th>Order ID</th>
+                        <td>#12345</td>
+                    </tr> -->
+                   
+                    <tr>
+                        <th>Order Date</th>
+                        <td><%= order.orderDate.toISOString().split('T')[0]  %></td>
+                    </tr>
+                    <tr>
+                        <th>Payment Method</th>
+                        <td><%= order.paymentMethod  %></td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    
+
+        <!-- Customer Information -->
+        <div class="order-details mt-4">
+            <h4>Customer Information</h4>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>Name</th>
+                        <td><%= order.address.Name  %></td>
+                    </tr>
+                    <tr>
+                        <th>Phone</th>
+                        <td><%= order.address.Mobile  %></td>
+                    </tr>
+                    <tr>
+                        <th>Address</th>
+                        <td><%= order.address.address  %></td>
+                    </tr>
+                    <tr>
+                        <th>PIN Code</th>
+                        <td><%= order.address.PIN  %></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Order Items -->
+        <div class="order-details mt-4">
+            <h4>Order Items</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Order Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% order.orderedItems.forEach(item => { %>
+                    <tr>
+                        <td><img src="/uploadedImages/<%= item.productId.images[0] %>" alt="Product 1"></td>
+                        <td><%= item.productId.name %></td>
+                        <td><%= item.quantity %></td>
+                        <td>₹<%= item.price %></td>
+                        <td>₹<%= item.price * item.quantity %></td>
+                        <td><%= item.orderStatus %></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+     
+
+        <!-- Payment Summary -->
+        <div class="order-details mt-4">
+            <h4>Payment Summary</h4>
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>Subtotal</th>
+                        <td>₹<%= order.orderedItems.reduce((acc, item) => acc + item.price * item.quantity, 0) %></td>++
+                    </tr>
+                    <!-- <tr>
+                        <th>Shipping</th>
+                        <td>$5.00</td>
+                    </tr>
+                    <tr>
+                        <th>Tax</th>
+                        <td>$6.50</td>
+                    </tr> -->
+                    <tr>
+                        <th>Total</th>
+                        <td>₹<%= order.totalPrice %></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+   
+    
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

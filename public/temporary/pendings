@@ -1,0 +1,39 @@
+"Review Postponed: 17-Aug-2024
+Reason:Task Incomplete
+Next Review:19-Aug-2024
+
+Pendings
+
+Image cropping
+Image zoom
+Pagination  *****************
+Add order list inside user profile  ******
+Cancel orders  ***********************
+Return order with a reason ******
+Remove unwanted template sections ******
+Remove update cart button************
+Show out of stock on change quantity in cart***********
+Out of stock product need to shown or hidden based on filter *********
+Advanced search with sort based on 
+Popularity 
+Price: low to high
+Price : high to low 
+<!-- Average ratings  -->
+Featured 
+New arrivals 
+aA - zZ 
+zZ - aA 
+Selected the added and edited address after submission
+Validate stock on add to cart******
+Validate stock on proceed to checkout*******
+Stocks left - should be shown in product listing and product details page **************
+Order Management-Order cancellation option, Order history and status.******
+
+Admin side : 
+Order Management
+Admin Side: List orders, change order status, cancel orders
+Inventory/Stock management.
+
+Theory:3
+Code:3"
+

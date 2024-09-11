@@ -1,0 +1,119 @@
+<%- include('../layouts/adminHeader.ejs') %>
+<%- include('../layouts/adminPanelSidebar.ejs') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin return request table</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .status-approved {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-rejected {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .mt-5, .my-5 {
+            margin-left: 18rem;
+            margin-top: 8.5rem !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Order Return Requests</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>OrderId</th>
+                    <th>Product</th>
+                    <th>quantity</th>
+                    <th>Customer Name</th>
+                    <th>Reason</th>
+                    <th>Return Request</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Example Row -->
+                <% orders.forEach(order => { %>
+                    <% order.orderedItems.forEach(item => { %>
+                        <% if (item.orderStatus === 'Return requested') { %>
+                <tr>
+                    <td><%= order._id %></td>
+                    <td><%= item.productId.name %></td>
+                    <td><%= item.quantity %></td>
+                    <td><%= order.address.Name %></td>
+                    <td><%= item.returnReason %></td>
+                    <!-- <td>
+                        <span class="status-pending">Pending</span>
+                    </td> -->
+                    <td>
+                        <% 
+                            const status = item.returnStatus || 'pending'; 
+                            const statusClass = status === 'pending' ? 'status-pending' : `status-${status}`;
+                        %>
+                        <span class="<%= statusClass %>"><%= status.charAt(0).toUpperCase() + status.slice(1) %></span>
+                    </td>
+                    
+                    <td>
+                        <% if (status === 'pending') { %>
+                        <!-- <a href="#" class="btn btn-success btn-sm" onclick="handleReturnRequest(this, 'approved')">Approve</a> -->
+                        <!-- <a href="#" class="btn btn-danger btn-sm" onclick="handleReturnRequest(this, 'rejected')">Reject</a> -->
+                        <a href="#" class="btn btn-success btn-sm" onclick="handleReturnRequest(event, '<%= order._id %>', '<%= item._id %>', 'approved')">Approve</a>
+                        <a href="#" class="btn btn-danger btn-sm" onclick="handleReturnRequest(event, '<%= order._id %>', '<%= item._id %>', 'rejected')">Reject</a>
+                        <% } %>
+                    </td>
+                </tr>
+                <% } %>
+                <% }) %>
+            <% }) %>
+                <!-- Add more rows as needed --> 
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+
+    <script>
+        async function handleReturnRequest(event, orderId, itemId, status){
+            try {
+                const response = await fetch('/admin/update-return-status',{
+                    method: 'POST',
+                    headers:{
+                        'Content-Type' : 'application/json'
+                    },
+                    body: JSON.stringify({orderId, itemId, status})
+                })
+                const data = await response.json();
+
+                if (data.success) {
+                    const row = event.target.closest('tr');
+                    const statusCell = row.querySelector('td:nth-child(6)');
+                    const actionsCell = row.querySelector('td:nth-child(7)');
+
+                    statusCell.innerHTML = `<span class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+                
+                    actionsCell.querySelectorAll('a').forEach(btn => btn.classList.add('disabled'));
+                 } else {
+                     alert('Failed to update status');
+                  }
+
+            } catch (error) {
+                console.error(error)
+            }
+        }
+    </script>
+</body>
+</html>
+
+<%- include('../layouts/adminFooter.ejs') %>

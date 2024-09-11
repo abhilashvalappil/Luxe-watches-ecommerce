@@ -1,58 +1,6 @@
  
  <%- include('../layouts/adminHeader.ejs') %>
-
- 
-
-<!--start sidebar-->
-<aside class="sidebar-wrapper" data-simplebar="true">
-  <div class="sidebar-header">
-    <div class="logo-icon">
-      <img src="assets/images/logo-icon.png" class="logo-img" alt="">
-    </div>
-    <div class="logo-name flex-grow-1">
-      <h5 class="mb-0">Dashboard</h5>
-    </div>
-    <div class="sidebar-close">
-      <span class="material-icons-outlined">close</span>
-    </div>
-  </div>
-  <div class="sidebar-nav">
-      <!--navigation-->
-      <ul class="metismenu" id="sidenav">
-        <li>
-          <a href="javascript:;" class="has-arrow">
-            <div class="parent-icon"><i class="material-icons-outlined">home</i>
-            </div>
-            <div class="menu-title">Dashboard</div>
-          </a>
-          <ul>
-            <li><a href="index.html"><i class="material-icons-outlined">arrow_right</i>Analysis</a>
-            </li>
-            <li><a href="index2.html"><i class="material-icons-outlined">arrow_right</i>eCommerce</a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="javascript:;" class="has-arrow">
-            <div class="parent-icon"><i class="material-icons-outlined">widgets</i>
-            </div>
-            <div class="menu-title">Users</div>
-          </a>
-          <ul>
-            <li><a href="/admin/users"><i class="material-icons-outlined">arrow_right</i>Users List</a>
-            </li>
-            <!-- <li><a href="widgets-static.html"><i class="material-icons-outlined">arrow_right</i>User Details</a> -->
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="/admin/category" class="arrow_right" >
-            <div class="parent-icon"><i class="material-icons-outlined">category</i>
-            </div>
-            <div class="menu-title">Category</div>
-          </a>
-  </div>
-</aside>
+ <%- include('../layouts/adminPanelSidebar.ejs') %>
 
 
   <!--start main wrapper-->
@@ -101,11 +49,9 @@
             <div class="customer-table">
               <div class="table-responsive white-space-nowrap">
                  <table class="table align-middle">
-                  <thead class="table-light">     
+                  <thead style="background-color: #343a40 ;font-weight: bold ;font-size: 16px;">
                     <tr>
-                      <th>
-                        <input class="form-check-input" type="checkbox">
-                      </th>
+                      
                       <th>Customer Name</th>
                       <th>Email</th>
                       <th>Mobile</th>
@@ -119,9 +65,6 @@
                    <% for(let i=0;i<users.length;i++) { %>
                     <input type="hidden" value="<%= users[i]._id %>">
                      <tr>
-                       <td>
-                         <input class="form-check-input" type="checkbox">
-                       </td>
                        <td>
                         <a class="d-flex align-items-center gap-3" href="javascript:;">
                           <div class="customer-pic">

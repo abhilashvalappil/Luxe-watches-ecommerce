@@ -2,7 +2,9 @@ const Admin = require('../../models/userModel');
 const User = require('../../models/userModel');
 const bcrypt = require('bcrypt');
 const Category = require('../../models/categoryModel');
+const Brand = require('../../models/brandModel');
 const Product = require('../../models/productModel');
+const Order = require('../../models/orderModel');
 const sharp = require('sharp')
 const multer = require('multer');
 const fs = require('fs')
@@ -120,6 +122,7 @@ const loadCategory = async (req, res) => {
 const listCategory = async (req, res) => {
     try {
         const categoryId = req.params.categoryId;
+        console.log('the cattttttttt',categoryId)
         const category = await Category.findById(categoryId);
         if (!category) {
             return res.status(400).json({ success: false, message: 'Category not found' });
@@ -142,6 +145,7 @@ const loadAddCategory = async (req, res) => {
         console.log(error.message);
     }
 }
+
 
 const addCategory = async (req, res) => {
     try {
@@ -195,10 +199,95 @@ const editCategory = async (req, res) => {
     }
 }
 
+const loadBrand = async(req,res) => {
+    try {
+        const brand = await Brand.find({})
+        res.render('brand', {brand})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const loadAddBrand = async(req,res) => {
+    try {
+        res.render('addBrand')
+    } catch (error) {
+        console.log('error')
+    }
+}
+
+const addBrand = async (req, res) => {
+    try {
+        const { brandName, description } = req.body;
+        const brandData = await Brand.findOne({ brandName: brandName });
+         
+        if (brandData) {
+            return res.status(400).json({ success: false, message: 'Brand Already Exists!' });
+        } else {
+            const newBrand = new Brand({ brandName, description });
+            console.log(newBrand);
+            await newBrand.save();
+            res.status(200).json({ success: true, message: 'Brand Saved Successfully' });
+        }
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+}
+
+const listBrand = async (req, res) => {
+    try {
+        const brandId = req.params.brandId;
+        const brand = await Brand.findById(brandId);
+        if (!brand) {
+            return res.status(400).json({ success: false, message: 'Brand not found' });
+        }
+
+        brand.is_listed = !brand.is_listed;
+        await brand.save();
+        res.json({ success: true, is_listed: brand.is_listed })
+
+    } catch (error) {
+        console.error(error.message)
+    }
+}
+
+const loadEditBrand = async (req, res) => {
+    try {
+        const brandId = req.params.brandId;
+        const brand = await Brand.findById( brandId )
+        res.render('editBrand', { brand })
+    } catch (error) {
+        console.log(error.message)
+        res.status(400).json({ success: false, message: 'Server error' });
+    }
+}
+
+const editBrand = async (req, res) => {          
+    try {
+        const brandId = req.params.brandId;
+        const { brandName, description } = req.body;
+
+        const brand = await Brand.findById(brandId)
+
+        if (!brand) {
+            return res.status(400).json({ success: false, message: 'Brand not found' })
+        }
+        brand.brandName = brandName;
+        brand.description = description;
+        await brand.save();
+        return res.status(200).json({ success:true, message: 'Brand updated successfully' })
+        
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({ success: false, message: 'Brand not updated' });
+    }
+}
+
+
 const loadProducts = async(req,res) => {
     try {
         const product = await Product.find({})
-        // console.log(product);
         res.render('products',{product})
     } catch (error) {
         console.log(error)
@@ -208,85 +297,20 @@ const loadProducts = async(req,res) => {
 const loadAddProduct = async(req,res) => {
     try {
         const categoryData = await Category.find({})
-        res.render('addProduct',{categoryData})
+        const brandData = await Brand.find({})
+        console.log()
+        res.render('addProduct',{categoryData , brandData})
     } catch (error) {
         console.log(error)
     }
 }
 
-// const addProduct = async(req,res,next) => {
-//     try {
-//         const { name, description, category, brand, model, dialColor, strapColor, stock, price } = req.body;
-
-//         // console.log('form Data', req.body);
-
-//         const existingProduct = await Product.findOne({
-//             $or: [{ name: name }, { model: model }]
-//         });
-
-//         if(existingProduct){
-//             return res.status(400).json({success:false, warning: 'product already exist'});
-//         }
-
-//         const images = [];
-        
-
-//         const bodyImages = req.files
-
-//         console.log(req.files)
-
-//         const imageKeys = ['image1', 'image2', 'image3'];
-
-//         for (let i = 0; i < imageKeys.length; i++) {
-//             const key = imageKeys[i];
-//             if (req.files[key] && req.files[key][0]) {
-//                 const file = req.files[key][0];
-//                 const inputFilePath = file.path;
-//                 const outputFileName = `${path.basename(file.filename.trim().replace(/\s+/g, '_'), path.extname(file.filename))}.png`;
-//                 const outputFilePath = path.join('public/uploadedImages', outputFileName);
-//                 await sharp(inputFilePath)
-//                     .toFormat('png')
-//                     .toFile(outputFilePath);
- 
-//                 images.push(`${outputFileName}`);
-
-              
-//                 try {
-//                     await fs.promises.unlink(inputFilePath);
-//                 } catch (unlinkError) {
-//                     console.error('Error deleting original file:', unlinkError.message);
-//                 }
-//             }
-//         }
-
-//         const newProduct = new Product({
-//             name:name,
-//             description:description,
-//             category:category,
-//             brand:brand,
-//             model:model,
-//             dialColor:dialColor,
-//             strapColor:strapColor,
-//             stock:stock,
-//             images: images,
-//             price:price
-        
-//         })
-
-//         await newProduct.save();
-//         return res.status(200).json({success: true, message: 'Product added successfully.'})
-        
-//     } catch (error) {
-//         console.log(error.message)
-//         return res.status(400).json({success: false, warning: 'Error found Product not added'})
-//     }
-// }
 
 const addProduct = async (req, res, next) => {
+    
     try {
         const { name, description, category, brand, model, dialColor, strapColor, stock, price } = req.body;
-
-        // Check for existing product
+ 
         const existingProduct = await Product.findOne({
             $or: [{ name: name }, { model: model }]
         });
@@ -297,30 +321,29 @@ const addProduct = async (req, res, next) => {
 
         const images = [];
 
-        // Process each uploaded file
         for (const file of req.files) {
-            console.log('Processing file:', file.path);
             const inputFilePath = file.path;
             const outputFileName = `${path.basename(file.filename.trim().replace(/\s+/g, '_'), path.extname(file.filename))}.png`;
             const outputFilePath = path.join('public/uploadedImages', outputFileName);
 
             try {
                 await sharp(inputFilePath)
-                    .resize(500, 500) // Adjust as needed for cropping size
+                    .resize(500, 500) 
                     .toFormat('png')
                     .toFile(outputFilePath);
                 
                 images.push(outputFileName);
 
-                // Check if file exists before deleting
-                await checkAndDeleteFile(inputFilePath);
+                console.log('................',images);
+                
+
+                // await checkAndDeleteFile(inputFilePath);
             } catch (error) {
-                console.error('Error processing file:', error.message);
+                console.error('Error processing file:', error);
                 return res.status(400).json({ success: false, warning: 'Error processing file' });
             }
         }
 
-        // Create and save the new product
         const newProduct = new Product({
             name,
             description,
@@ -338,13 +361,10 @@ const addProduct = async (req, res, next) => {
         return res.status(200).json({ success: true, message: 'Product added successfully.' });
 
     } catch (error) {
-        console.error('Error adding product:', error.message);
+        console.error('Error adding product:', error);
         return res.status(400).json({ success: false, warning: 'Error: Product not added' });
     }
 };
-
-
-
 
 
 const listProduct = async(req,res) => {
@@ -373,10 +393,10 @@ const editProductLoad = async(req,res) => {
          const id = req.query.id;
         const product = await Product.findOne({_id: id})
         const categoryData = await Category.find({})
-    
+        const brandData = await Brand.find({})
 
         if(product){
-            res.render('editProduct',{product, categoryData})
+            res.render('editProduct',{product, categoryData , brandData})
         }else{
             res.redirect('/products')
         }
@@ -391,8 +411,6 @@ const editProduct = async(req,res) => {
      try {
         const productId = req.body.productId;
         const product = await Product.findById(productId);
-
-        // console.log('hhhhhhejsssssssssssss',product)
 
         if(!product){
             return res.status(400).json({ success: false, message: 'Product not found!'})
@@ -432,6 +450,108 @@ const editProduct = async(req,res) => {
      }
 }
 
+const loadOrders = async(req,res) => {
+    try {
+        const orders = await Order.find({}).populate('orderedItems.productId')
+        res.render('orders',{orders})
+    } catch (error) {
+        console.log(error)
+    }
+}
+const orderDetailsLoad = async(req,res) => {
+    try {
+        
+        const order = await Order.findOne({ _id: req.params.order_id }).populate({
+            path: 'orderedItems.productId',
+            model: 'Product',
+        });
+        res.render('orderDetails',{order})
+        
+    } catch (error) {
+        
+    }
+}
+
+const orderStatusUpdate = async(req,res) => {
+    try {
+        const {orderId , itemId, orderStatus} = req.body;
+        const order = await Order.findOne({_id:orderId,"orderedItems._id": itemId});
+        const item = order.orderedItems.find(item => item._id.toString() === itemId);
+
+        if(item.orderStatus === 'Delivered' || item.orderStatus === 'Returned'){
+            return res.status(400).json({message: 'Status cannot be changed once it is Delivered or Returned'})
+        }
+        
+        item.orderStatus = orderStatus;
+        await order.save();
+        return res.status(200).json({message: 'Status updated successfully'})
+        
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const loadreturnRequests = async(req,res)=> {
+    try {
+        const orders = await Order.find({
+            'orderedItems.orderStatus' : 'Return requested'
+        })
+        .populate({
+            path: 'orderedItems.productId',
+            select: 'name'  
+        })
+        .populate({
+            path: 'userId',
+            select: 'name'  
+        });
+
+        res.render('returnRequest',{orders})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const returnStatus = async(req,res) => {
+    try {
+        const{orderId, itemId, status} = req.body;
+        const order = await Order.findById({_id: orderId})
+        const item = order.orderedItems.find(item => item._id.toString() === itemId)
+        
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        if (!item) {
+            return res.status(404).json({ success: false, message: 'Item not found' });
+        }
+
+        item.returnStatus = status;
+
+        if(item.returnStatus === 'approved'){
+            item.orderStatus = 'Returned';
+
+            const product = await Product.findById(item.productId)
+             
+            if(product){
+                await Product.updateOne(
+                    {_id: item.productId},
+                    {$inc:{stock: item.quantity}}
+                )
+            }else{
+                return res.status(400).json({message: 'Product not found !'})
+            }
+        } else if(item.returnStatus == 'rejected'){
+            item.orderStatus = 'Delivered'
+        }
+       
+        await order.save();
+        res.json({ success: true });
+ 
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 module.exports = {
     loadAdminLogin,
     verifyLogin,
@@ -444,10 +564,21 @@ module.exports = {
     listCategory,
     loadEditCategory,
     editCategory,
+    loadBrand,
+    loadAddBrand,
+    addBrand,
+    listBrand,
+    loadEditBrand,
+    editBrand,
     loadProducts,
     loadAddProduct,
     addProduct,
     listProduct,
     editProductLoad,
     editProduct,
+    loadOrders,
+    orderDetailsLoad,
+    orderStatusUpdate,
+    loadreturnRequests,
+    returnStatus,
 }

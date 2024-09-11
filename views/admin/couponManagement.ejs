@@ -1,0 +1,261 @@
+<%- include('../layouts/adminHeader.ejs') %>
+<%- include('../layouts/adminPanelSidebar.ejs') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coupon Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css" rel="stylesheet">
+    <style>
+        .mt-5 {
+            margin-top: 8.5rem !important;
+            margin-left: 18rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Coupon Management</h1>
+        
+        <!-- Add New Coupon Button -->
+        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addCouponModal">
+            Add New Coupon
+        </button>
+        
+        <!-- Coupon List Table -->
+        <table id="couponTable" class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Discount</th>
+                    <th>Type</th>
+                    <th>Valid From</th>
+                    <th>Valid To</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% coupons.forEach(coupon => { %>
+                <tr>
+                    <td><%= coupon.couponCode %></td>
+                    <td><%= coupon.discountPercent %>%</td>
+                    <td>Percentage</td>
+                    <td><%= new Date(coupon.validFrom).toLocaleDateString() %></td>
+                    <td><%= new Date(coupon.validTo).toLocaleDateString() %></td>
+                    <td><%= coupon.listed ? 'Listed' : 'Unlisted' %></td>
+                    <td>
+                        <button class="btn btn-sm <%= coupon.listed ? 'btn-secondary' : 'btn-success' %>"
+                            onclick="toggleCouponStatus('<%= coupon._id %>', this)">
+                            <%= coupon.listed ? 'Unlist' : 'List' %>
+                        </button>
+                        <button class="btn btn-sm btn-danger btn-delete" data-coupon-id="<%= coupon._id %>">Delete</button>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Add Coupon Modal -->
+    <form id="addCouponForm">
+        <div class="modal fade" id="addCouponModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New Coupon</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="addCouponForm" action="/admin/coupons" method="POST">
+                            <div class="mb-3">
+                                <label for="couponCode" class="form-label">Coupon Code</label>
+                                <input type="text" class="form-control" id="couponCode" name="couponCode" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="discountValue" class="form-label">Discount Value (%)</label>
+                                <input type="number" class="form-control" id="discountValue" name="discountPercent" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="minimumPurchase" class="form-label">Minimum Purchase</label>
+                                <input type="number" class="form-control" id="minimumPurchase" name="minimumPurchase" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="maxRedeem" class="form-label">Max Redeem</label>
+                                <input type="number" class="form-control" id="maxRedeem" name="maxRedeem" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="validFrom" class="form-label">Valid From</label>
+                                <input type="date" class="form-control" id="validFrom" name="validFrom" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="validTo" class="form-label">Valid To</label>
+                                <input type="date" class="form-control" id="validTo" name="validTo" required>
+                            </div>
+                            <p id="message" style="display:none; color:red;"></p>
+                            <button id="addCoupon-btn" type="submit" class="btn btn-primary">Save Coupon</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        
+        $(document).ready(function() {
+            $('#couponTable').DataTable();
+        });
+
+    
+        $('#couponTable').on('click', '.btn-list', function() {
+            const couponId = $(this).data('coupon-id');
+            handleCouponStatus(couponId, 'list');
+        });
+
+        $('#couponTable').on('click', '.btn-unlist', function() {
+            const couponId = $(this).data('coupon-id');
+            handleCouponStatus(couponId, 'unlist');
+        });
+
+        $('#couponTable').on('click', '.btn-delete', function() {
+            const couponId = $(this).data('coupon-id');
+        });
+
+        async function toggleCouponStatus(couponId, buttonElement) {
+    try {
+        const response = await fetch(`/admin/toggle-coupon-status/${couponId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            if (data.listed) {
+                buttonElement.textContent = 'Unlist';
+                buttonElement.classList.remove('btn-success');
+                buttonElement.classList.add('btn-secondary');
+            } else {
+                buttonElement.textContent = 'List';
+                buttonElement.classList.remove('btn-secondary');
+                buttonElement.classList.add('btn-success');
+            }
+    
+            const statusCell = buttonElement.closest('tr').querySelector('td:nth-child(6)');
+            statusCell.textContent = data.listed ? 'Listed' : 'Unlisted';
+        } else {
+            console.error('Failed to toggle coupon status:', data.message);
+        }
+    } catch (error) {
+        console.error('Error toggling coupon status:', error.message);
+    }
+}
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+</body>
+</html>
+
+<%- include('../layouts/adminFooter.ejs') %>
+
+<script>
+    document.getElementById('addCoupon-btn').addEventListener('click', async function (event){
+        event.preventDefault();
+
+        const form = document.getElementById('addCouponForm');
+        const couponCode = document.getElementById('couponCode').value;
+        const discountPercent = document.getElementById('discountValue').value;
+        const minimumPurchase = document.getElementById('minimumPurchase').value;
+        const maxRedeem = document.getElementById('maxRedeem').value;
+        const validFrom = document.getElementById('validFrom').value;
+        const validTo = document.getElementById('validTo').value;
+        const message = document.getElementById('message');
+
+        message.style.display = 'none';
+
+        const errorMessage = validateCouponForm(couponCode, discountPercent, minimumPurchase, maxRedeem, validFrom, validTo);
+
+        if (errorMessage) {
+            message.style.display = 'block';
+            message.textContent = errorMessage;
+            return;
+        }
+
+        const formData = {
+            couponCode: couponCode,
+            discountPercent: discountPercent,
+            minPurchase: minimumPurchase,
+            maxRedeem: maxRedeem,
+            validFrom: validFrom,
+            validTo: validTo
+        }
+
+        try {
+            const response = await fetch('/admin/add-coupon', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: data.message
+                }).then(() => {
+                    window.location.reload()
+                });
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: data.message
+                });
+            }
+            
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'An error occurred',
+                text: 'Please try again later.'
+            });
+        }
+    });
+
+    function validateCouponForm(couponCode, discountPercent, minimumPurchase, maxRedeem, validFrom, validTo) {
+        let message = '';
+        let codeRegex = /^[A-Za-z0-9]{5,10}$/;
+        let discountRegex = /^([1-9]|[1-9][0-9]|100)$/;  
+        let numberRegex = /^[0-9]+(\.[0-9]+)?$/;
+
+        if (!codeRegex.test(couponCode) || couponCode[0] == ' ') {
+            message = "Coupon code must be 5-10 characters long and contain only letters and numbers.";
+        } else if (!discountRegex.test(discountPercent)) {
+            message = "Discount value must be a number between 1 and 100.";
+        } else if (!numberRegex.test(minimumPurchase) || minimumPurchase <= 0) {
+            message = "Minimum purchase must be a positive number.";
+        } else if (!numberRegex.test(maxRedeem) || maxRedeem <= 0) {
+            message = "Max redeem must be a positive number.";
+        } else if (new Date(validFrom) > new Date(validTo)) {
+            message = "Valid From date cannot be after Valid To date.";
+        }
+
+        return message;
+    }
+</script>

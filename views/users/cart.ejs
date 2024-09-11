@@ -8,102 +8,6 @@
 
     <!-- Offcanvas Menu Begin -->
     <div class="offcanvas-menu-overlay"></div>
-    <div class="offcanvas-menu-wrapper">
-        <div class="offcanvas__option">
-            <div class="offcanvas__links">
-                <a href="#">Sign in</a>
-                <a href="#">FAQs</a>
-            </div>
-            <div class="offcanvas__top__hover">
-                <span>Usd <i class="arrow_carrot-down"></i></span>
-                <ul>
-                    <li>USD</li>
-                    <li>EUR</li>
-                    <li>USD</li>
-                </ul>
-            </div>
-        </div>
-        <div class="offcanvas__nav__option">
-            <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a>
-            <a href="#"><img src="img/icon/heart.png" alt=""></a>
-            <a href="#"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
-            <div class="price">$0.00</div>
-        </div>
-        <div id="mobile-menu-wrap"></div>
-        <div class="offcanvas__text">
-            <p>Free shipping, 30-day return or refund guarantee.</p>
-        </div>
-    </div>
-    <!-- Offcanvas Menu End -->
-
-    <!-- Header Section Begin -->
-    <!-- <header class="header">
-        <div class="header__top">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-6 col-md-7">
-                        <div class="header__top__left">
-                            <p>Free shipping, 30-day return or refund guarantee.</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-5">
-                        <div class="header__top__right">
-                            <div class="header__top__links">
-                                <a href="#">Sign in</a>
-                                <a href="#">FAQs</a>
-                            </div>
-                            <div class="header__top__hover">
-                                <span>Usd <i class="arrow_carrot-down"></i></span>
-                                <ul>
-                                    <li>USD</li>
-                                    <li>EUR</li>
-                                    <li>USD</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-3 col-md-3">
-                    <div class="header__logo">
-                        <a href="./index.html"><img src="img/logo.png" alt=""></a>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                    <nav class="header__menu mobile-menu">
-                        <ul>
-                            <li><a href="./index.html">Home</a></li>
-                            <li class="active"><a href="./shop.html">Shop</a></li>
-                            <li><a href="#">Pages</a>
-                                <ul class="dropdown">
-                                    <li><a href="./about.html">About Us</a></li>
-                                    <li><a href="./shop-details.html">Shop Details</a></li>
-                                    <li><a href="./shopping-cart.html">Shopping Cart</a></li>
-                                    <li><a href="./checkout.html">Check Out</a></li>
-                                    <li><a href="./blog-details.html">Blog Details</a></li>
-                                </ul>
-                            </li>
-                            <li><a href="./blog.html">Blog</a></li>
-                            <li><a href="./contact.html">Contacts</a></li>
-                        </ul>
-                    </nav>
-                </div>
-                <div class="col-lg-3 col-md-3">
-                    <div class="header__nav__option">
-                        <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a>
-                        <a href="#"><img src="img/icon/heart.png" alt=""></a>
-                        <a href="#"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
-                        <div class="price">$0.00</div>
-                    </div>
-                </div>
-            </div>
-            <div class="canvas__open"><i class="fa fa-bars"></i></div>
-        </div>
-    </header> -->
-    <!-- Header Section End -->
 
     <!-- Breadcrumb Section Begin -->
     <section class="breadcrumb-option">
@@ -113,8 +17,8 @@
                     <div class="breadcrumb__text">
                         <h4>Shopping Cart</h4>
                         <div class="breadcrumb__links">
-                            <a href="./index.html">Home</a>
-                            <a href="./shop.html">Shop</a>
+                            <a href="/home">Home</a>
+                            <a href="/shop">Shop</a>
                             <span>Shopping Cart</span>
                         </div>
                     </div>
@@ -159,40 +63,21 @@
                                         </td>
                                         <td class="quantity__item">
                                             <div class="quantity">
-                                                <div class="pro-qty-2">
-                                                    <input type="number" value="<%= item.quantity %>" min="1"  max="5" class="quantity-input" data-product-id="<%= item.productId %>" data-price="<%= item.productDetails.price %>">
-                                                </div>
+                                                <button class="quantity-btn decrease" onclick="updateQuantity('<%= item.productId %>', -1)">-</button>
+                                                <input type="number" id="quantity-input" value="<%= Math.min(item.quantity, 5) %>" min="1" max="5" class="quantity-input" data-product-id="<%= item.productId %>" data-price="<%= item.productDetails.price %>" readonly>
+                                                <button class="quantity-btn increase" onclick="updateQuantity('<%= item.productId %>', 1)">+</button>
                                             </div>
+                                            <p id="error-message" style="color: red; display: none;"></p>
                                         </td>
+                                        <!-- <p id="error-message" style="color: red; display: none;"></p> -->
                                         <td class="cart__price" data-product-id="<%= item.productId %>"> <span class="price-value">₹<%= item.productDetails.price * item.quantity %></span></td>
                                         <td class="cart__close">
                                             <button class="btn btn-danger remove-from-cart" data-product-id="<%= item.productId %>">Remove</button>
                                         </td>
                                     </tr>
                                 <% }) %>                                
-                                
-                                 
+                              
                                 <!-- <tr>
-                                    <td class="product__cart__item">
-                                        <div class="product__cart__item__pic">
-                                            <img src="img/shopping-cart/cart-3.jpg" alt="">
-                                        </div>
-                                        <div class="product__cart__item__text">
-                                            <h6>Basic Flowing Scarf</h6>
-                                            <h5>$98.49</h5>
-                                        </div>
-                                    </td>
-                                    <td class="quantity__item">
-                                        <div class="quantity">
-                                            <div class="pro-qty-2">
-                                                <input type="text" value="1">
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="cart__price">$ 47.00</td>
-                                    <td class="cart__close"><i class="fa fa-close"></i></td>
-                                </tr> -->
-                                <tr>
                                     <td class="product__cart__item">
                                         <div class="product__cart__item__pic">
                                             <img src="img/shopping-cart/cart-4.jpg" alt="">
@@ -204,14 +89,15 @@
                                     </td>
                                     <td class="quantity__item">
                                         <div class="quantity">
-                                            <div class="pro-qty-2">
-                                                <input type="text" value="1">
-                                            </div>
+                                            <button class="quantity-btn decrease" onclick="updateQuantity()">-</button>
+                                            <input type="number" id="quantity-input" value="1" min="1" max="99">
+                                            <button class="quantity-btn increase" onclick="updateQuantity()">+</button>
                                         </div>
                                     </td>
+                                     
                                     <td class="cart__price">$ 30.00</td>
                                     <td class="cart__close"><i class="fa fa-close"></i></td>
-                                </tr>
+                                </tr> -->
                             </tbody>
                         </table>
                     </div>
@@ -221,16 +107,17 @@
                                 <a href="/shop">Continue Shopping</a>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="continue__btn update__btn">
+                        <!-- <div class="col-lg-6 col-md-6 col-sm-6"> -->
+                            <!-- <div class="continue__btn update__btn">
                                 <a href="#"><i class="fa fa-spinner"></i> Update cart</a>
-                            </div>
-                        </div>
+                            </div> -->
+                        <!-- </div> -->
                     </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="cart__discount">
-                        <h6>Discount codes</h6>
+                        <!-- <h6>Discount codes</h6> -->
+                        <a style="margin-bottom: 2rem;" href="/coupons" class="btn btn-primary mt-2">Available Coupons</a>
                         <form action="#">
                             <input type="text" placeholder="Coupon code">
                             <button type="submit">Apply</button>
@@ -254,6 +141,28 @@
         </div>
     </section>
     <!-- Shopping Cart Section End -->
+    <style>
+        .quantity {
+            display: flex;
+            align-items: center;
+        }
+    
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+    
+        #quantity-input {
+            width: 50px;
+            height: 30px;
+            text-align: center;
+            border: 1px solid #ddd;
+            margin: 0 5px;
+        }
+    </style>
 
     <script>
         document.querySelectorAll('.remove-from-cart').forEach(button => {
@@ -302,93 +211,76 @@
             });
         });
         </script>
-        
-   
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-    const MAX_QUANTITY = 5;
+
+     <script>
 
 
-    function updatePrice(input) {
-        const productId = input.getAttribute('data-product-id');
-        const pricePerUnit = parseFloat(input.getAttribute('data-price'));
-        const priceCell = document.querySelector(`.cart__price[data-product-id="${productId}"] .price-value`);
-        
-        let newQuantity = parseInt(input.value, 10);
 
-        if (isNaN(newQuantity) || newQuantity < 1) {
-            newQuantity = 1;
-            input.value = newQuantity;  
-        }
+    async function updateQuantity(productId, quantityChange){
+      const quantity=1
+      const errorMessageElement = document.getElementById('error-message');
+        const inputElement = document.querySelector(`input[data-product-id="${productId}"]`);
+        let newQuantity = parseInt(inputElement.value) + quantityChange;
 
-        if (newQuantity > MAX_QUANTITY) {
-            alert(`We are sorry, only ${MAX_QUANTITY} units allowed in each order.`);
-            newQuantity = MAX_QUANTITY;  
-            input.value = MAX_QUANTITY;  
-        }
-
-        const newPrice = pricePerUnit * newQuantity;
-        priceCell.textContent = newPrice.toFixed(2);  
+        if (newQuantity < 1) {
+        errorMessageElement.textContent = "Quantity cannot be less than 1.";
+        errorMessageElement.style.display = 'block';
+        return;
     }
 
-     
-    document.querySelectorAll('.quantity-input').forEach(input => {
-        input.addEventListener('input', function() {
-            updatePrice(this);
-        });
-    });
 
-     
-    document.querySelector('.update__btn a').addEventListener('click', function(event) {
-        event.preventDefault();  
-
-        let subtotal = 0;
-        let total = 0;
-        const cartData = [];
-
-        document.querySelectorAll('.quantity-input').forEach(input => {
-            updatePrice(input);  
-
-            const productId = input.getAttribute('data-product-id');
-            const newQuantity = parseInt(input.value, 10);
-            const itemTotal = parseFloat(document.querySelector(`.cart__price[data-product-id="${productId}"] .price-value`).textContent);
-
-            subtotal += itemTotal;  
-
-            
-            cartData.push({
-                productId: productId,
-                quantity: newQuantity
-            });
-        });
-
-        total = subtotal;
-
-        document.querySelector('.subtotal-value').textContent = subtotal.toFixed(2);
-        document.querySelector('.total-value').textContent = total.toFixed(2);
-
-        fetch('/update-cart', {
+        try{
+        const response = await fetch('/update-Quantity',{
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
+            headers:{
+                'Content-Type' : 'application/json'
             },
-            body: JSON.stringify(cartData)
+            body: JSON.stringify({productId, quantity: newQuantity})
         })
-         
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('Cart updated successfully!');
-            } else {
-                console.error('Failed to update cart:', data.error);
-            }
-        })
-        .catch(error => console.error('Error:', error));
+        const data = await response.json();
+        if(response.ok){
+            inputElement.value = data.newQuantity;
+            updatePrice(productId, data.newQuantity);
+            updateTotals();
+            errorMessageElement.style.display = 'none';
+                Swal.fire({
+                    icon: 'success',
+                    title: data.message,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            
+        }else{
+               errorMessageElement.textContent = data.message || 'An error occurred while updating the quantity.';
+            errorMessageElement.style.display = 'block';
+            inputElement.value = newQuantity - quantityChange;
+         inputElement.value = newQuantity - quantityChange;
+        }
+    }catch(error){
+        errorMessageElement.textContent = data.message || 'An error occurred while updating the quantity.';
+        errorMessageElement.style.display = 'block';
+        inputElement.value = newQuantity - quantityChange;
+    }
+}
+
+function updatePrice(productId, newQuantity) {
+    const priceElement = document.querySelector(`.cart__price[data-product-id="${productId}"] .price-value`);
+    const price = parseFloat(document.querySelector(`input[data-product-id="${productId}"]`).dataset.price);
+    priceElement.textContent = `₹${(price * newQuantity).toFixed(2)}`;
+}
+
+function updateTotals() {
+    let subtotal = 0;
+    document.querySelectorAll('.price-value').forEach(el => {
+        subtotal += parseFloat(el.textContent.replace('₹', ''));
     });
-});
-
-    </script>
-
+    
+    document.querySelector('.subtotal-value').textContent = `₹${subtotal.toFixed(2)}`;
+    document.querySelector('.total-value').textContent = `₹${subtotal.toFixed(2)}`;
+}
+     </script>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 

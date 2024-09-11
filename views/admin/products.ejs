@@ -1,66 +1,5 @@
 <%- include('../layouts/adminHeader.ejs') %>
-
- 
-
-<!--start sidebar-->
-<aside class="sidebar-wrapper" data-simplebar="true">
-  <div class="sidebar-header">
-    <div class="logo-icon">
-      <img src="/adminHomeAssets/images/logo-icon.png" class="logo-img" alt="">
-    </div>
-    <div class="logo-name flex-grow-1">
-      <h5 class="mb-0">Dashboard</h5>
-    </div>
-    <div class="sidebar-close">
-      <span class="material-icons-outlined">close</span>
-    </div>
-  </div>
-  <div class="sidebar-nav">
-      <!--navigation-->
-      <ul class="metismenu" id="sidenav">
-        <li>
-          <a href="javascript:;" class="has-arrow">
-            <div class="parent-icon"><i class="material-icons-outlined">home</i>
-            </div>
-            <div class="menu-title">Dashboard</div>
-          </a>
-          <ul>
-            <li><a href="index.html"><i class="material-icons-outlined">arrow_right</i>Analysis</a>
-            </li>
-            <li><a href="index2.html"><i class="material-icons-outlined">arrow_right</i>eCommerce</a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="javascript:;" class="has-arrow">
-            <div class="parent-icon"><i class="material-icons-outlined">people</i>
-            </div>
-            <div class="menu-title">Users</div>
-          </a>
-          <ul>
-            <li><a href="/admin/users"><i class="material-icons-outlined">arrow_right</i>Users List</a>
-            </li>
-            <li><a href="widgets-static.html"><i class="material-icons-outlined">arrow_right</i>User Details</a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="/admin/category" class="arrow_right" >
-            <div class="parent-icon"><i class="material-icons-outlined">category</i>
-            </div>
-            <div class="menu-title">Category</div>
-          </a>
-        </li>
-        <li>
-          <a href="/admin/products" class="arrow_right" >
-            <div class="parent-icon"><i class="material-icons-outlined">shopping_cart</i>
-            </div>
-            <div class="menu-title">products</div>
-          </a>
-        </li>
-  </div>
-</aside>
-<!--end sidebar-->
+<%- include('../layouts/adminPanelSidebar.ejs') %>
 
 
   <!--start main wrapper-->
@@ -78,8 +17,8 @@
             </ol>
           </nav>
         </div>
-  
       </div>
+      
  
 
       <div class="row g-3">
@@ -87,7 +26,6 @@
         <div class="col-auto flex-grow-1 overflow-auto">
           <div class="btn-group position-static">
             <div class="btn-group position-static">
-             
             </div>
             
           </div>
@@ -105,11 +43,8 @@
           <div class="product-table">
             <div class="table-responsive white-space-nowrap">
               <table class="table align-middle">
-                <thead class="table-light">
+                <thead style="background-color: #343a40 ;font-weight: bold ;font-size: 16px;">
                   <tr>
-                    <th>
-                      <input class="form-check-input" type="checkbox">
-                    </th>
                     <th>SL.NO</th>
                     <th>Image</th>
                     <th>Product Name</th>
@@ -124,14 +59,9 @@
                 </thead>
                 <tbody>
 
-                  <%console.log(product)%>
-
                   <% for(let i=0; i<product.length; i++) { %>
                   
                   <tr>
-                    <td>
-                      <input class="form-check-input" type="checkbox">
-                    </td>
                     <td><p> <%= i+1 %> </p></td>
                     <td>
                       <div class="d-flex align-items-center gap-3">
@@ -147,18 +77,10 @@
                     </td>
                     <td> <%= product[i].name %> </td>
                     <td> <%= product[i].brand %> </td>
-                    <td>
-                      <%= product[i].price %>
-                      
-                    </td>
-                    <td>
-                      <%= product[i].category %>
-                    
-                    </td>
-                    <td>
-                      <%= product[i].description %>
+                    <td><%= product[i].price %></td>
+                    <td><%= product[i].category %></td>
+                    <td><%= product[i].description %> </td>
                       <!-- <a href="javascript:;">Michle Shoes England</a> -->
-                    </td>
                      <td> <%= product[i].stock %> </td>
                      
                     <td>
@@ -177,16 +99,14 @@
           </div>
         </div>
       </div>
-
-
     </div>
   </main>
   <!--end main wrapper-->
 
-
     <!--start overlay-->
     <div class="overlay btn-toggle"></div>
     <!--end overlay-->
+    
 
     <%- include('../layouts/adminFooter.ejs') %>
 

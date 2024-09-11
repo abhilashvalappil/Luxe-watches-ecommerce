@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Coupons</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .coupons-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .coupon {
+            width: 300px;
+            height: 150px;
+            background-color: #ffd700;
+            border-radius: 10px;
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .coupon-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .coupon-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .coupon-text {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        .coupon-barcode {
+            width: 60px;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .barcode {
+            width: 40px;
+            height: 80px;
+            background: repeating-linear-gradient(
+                to right,
+                #000,
+                #000 2px,
+                #fff 2px,
+                #fff 4px
+            );
+        }
+        .coupon::before, .coupon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 20px;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            transform: translateY(-50%);
+        }
+        .coupon::before {
+            left: -10px;
+        }
+        .coupon::after {
+            right: -10px;
+        }
+        .copy-button {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .copy-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Available Coupons</h1>
+    <div class="coupons-container">
+        <% coupons.forEach(coupon => { %>
+        <div class="coupon">
+            <div class="coupon-content">
+                <h2 class="coupon-title"><%= coupon.discountPercent %>% OFF</h2>
+                <p class="coupon-text">COUPON</p>
+                <p class="coupon-text">Valid until <%= coupon.validTo.toDateString() %></p>
+                <p class="coupon-text">Code: <%= coupon.couponCode %></p>
+            </div>
+            <div class="coupon-barcode">
+                <div class="barcode"></div>
+            </div>
+            <button class="copy-button" onclick="copyCode('<%= coupon.couponCode %>')">Copy Code</button>
+        </div>
+        <% }) %>
+    </div>
+
+    <script>
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(function() {
+                alert('Coupon code copied: ' + code);
+            }, function(err) {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

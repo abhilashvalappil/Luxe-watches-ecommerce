@@ -1,0 +1,110 @@
+<%- include('../layouts/adminHeader.ejs') %>
+
+<%- include('../layouts/adminPanelSidebar.ejs') %>
+
+<!--start main wrapper-->
+<main class="main-wrapper">
+  <div class="main-content">
+     <!--breadcrumb-->
+     <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+      <div class="breadcrumb-title pe-3">LuxeWatches</div>
+      <div class="ps-3">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-0 p-0">
+            <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">Brands</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+
+
+    <div class="row g-3">
+      <div class="col-auto flex-grow-1 overflow-auto">
+        <div class="btn-group position-static"></div>
+        <div class="btn-group position-static"></div>
+        <div class="btn-group position-static"></div>
+      </div>
+      <div class="col-auto">
+        <div class="d-flex align-items-center gap-2 justify-content-lg-end">
+          <a href="/admin/add-brand"><button class="btn btn-primary px-4"><i class="bi bi-plus-lg me-2"></i>Add Brand</button></a>
+        </div>
+      </div>
+    </div><!--end row-->
+
+    <div class="card mt-4">
+      <div class="card-body">
+        <div class="customer-table">
+          <div class="table-responsive white-space-nowrap">
+            <table class="table align-middle">
+              <thead class="table-light">     
+                <tr>
+                  <th><input class="form-check-input" type="checkbox"></th>
+                  <th>SL.No</th>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Action</th>
+                  <th>Edit</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% for(let i=0; i<brand.length; i++){ %>
+                <tr>
+                  <td><input class="form-check-input" type="checkbox"></td>
+                  <td><%= i+1 %></td>
+                  <td><%= brand[i].brandName %></td>
+                  <td><%= brand[i].description %></td>
+                  <td>
+                    <button onclick="toggleBrandListing('<%= brand[i]._id %>', this)" 
+                      class="brand-button btn btn-sm <%= brand[i].is_listed ? 'btn-success' : 'btn-danger' %> rounded font-sm" 
+                      data-id="<%= brand[i]._id %>">
+                      <%= brand[i].is_listed ? 'Unlist' : 'List' %>
+                    </button>
+                  </td>
+                  <td><a href="/admin/edit-brand/<%= brand[i]._id %>" class="btn btn-secondary">Edit</a></td>
+                </tr> 
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<!--end main wrapper-->
+
+<!--start overlay-->
+<div class="overlay btn-toggle"></div>
+<!--end overlay-->
+
+<%- include('../layouts/adminFooter.ejs') %>
+
+<script>
+  async function toggleBrandListing(brandId, buttonElement){
+    try {
+      const response = await fetch(`/admin/listbrand/${brandId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if(data.is_listed === true){
+        buttonElement.textContent = 'Unlist';
+        buttonElement.classList.remove('btn-danger');
+        buttonElement.classList.add('btn-success');
+      } else {
+        buttonElement.textContent = 'List';
+        buttonElement.classList.remove('btn-success');
+        buttonElement.classList.add('btn-danger');
+      }
+
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+</script>

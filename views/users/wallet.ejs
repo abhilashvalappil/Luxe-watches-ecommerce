@@ -1,0 +1,50 @@
+
+<%- include('../layouts/navbar.ejs') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-commerce Wallet</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">My Wallet</h5>
+                    </div>
+                    <div class="card-body">
+                        <h2 class="text-center mb-4">Balance: ₹<%= wallet.balance.toFixed(2) %></h2>
+
+                        <h5>Recent Transactions</h5>
+                        <ul class="list-group">
+                            <% wallet.transactionHistory.forEach(function(transaction) { %>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <%= transaction.description || 'Transaction' %> 
+                                    <% if(transaction.type === 'credit') { %>
+                                        <span class="badge bg-success rounded-pill">+<%= transaction.amount.toFixed(2) %></span>
+                                    <% } else { %>
+                                        <span class="badge bg-danger rounded-pill">-<%= transaction.amount.toFixed(2) %></span>
+                                    <% } %>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <!-- Button for Adding Funds (you can link it to a relevant action) -->
+                        <button class="btn btn-primary w-100">Add Funds</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+<%- include('../layouts/footer.ejs') %>
