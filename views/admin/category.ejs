@@ -59,9 +59,6 @@
                   <table class="table align-middle">
                    <thead style="background-color: #343a40 ;font-weight: bold ;font-size: 16px;">  
                      <tr>
-                       <th>
-                         <input class="form-check-input" type="checkbox">
-                       </th>
                        <th>SL.No</th>
                        <th>Name</th>
                        <th>Description</th>
@@ -74,9 +71,7 @@
 
                       <% for(let i=0; i<category.length; i++){ %>
                       <tr>
-                        <td>
-                          <input class="form-check-input" type="checkbox">
-                        </td>
+                         
                         <td>
                          <a class="d-flex align-items-center gap-3" href="javascript:;">
                            <div class="customer-pic">
@@ -92,7 +87,7 @@
                         <!-- <td><a href="" class="badge badge-info"><%=category[i].listedAt ?  "Unlisted" : "Listed"%></a></td> -->
                       
                         <td>
-                          <button onclick="listCategory('<%= category[i]._id %>', this)" 
+                          <button onclick="confirmListCategory('<%= category[i]._id %>', this)" 
                             class="category-button btn btn-sm <%= category[i].is_listed ? 'btn-success' : 'btn-danger' %> rounded font-sm" 
                             data-id="<%= category[i]._id %>">
                             <%= category[i].is_listed ? 'Unlist' : 'List' %>
@@ -122,7 +117,63 @@
 
      <%- include('../layouts/adminFooter.ejs') %>
 
-     <script>
+<!--SweetAlert2 library -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  async function confirmListCategory(categoryId, buttonElement) {
+      const action = buttonElement.textContent.trim() === 'List' ? 'list' : 'unlist';
+
+      const result = await Swal.fire({
+          title: `Are you sure you want to ${action} this category?`,
+          text: `You are about to ${action} the category`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: `Yes, ${action} category`,
+          cancelButtonText: 'Cancel'
+      });
+
+      if (result.isConfirmed) {
+          // Proceed with the list/unlist action
+          listCategory(categoryId, buttonElement);
+      }
+  }
+
+  async function listCategory(categoryId, buttonElement) {
+      try {
+          const response = await fetch(`/admin/listcategory/${categoryId}`, {
+              method: 'PUT',
+              headers: {
+                  'Content-Type': 'application/json'
+              }
+          });
+          const data = await response.json();
+
+          if (data.is_listed === true) {
+              buttonElement.textContent = 'Unlist';
+              buttonElement.classList.remove('btn-danger');
+              buttonElement.classList.add('btn-success');
+          } else {
+              buttonElement.textContent = 'List';
+              buttonElement.classList.remove('btn-success');
+              buttonElement.classList.add('btn-danger');
+          }
+      } catch (error) {
+          console.error(error.message);
+          Swal.fire(
+              'Error',
+              'An error occurred while trying to list/unlist the category.',
+              'error'
+          );
+      }
+  }
+</script>
+
+
+
+     <!-- <script>
        async function listCategory(categoryId, buttonElement){
         try {
 
@@ -152,4 +203,4 @@
 
   
 
-     </script>
+     </script> -->

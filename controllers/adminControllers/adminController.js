@@ -5,6 +5,8 @@ const Category = require('../../models/categoryModel');
 const Brand = require('../../models/brandModel');
 const Product = require('../../models/productModel');
 const Order = require('../../models/orderModel');
+const Wallet = require('../../models/walletModel')
+const moment = require('moment');
 const sharp = require('sharp')
 const multer = require('multer');
 const fs = require('fs')
@@ -58,30 +60,167 @@ const verifyLogin = async (req, res) => {
         console.log(error.message);
     }
 }
-
+ 
+ 
 const loadDashboard = async (req, res) => {
     try {
-
-
         const adminId = req?.session?.admin_id;
-        // const email = req.session.email;
         if (!adminId) {
-            res.redirect('/admin/login')
-
-        } else {
-            const adminData = await Admin.findById(String(adminId))
-
-            if (!adminData) {
-                return res.redirect('/admin/login')
-            } else {
-                return res.render('dashboard');
-            }
+            return res.redirect('/admin/login');
         }
 
+        const adminData = await Admin.findById(String(adminId));
+        if (!adminData) {
+            return res.redirect('/admin/login');
+        }
+
+       
+        const deliveredOrders = await Order.find({
+            'orderedItems.orderStatus': 'Delivered'
+        }).sort({ orderDate: 1 });
+ 
+        const processedData = deliveredOrders.map(order => ({
+            date: order.orderDate,
+            totalPrice: order.totalPrice
+        }));
+
+       
+        const topProducts = await Order.aggregate([
+            { $unwind: "$orderedItems" },
+            {
+                $group: {
+                    _id: "$orderedItems.productId",
+                    totalSold: { $sum: "$orderedItems.quantity" }
+                }
+            },
+            { $sort: { totalSold: -1 } },
+            { $limit: 10 },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            { $unwind: "$product" },
+            {
+                $lookup: {
+                    from: "brands",
+                    localField: "product.brand",
+                    foreignField: "_id",
+                    as: "brand"
+                }
+            },
+            { $unwind: "$brand" },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "product.category",
+                    foreignField: "_id",
+                    as: "category"
+                }
+            },
+            { $unwind: "$category" },
+            {
+                $project: {
+                    name: "$product.name",
+                    brand: "$brand.brandName",
+                    category: "$category.name",
+                    price: "$product.price",
+                    sold: "$totalSold"
+                }
+            }
+        ]);
+
+     
+        const topCategories = await Order.aggregate([
+            { $unwind: "$orderedItems" },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "orderedItems.productId",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            { $unwind: "$product" },
+            {
+                $group: {
+                    _id: "$product.category",
+                    totalSold: { $sum: "$orderedItems.quantity" }
+                }
+            },
+            { $sort: { totalSold: -1 } },
+            { $limit: 10 },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "category"
+                }
+            },
+            { $unwind: "$category" },
+            {
+                $project: {
+                    name: "$category.name",
+                    sold: "$totalSold"
+                }
+            }
+        ]);
+
+        
+        const topBrands = await Order.aggregate([
+            { $unwind: "$orderedItems" },
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "orderedItems.productId",
+                    foreignField: "_id",
+                    as: "product"
+                }
+            },
+            { $unwind: "$product" },
+            {
+                $group: {
+                    _id: "$product.brand",
+                    totalSold: { $sum: "$orderedItems.quantity" }
+                }
+            },
+            { $sort: { totalSold: -1 } },
+            { $limit: 10 },
+            {
+                $lookup: {
+                    from: "brands",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "brand"
+                }
+            },
+            { $unwind: "$brand" },
+            {
+                $project: {
+                    name: "$brand.brandName",
+                    sold: "$totalSold"
+                }
+            }
+        ]);
+
+        res.render('dashboard', {
+            orderData: JSON.stringify(processedData),
+            adminName: adminData.name,
+            topProducts: JSON.stringify(topProducts),
+            topCategories: JSON.stringify(topCategories),
+            topBrands: JSON.stringify(topBrands)
+        });
+
     } catch (error) {
-        console.log(error.message)
+        console.error('Error in loadDashboard:', error);
+        res.status(500).send('Internal Server Error');
     }
-}
+};
+ 
 
 const loadUsers = async (req, res) => {
     try {
@@ -122,7 +261,6 @@ const loadCategory = async (req, res) => {
 const listCategory = async (req, res) => {
     try {
         const categoryId = req.params.categoryId;
-        console.log('the cattttttttt',categoryId)
         const category = await Category.findById(categoryId);
         if (!category) {
             return res.status(400).json({ success: false, message: 'Category not found' });
@@ -288,6 +426,9 @@ const editBrand = async (req, res) => {
 const loadProducts = async(req,res) => {
     try {
         const product = await Product.find({})
+        .populate('brand', 'brandName')
+        .populate('category', 'name');
+
         res.render('products',{product})
     } catch (error) {
         console.log(error)
@@ -333,11 +474,7 @@ const addProduct = async (req, res, next) => {
                     .toFile(outputFilePath);
                 
                 images.push(outputFileName);
-
-                console.log('................',images);
-                
-
-                // await checkAndDeleteFile(inputFilePath);
+                 
             } catch (error) {
                 console.error('Error processing file:', error);
                 return res.status(400).json({ success: false, warning: 'Error processing file' });
@@ -468,7 +605,7 @@ const orderDetailsLoad = async(req,res) => {
         res.render('orderDetails',{order})
         
     } catch (error) {
-        
+        console.error('Error loading order details',error)
     }
 }
 
@@ -511,12 +648,68 @@ const loadreturnRequests = async(req,res)=> {
     }
 }
 
-const returnStatus = async(req,res) => {
-    try {
-        const{orderId, itemId, status} = req.body;
-        const order = await Order.findById({_id: orderId})
-        const item = order.orderedItems.find(item => item._id.toString() === itemId)
+// const returnStatus = async(req,res) => {
+//     try {
+//         const{orderId, itemId, status} = req.body;
+//         const order = await Order.findById({_id: orderId})
+//         const item = order.orderedItems.find(item => item._id.toString() === itemId)
         
+//         if (!order) {
+//             return res.status(404).json({ success: false, message: 'Order not found' });
+//         }
+
+//         if (!item) {
+//             return res.status(404).json({ success: false, message: 'Item not found' });
+//         }
+
+//         item.returnStatus = status;
+
+//         if(item.returnStatus === 'approved'){
+//             item.orderStatus = 'Returned';
+
+//              await Wallet.findOneAndUpdate(
+//                 { userId: order.userId },
+//                 {
+//                     $inc: { balance: item.totalPrice },   
+//                     $push: {
+//                         transactionHistory: {
+//                             amount: item.totalPrice,
+//                             type: 'credit',
+//                             description: 'Order return refund',
+//                             date: Date.now()   
+//                         }
+//                     }
+//                 }
+//             );
+
+
+//             const product = await Product.findById(item.productId)
+             
+//             if(product){
+//                 await Product.updateOne(
+//                     {_id: item.productId},
+//                     {$inc:{stock: item.quantity}}
+//                 )
+//             }else{
+//                 return res.status(400).json({message: 'Product not found !'})
+//             }
+//         } else if(item.returnStatus == 'rejected'){
+//             item.orderStatus = 'Delivered'
+//         }
+       
+//         await order.save();
+//         res.json({ success: true });
+ 
+//     } catch (error) {
+//         console.log(error)
+//     }
+// }
+const returnStatus = async (req, res) => {
+    try {
+        const { orderId, itemId, status } = req.body;
+        const order = await Order.findById({ _id: orderId });
+        const item = order.orderedItems.find(item => item._id.toString() === itemId);
+
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
@@ -527,30 +720,154 @@ const returnStatus = async(req,res) => {
 
         item.returnStatus = status;
 
-        if(item.returnStatus === 'approved'){
+        if (item.returnStatus === 'approved') {
             item.orderStatus = 'Returned';
 
-            const product = await Product.findById(item.productId)
-             
-            if(product){
+            const totalItemsPrice = order.orderedItems.reduce((sum, item) => sum + item.totalPrice, 0);
+            const discountForThisItem = (item.totalPrice / totalItemsPrice) * order.discountAmount;
+
+            let refundAmount = item.totalPrice - discountForThisItem;
+            refundAmount = Math.round(refundAmount);
+
+            console.log('the deducteddddddddd.......discounnnnnnnnnt',refundAmount)
+
+            await Wallet.findOneAndUpdate(
+                { userId: order.userId },
+                {
+                    $inc: { balance: refundAmount },  
+                    $push: {
+                        transactionHistory: {
+                            amount: refundAmount,
+                            type: 'credit',
+                            description: 'Order return refund',
+                            date: Date.now()
+                        }
+                    }
+                }
+            );
+
+            const product = await Product.findById(item.productId);
+            if (product) {
                 await Product.updateOne(
-                    {_id: item.productId},
-                    {$inc:{stock: item.quantity}}
-                )
-            }else{
-                return res.status(400).json({message: 'Product not found !'})
+                    { _id: item.productId },
+                    { $inc: { stock: item.quantity } }
+                );
+            } else {
+                return res.status(400).json({ message: 'Product not found!' });
             }
-        } else if(item.returnStatus == 'rejected'){
-            item.orderStatus = 'Delivered'
+        } else if (item.returnStatus == 'rejected') {
+            item.orderStatus = 'Delivered';
         }
-       
+
         await order.save();
         res.json({ success: true });
- 
+
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+
+const loadSalesReport = async(req,res) => {
+    try {
+        const { date, filterType, startDate, endDate, year } = req.query;
+        let orders;
+        
+        const deliveredFilter = {
+            "orderedItems.orderStatus": "Delivered"
+        };
+
+        if (filterType === 'week' && date) {
+            const inputDate = new Date(date);
+            const startDate = new Date(inputDate);
+            const endDate = new Date(inputDate);
+
+            startDate.setDate(inputDate.getDate() - inputDate.getDay() + (inputDate.getDay() === 0 ? -6 : 1));
+            startDate.setHours(0, 0, 0, 0);
+
+            endDate.setDate(inputDate.getDate() - inputDate.getDay() + (inputDate.getDay() === 0 ? 0 : 7));
+            endDate.setHours(23, 59, 59, 999);
+
+            orders = await Order.find({
+                ...deliveredFilter,
+                orderDate: { $gte: startDate, $lte: endDate }
+            })
+            .populate('userId')
+            .populate('orderedItems.productId');
+
+        } else if (filterType === 'day' && date) {
+            const startDate = new Date(date);
+            const endDate = new Date(date);
+            endDate.setHours(23, 59, 59, 999);
+
+            orders = await Order.find({
+                ...deliveredFilter,
+                orderDate: { $gte: startDate, $lte: endDate }
+            })
+            .populate('userId')
+            .populate('orderedItems.productId');
+
+        } else if (filterType === 'year' && year) {
+            const startDate = new Date(`${year}-01-01`);
+            const endDate = new Date(`${year}-12-31`);
+            endDate.setHours(23, 59, 59, 999);
+
+            orders = await Order.find({
+                ...deliveredFilter,
+                orderDate: { $gte: startDate, $lte: endDate }
+            })
+            .populate('userId')
+            .populate('orderedItems.productId');
+        } else if (filterType === 'custom' && startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+
+            orders = await Order.find({
+                ...deliveredFilter,
+                orderDate: { $gte: start, $lte: end }
+            })
+            .populate('userId')
+            .populate('orderedItems.productId');
+        } else {
+            orders = await Order.find({...deliveredFilter,})
+            .populate('userId')
+            .populate('orderedItems.productId');
+        }
+
+        let totalSalesCount = 0;
+        let totalOrderAmount = 0;
+        let totalCouponDiscount = 0;
+        let totalOfferDiscount = 0;
+
+        orders.forEach(order => {
+            totalSalesCount += 1;  
+            totalOrderAmount += order.totalPrice || 0;
+            totalCouponDiscount += order.discountAmount || 0;
+
+            order.orderedItems.forEach(item => {
+                totalOfferDiscount += item.offerDiscount || 0;
+            });
+        });
+
+        const overallDiscount = totalCouponDiscount + totalOfferDiscount;
+
+        const currentDate = date || new Date().toISOString().split('T')[0];
+        res.render('salesReport', { orders, currentDate,totalSalesCount,
+            totalOrderAmount,
+            totalCouponDiscount,
+            totalOfferDiscount,
+            overallDiscount, });
+        
+    } catch (error) {
+        console.error(error);
     }
 }
+ 
+
+
+
 
 module.exports = {
     loadAdminLogin,
@@ -581,4 +898,10 @@ module.exports = {
     orderStatusUpdate,
     loadreturnRequests,
     returnStatus,
+    loadSalesReport,
+ 
+     
 }
+
+
+ 

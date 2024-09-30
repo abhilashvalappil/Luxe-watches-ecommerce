@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const offerModel = require('./offerModel');
 const productSchema = new mongoose.Schema({
     name:{
         type:String,
@@ -6,11 +7,13 @@ const productSchema = new mongoose.Schema({
         trim:true
     },
     brand:{
-        type:String,
+        type:mongoose.Schema.Types.ObjectId,
+        ref: 'Brand',
         required:true
     },
     category:{
-        type:String,
+        type:mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
         required:true
     },
     description:{
@@ -47,6 +50,10 @@ const productSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    offerPercent:{
+        type: Number
+    }
+
 })
 
 module.exports = mongoose.model('Product', productSchema);

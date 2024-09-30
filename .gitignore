@@ -1,7 +1,99 @@
-.env
+# Node.js specific
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+log/
+
+# Temporary files
+temp/
+temp.*
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm/
+
+# Environment variable files
+.env
+.env.*  
+
+# Bower (front-end package manager) files (if applicable)
+bower_components/
+
+# Build output
+dist/
+build/
+tmp/
+out/
+coverage/
+
+# System specific files (macOS)
+.DS_Store
+
+# System specific files (Windows)
+Thumbs.db
+
+# SASS cache files
+.sass-cache/
+
+# IDE-specific files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Temporary directories and files
+public/temporary/
 test3.html/
 test4.html/
 temp.ejs/
 
+# Optional REPL history
+.node_repl_history
 
+# Local Docker containers, images, volumes, and networks (if using Docker)
+docker-compose.override.yml
+.docker/
+docker-compose.yml
+
+# Optional log files and databases
+*.sqlite3
+*.db
+*.tgz
+*.gz
+
+# Ignore eslint and prettier cache
+.eslintcache
+.prettierignore
+
+# TypeScript specific (if using TypeScript)
+*.tsbuildinfo
+
+# Coverage reports
+coverage/
+
+# others
+test3.html/
+test4.html/
+temp.ejs/
+public/temporary/
+
+# Ignore all files inside public/uploadedImages, but keep the folder
+public/uploadedImages/*
+!public/uploadedImages/.gitkeep

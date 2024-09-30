@@ -1,0 +1,449 @@
+<%- include('../layouts/adminHeader.ejs') %>
+<%- include('../layouts/adminPanelSidebar.ejs') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiCart - Offer Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .navbar {
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 10px 20px;
+        }
+        .main-container {
+            display: flex;
+            flex: 1;
+        }
+        .sidebar {
+            width: 250px;  
+            background-color: #343a40;
+            color: white;
+            padding: 15px;
+            min-height: calc(100vh - 56px); 
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        .card {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .gift-icon {
+            width: 50px;
+            height: 50px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .offer-name {
+            display: inline-block;
+            vertical-align: top;
+            margin-top: 5px;
+            color: #333;
+        }
+        .text-green {
+            color: #28a745;
+        }
+        .text-red {
+            color: #dc3545;
+        }
+        .btn-deactivate {
+            background-color: #dc3545;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 15px;
+            cursor: pointer; 
+        }
+        .btn-deactivate:hover {
+        background-color: darkred;   
+        color: white;              
+        }
+        .btn-add-offer {
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 15px;
+            color: white;
+            font-weight: bold;
+        }
+        .heading {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <!-- Sidebar content goes here -->
+        </div>
+        <div class="content">
+            <div class="container">
+                <div class="heading">
+                    <h1>LuxeWatches Offers</h1>
+                    <a href="/admin/addOffer" class="btn btn-add-offer">Add Offer</a>
+                </div>
+                <div class="row">
+                    <% offers.forEach(offer => { %>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="gift-icon"></div>
+                                <h5 class="offer-name">Offer Name: <%= offer.offerName %></h5>
+                                <!-- <p class="text-secondary">Description : SPECIAL DISCOUNT FOR LAPTOP</p> -->
+                                <p>Discount Percentage: <%= offer.discountPercent %>%</p>
+                                <p>Offer For: <%= offer.offerType %></p>
+                                <p>Offer Applicable On :</p>
+                                <p class="text-green"><%= offer.offerType === 'Product Offer' ? (offer.product ? offer.product.name : 'N/A') : (offer.category ? offer.category.name : 'N/A') %></p>
+                                <!-- <p class="text-green">Laptop</p> -->
+                                <!-- <p class="text-red">Expiry Date : 31-08-2024</p> -->
+                                  <!-- Display Start Date -->
+                                <p class="text-blue">Start Date: <%= offer.startDate.toISOString().split('T')[0] %></p> 
+
+                                <p class="text-red">Expiry Date: <%= offer.expiredate.toISOString().split('T')[0] %></p> 
+                                <!-- <button class="btn btn-deactivate text-white" onclick="deactivateOffer('<%= offer._id %>')" >Deactivate</button> -->
+                                <!-- <button type="button" class="btn btn-warning" data-id="<%= offer._id %>" >Edit</button> -->
+                                <% if (offer.status) { %>
+                                <button id="deactivateBtn-<%= offer._id %>" class="btn btn-deactivate text-white" onclick="deactivateOffer('<%= offer._id %>')" >Deactivate</button>
+                                <button id="editBtn-<%= offer._id %>" type="button" class="btn btn-warning" data-id="<%= offer._id %>" >Edit</button>
+                                <% } else { %>
+                                  <button id="deactivateBtn-<%= offer._id %>" class="btn btn-secondary text-white" disabled>Deactivated</button>
+                                  <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+
+                    <!-- <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="gift-icon"></div>
+                                <h5 class="offer-name">Offer name : DEALS ON SMART TV</h5>
+                                <p class="text-secondary">Description : EXCLUSIVELY FOR SMART TV</p>
+                                <p>Discount Percentage : 30%</p>
+                                <p>Offer For : Category Offer</p>
+                                <p>Offer Applicable On :</p>
+                                <p class="text-green">Smart Tv</p>
+                                <p class="text-red">Expiry Date : 24-01-2025</p>
+                                <button class="btn btn-deactivate text-white">Deactivate</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="gift-icon"></div>
+                                <h5 class="offer-name">Offer name : APPLE DEALS</h5>
+                                <p class="text-secondary">Description : EXCLUSIVELY FOR IPHONE MODELS</p>
+                                <p>Discount Percentage : 50%</p>
+                                <p>Offer For : Product Offer</p>
+                                <p>Offer Applicable On :</p>
+                                <p class="text-green">Apple iPhone 13 Series</p>
+                                <p class="text-red">Expiry Date : 28-12-2024</p>
+                                <button class="btn btn-deactivate text-white">Deactivate</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="gift-icon"></div>
+                                <h5 class="offer-name">Offer name : DEALS ON WATCH</h5>
+                                <p class="text-secondary">Description : FOR TOP WATCH DEALS</p>
+                                <p>Discount Percentage : 40%</p>
+                                <p>Offer For : Category Offer</p>
+                                <p>Offer Applicable On :</p>
+                                <p class="text-green">Smart Watch</p>
+                                <p class="text-red">Expiry Date : 20-09-2024</p>
+                                <button class="btn btn-deactivate text-white">Deactivate</button>
+                            </div>
+                        </div>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+<div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editOfferModalLabel">Edit Offer</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editOfferForm">
+            <input type="hidden" id="editOfferId" />
+            <div class="mb-4">
+              <h5 class="mb-2">Offer Name</h5>
+              <input type="text" class="form-control" id="editOfferName" required>
+            </div>
+            <div class="mb-4">
+              <h5 class="mb-2">Discount Percentage</h5>
+              <input type="text" class="form-control" id="editDPercentage" required>
+            </div>
+            <div class="mb-4">
+              <h6 class="mb-2">Select a Start Date</h6>
+              <input type="date" class="form-control" id="editStartDate" required>
+            </div>
+            <div class="mb-4">
+              <h6 class="mb-2">Select an Expiry Date</h6>
+              <input type="date" class="form-control" id="editExpiryDate" required>
+            </div>
+            <div class="mb-4">
+              <label for="editOfferType" class="form-label">Select Offer Type</label>
+              <select class="form-select" id="editOfferType" required>
+                <option value="Product Offer">Product Offer</option>
+                <option value="Category Offer">Category Offer</option>
+              </select>
+            </div>
+            <div class="mb-4" id="editProductDiv" style="display:none;">
+              <label for="editProduct" class="form-label">Select a Product</label>
+              <select class="form-select" id="editProduct">
+                <option selected disabled>Select One</option>
+                <% products.forEach(product => { %>
+                  <option value="<%= product._id %>"><%= product.name %></option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="mb-4" id="editCategoryDiv" style="display:none;">
+              <label for="editCategory" class="form-label">Select a Category</label>
+              <select class="form-select" id="editCategory">
+                <% categories.forEach(category => { %>
+                  <option value="<%= category._id %>"><%= category.name %></option>
+                <% }); %>
+              </select>
+            </div>
+            <button type="submit" id="updateOffer-btn" class="btn btn-primary">Save Changes</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<%- include('../layouts/adminFooter.ejs') %>
+
+<script>
+    document.querySelectorAll('.btn-warning').forEach((button, index) => {
+      button.addEventListener('click', function() {
+        const offer = <%- JSON.stringify(offers) %>[index];
+        
+        document.getElementById('editOfferName').value = offer.offerName;
+        document.getElementById('editDPercentage').value = offer.discountPercent;
+        document.getElementById('editStartDate').value = offer.startDate.split('T')[0];
+        document.getElementById('editExpiryDate').value = offer.expiredate.split('T')[0];
+        document.getElementById('editOfferType').value = offer.offerType;
+  
+        if (offer.offerType === 'Product Offer') {
+          document.getElementById('editProductDiv').style.display = 'block';
+          document.getElementById('editCategoryDiv').style.display = 'none';
+          document.getElementById('editProduct').value = offer.product._id;
+        } else if (offer.offerType === 'Category Offer') {
+          document.getElementById('editProductDiv').style.display = 'none';
+          document.getElementById('editCategoryDiv').style.display = 'block';
+          document.getElementById('editCategory').value = offer.category._id;
+        }
+  
+        var myModal = new bootstrap.Modal(document.getElementById('editOfferModal'));
+        myModal.show();
+      });
+    });
+  </script>
+
+
+<script>
+   document.querySelectorAll('.btn-warning').forEach((button, index) => {
+  button.addEventListener('click', function() {
+    const offer = <%- JSON.stringify(offers) %>[index];
+    
+    document.getElementById('editOfferName').value = offer.offerName;
+    document.getElementById('editDPercentage').value = offer.discountPercent;
+    document.getElementById('editStartDate').value = offer.startDate.split('T')[0];
+    document.getElementById('editExpiryDate').value = offer.expiredate.split('T')[0];
+    document.getElementById('editOfferType').value = offer.offerType;
+    document.getElementById('editOfferId').value = offer._id; 
+
+    if (offer.offerType === 'Product Offer') {
+      document.getElementById('editProductDiv').style.display = 'block';
+      document.getElementById('editCategoryDiv').style.display = 'none';
+      document.getElementById('editProduct').value = offer.product._id;
+    } else if (offer.offerType === 'Category Offer') {
+      document.getElementById('editProductDiv').style.display = 'none';
+      document.getElementById('editCategoryDiv').style.display = 'block';
+      document.getElementById('editCategory').value = offer.category._id;
+    }
+    
+    var myModal = new bootstrap.Modal(document.getElementById('editOfferModal'));
+    myModal.show();
+  });
+});
+
+
+document.getElementById('updateOffer-btn').addEventListener('click', async function(event) {
+    event.preventDefault();
+    
+    const offerId = document.getElementById('editOfferId').value;
+    const offerName = document.getElementById('editOfferName').value;
+    const discountPercent = document.getElementById('editDPercentage').value;
+    const startDate = document.getElementById('editStartDate').value;
+    const expiryDate = document.getElementById('editExpiryDate').value;
+    const offerType = document.getElementById('editOfferType').value;
+    
+    let productId = null;
+    let categoryId = null;
+    
+    if (offerType === 'Product Offer') {
+        productId = document.getElementById('editProduct').value;
+    } else if (offerType === 'Category Offer') {
+        categoryId = document.getElementById('editCategory').value;
+    }
+    
+    const data = {
+        offerId,
+        offerName,
+        discountPercent,
+        startDate,
+        expiryDate,
+        offerType,
+        productId,
+        categoryId
+    };
+
+    try {
+        const response = await fetch('/admin/update-offer', {
+            method: 'PUT',  
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            console.log('Offer updated:', result);
+            var myModal = bootstrap.Modal.getInstance(document.getElementById('editOfferModal'));
+            myModal.hide();
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Updated!',
+                text: 'Offer updated successfully.',
+            });
+            window.location.href = '/admin/offer-management';
+        } else {
+          const errorResult = await response.json();
+            console.error('Error updating offer:', response.statusText);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: errorResult.message || 'An error occurred while updating the offer.',
+            });
+        }
+    } catch (error) {
+      console.error('Fetch error:', error);
+        await Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'An error occurred while processing your request.',
+        });
+    }
+});
+
+</script>
+
+<script>
+  function deactivateOffer(offerId) {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: "You are about to deactivate this offer.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, deactivate it!'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`/admin/deactivate-offer/${offerId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Deactivated!',
+            text: 'Offer has been deactivated successfully.',
+            showConfirmButton: false,
+            timer: 1500
+          }).then(() => {
+            const deactivateBtn = document.getElementById(`deactivateBtn-${offerId}`);
+            const editBtn = document.getElementById(`editBtn-${offerId}`);
+            
+            if (deactivateBtn) {
+              deactivateBtn.textContent = 'Deactivated';
+              deactivateBtn.disabled = true;  
+              deactivateBtn.classList.add('btn-secondary');  
+              deactivateBtn.classList.remove('btn-deactivate');
+            }
+
+            if (editBtn) {
+              editBtn.style.display = 'none';  
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed!',
+            text: data.message || 'Failed to deactivate the offer.'
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'An error occurred while deactivating the offer.'
+        });
+      });
+    }
+  });
+}
+
+</script>
+ 
+
+ 

@@ -65,8 +65,8 @@
                         <% if (status === 'pending') { %>
                         <!-- <a href="#" class="btn btn-success btn-sm" onclick="handleReturnRequest(this, 'approved')">Approve</a> -->
                         <!-- <a href="#" class="btn btn-danger btn-sm" onclick="handleReturnRequest(this, 'rejected')">Reject</a> -->
-                        <a href="#" class="btn btn-success btn-sm" onclick="handleReturnRequest(event, '<%= order._id %>', '<%= item._id %>', 'approved')">Approve</a>
-                        <a href="#" class="btn btn-danger btn-sm" onclick="handleReturnRequest(event, '<%= order._id %>', '<%= item._id %>', 'rejected')">Reject</a>
+                        <a href="#" class="btn btn-success btn-sm" onclick="confirmReturnRequest(event, '<%= order._id %>', '<%= item._id %>', 'approved')">Approve</a>
+                        <a href="#" class="btn btn-danger btn-sm" onclick="confirmReturnRequest(event, '<%= order._id %>', '<%= item._id %>', 'rejected')">Reject</a>
                         <% } %>
                     </td>
                 </tr>
@@ -83,37 +83,75 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     
-
-    <script>
-        async function handleReturnRequest(event, orderId, itemId, status){
-            try {
-                const response = await fetch('/admin/update-return-status',{
-                    method: 'POST',
-                    headers:{
-                        'Content-Type' : 'application/json'
-                    },
-                    body: JSON.stringify({orderId, itemId, status})
-                })
-                const data = await response.json();
-
-                if (data.success) {
-                    const row = event.target.closest('tr');
-                    const statusCell = row.querySelector('td:nth-child(6)');
-                    const actionsCell = row.querySelector('td:nth-child(7)');
-
-                    statusCell.innerHTML = `<span class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
-                
-                    actionsCell.querySelectorAll('a').forEach(btn => btn.classList.add('disabled'));
-                 } else {
-                     alert('Failed to update status');
-                  }
-
-            } catch (error) {
-                console.error(error)
-            }
-        }
-    </script>
 </body>
 </html>
 
 <%- include('../layouts/adminFooter.ejs') %>
+
+<!-- sweet alert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    async function confirmReturnRequest(event, orderId, itemId, status) {
+        const action = status === 'approved' ? 'approve' : 'reject';
+
+        const result = await Swal.fire({
+            title: `Are you sure you want to ${action} this return request?`,
+            text: `You are about to ${action} the return for order.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: status === 'approved' ? '#28a745' : '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: `Yes, ${action} it`,
+            cancelButtonText: 'Cancel'
+        });
+
+        if (result.isConfirmed) {
+            handleReturnRequest(event, orderId, itemId, status);
+        }
+    }
+
+    async function handleReturnRequest(event, orderId, itemId, status) {
+        try {
+            const response = await fetch('/admin/update-return-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ orderId, itemId, status })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                const row = event.target.closest('tr');
+                const statusCell = row.querySelector('td:nth-child(6)');
+                const actionsCell = row.querySelector('td:nth-child(7)');
+
+                statusCell.innerHTML = `<span class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+                actionsCell.querySelectorAll('a').forEach(btn => btn.classList.add('disabled'));
+
+                Swal.fire({
+                    title: 'Success',
+                    text: `Return request has been ${status}.`,
+                    icon: 'success'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Failed to update the return request status.',
+                    icon: 'error'
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                title: 'Error',
+                text: 'An error occurred while processing the request.',
+                icon: 'error'
+            });
+        }
+    }
+</script>
+
+ 

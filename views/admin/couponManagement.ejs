@@ -16,6 +16,12 @@
             margin-top: 8.5rem !important;
             margin-left: 18rem;
         }
+        #couponTable thead th {
+            background-color: #343a40;
+            color: #ffffff; /* Optional: white text color for better contrast */
+            font-weight: bold;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -86,7 +92,7 @@
                                 <input type="number" class="form-control" id="minimumPurchase" name="minimumPurchase" required>
                             </div>
                             <div class="mb-3">
-                                <label for="maxRedeem" class="form-label">Max Redeem</label>
+                                <label for="maxRedeem" class="form-label">Max Redeemable Amount</label>
                                 <input type="number" class="form-control" id="maxRedeem" name="maxRedeem" required>
                             </div>
                             <div class="mb-3">
@@ -180,14 +186,14 @@
         const couponCode = document.getElementById('couponCode').value;
         const discountPercent = document.getElementById('discountValue').value;
         const minimumPurchase = document.getElementById('minimumPurchase').value;
-        const maxRedeem = document.getElementById('maxRedeem').value;
+        const maxRedeemAmount = document.getElementById('maxRedeem').value;
         const validFrom = document.getElementById('validFrom').value;
         const validTo = document.getElementById('validTo').value;
         const message = document.getElementById('message');
 
         message.style.display = 'none';
 
-        const errorMessage = validateCouponForm(couponCode, discountPercent, minimumPurchase, maxRedeem, validFrom, validTo);
+        const errorMessage = validateCouponForm(couponCode, discountPercent, minimumPurchase, maxRedeemAmount, validFrom, validTo);
 
         if (errorMessage) {
             message.style.display = 'block';
@@ -199,7 +205,7 @@
             couponCode: couponCode,
             discountPercent: discountPercent,
             minPurchase: minimumPurchase,
-            maxRedeem: maxRedeem,
+            maxRedeemAmount: maxRedeemAmount,
             validFrom: validFrom,
             validTo: validTo
         }
@@ -238,7 +244,7 @@
         }
     });
 
-    function validateCouponForm(couponCode, discountPercent, minimumPurchase, maxRedeem, validFrom, validTo) {
+    function validateCouponForm(couponCode, discountPercent, minimumPurchase, maxRedeemAmount, validFrom, validTo) {
         let message = '';
         let codeRegex = /^[A-Za-z0-9]{5,10}$/;
         let discountRegex = /^([1-9]|[1-9][0-9]|100)$/;  
@@ -250,7 +256,7 @@
             message = "Discount value must be a number between 1 and 100.";
         } else if (!numberRegex.test(minimumPurchase) || minimumPurchase <= 0) {
             message = "Minimum purchase must be a positive number.";
-        } else if (!numberRegex.test(maxRedeem) || maxRedeem <= 0) {
+        } else if (!numberRegex.test(maxRedeemAmount) || maxRedeemAmount <= 0) {
             message = "Max redeem must be a positive number.";
         } else if (new Date(validFrom) > new Date(validTo)) {
             message = "Valid From date cannot be after Valid To date.";

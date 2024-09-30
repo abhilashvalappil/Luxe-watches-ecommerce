@@ -47,7 +47,8 @@ function generateOTP() {
 
 const registerUser = async (req, res) => {
     try {
-        const { name, email, phone, password, confirmPassword } = req.body;
+        
+        const { name, email, phone, password, confirmPassword,refId } = req.body;
 
         const userExist = await User.findOne({ email: email });
         if (userExist) {
@@ -81,6 +82,7 @@ const registerUser = async (req, res) => {
         if (password !== confirmPassword) {
             return res.status(400).json({ message: 'Passwords do not match.' });
         }
+        
 
         const spassword = await securePassword(password);
         req.session.userData = {
@@ -88,6 +90,7 @@ const registerUser = async (req, res) => {
             email: email,
             phone: phone,
             password: spassword,
+            refId:refId
         }
 
         const otpObj = generateOTP();
@@ -97,6 +100,7 @@ const registerUser = async (req, res) => {
         console.log(req.session.otp)
 
         await sendOtp(email, otpObj, res)
+
 
         return res.status(200).json({ success: true, message: 'Registration successful. Please verify your email' })
 
@@ -154,8 +158,6 @@ const sendOtp = async (email, otpObj, res) => {
     }
 }
 
-
-
 const resendOtp = async (req, res) => {
     try {
 
@@ -173,7 +175,6 @@ const resendOtp = async (req, res) => {
         res.status(500).json({ messge: 'An error occurred. Please try again.' });
     }
 }
-
 
 const loadOtp = async (req, res) => {
     try {
@@ -217,8 +218,66 @@ const verifyOtp = async (req, res) => {
             }
         }
         if (enteredOtp.otp == otp) {
-            const { name, email, phone, password } = req.session.userData;
+            const { name, email, phone, password ,refId} = req.session.userData;
+            console.log('..........Referrer ID:............',refId);
+            
             const newUser = new User({ name, email, phone, password });
+            const referralId = newUser._id
+            // const referralLink = `http://localhost:5000/register?refId=${newUser._id}`
+
+            if (refId) {
+                
+                const referrer = await User.findById(refId)
+                console.log('reffererrrrrr',referrer)
+                if(referrer){
+                    const referralBonus = 100;  
+                    const description = "Referral bonus";
+
+                    let referrerWallet = await Wallet.findOne({ userId: referrer._id });
+                    if (referrerWallet) {
+                        referrerWallet = await Wallet.findOneAndUpdate(
+                            { userId: referrer._id },
+                            { 
+                                $inc: {
+                                     
+                                     balance: referralBonus
+                                     },  
+                                $push: { 
+                                    transactionHistory: { 
+                                        amount: referralBonus,
+                                         type: 'credit',
+                                          date: new Date(),
+                                           description
+                                         } 
+                                        }  
+                            },
+                            { new: true, useFindAndModify: false }  
+                        );
+                    } else {
+                        referrerWallet = new Wallet({
+                            userId: referrer._id,
+                            balance: referralBonus, 
+                            transactionHistory: [{
+                                 amount: referralBonus, 
+                                 type: 'credit', 
+                                 date: new Date(),
+                                  description
+                                 }]  
+                        });
+        
+                        await referrerWallet.save();  
+                    }
+        
+                    console.log(`Referrer's wallet updated: ${referrerWallet}`);
+                }
+            } else {
+                console.log('Referral ID does not exist.');
+            }
+         
+              
+            
+            const referralLink = `http://localhost:5000/register?refId=${referralId}`;
+            newUser.referralLink = referralLink;
             await newUser.save();
 
             delete req.session.otp;
@@ -323,31 +382,32 @@ const loadHomePage = async (req, res) => {
         const user = req?.session?.user_id;
         const products = await Product.find(
             {stock:{$gt:0}}).limit(8)
+
         if (!user) {
-            return res.render('home', { user });
+            // return res.render('home', { user });
+            return res.render('home', { user: null, products, title: 'home page' });
         } else {
             const userData = await User.findById({ _id: user });
 
             if (!userData) {
                 return res.redirect('/login');
             } else {
-
-
                 res.render('home', { user,products, title: 'home page' });
             }
         }
 
     } catch (error) {
-        console.log(error.message);
+        console.error('Error occured on loading home page',error)
     }
 }
 
 const logout = async (req, res) => {
     try {
         if (req.session.user_id) {
-            delete req.session.user_id;
-            res.status(200).json({})
+            req.session.destroy();
+            return res.status(200).json({})
         }
+        res.redirect('/home')
     }
     catch (err) {
         console.log(err)
@@ -630,7 +690,7 @@ const forgotPasswordLoad = async (req, res) => {
     try {
         res.render('forgotpassword')
     } catch (error) {
-
+        console.log(error)
     }
 }
 

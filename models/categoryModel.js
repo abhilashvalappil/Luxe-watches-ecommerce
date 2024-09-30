@@ -12,6 +12,9 @@ const categorySchema = new mongoose.Schema({
     is_listed: {
         type: Boolean,
         default: true
+    },
+    offerPercent:{
+        type: Number
     }
 }, {
     timestamps: true  

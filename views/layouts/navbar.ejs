@@ -1,4 +1,26 @@
 <%- include('../layouts/header.ejs') %>
+<style>
+    .cart-link {
+text-decoration: none;
+color: inherit; /* Prevents color change on hover */
+}
+
+.cart-link:hover .cart-icon {
+color: #ff5733; /* Optional: Change color on hover if needed */
+}
+
+.cart-icon {
+font-size: 18px; /* Control icon size */
+}
+
+/* Make sure these properties are set correctly */
+.cart-link:hover {
+visibility: visible;
+opacity: 1;
+display: inline-block; /* Ensures the icon doesn't hide */
+}
+
+  </style>
 
     <header class="header">
         <div class="header__top">
@@ -23,7 +45,7 @@
                                     <ul>
                                         <li onclick="profile()">Profile</li>
                                         <li>Settings</li>
-                                        <li onclick="logout()">Logout</li>
+                                        <li onclick="confirmLogout()">Logout</li>
                                     </ul>
                                 </div>
                                 <%}%>
@@ -32,28 +54,6 @@
                 </div>
             </div>
         </div>
-        
-        <script>
-
-            function profile() {
-                window.location.href = '/profile';
-            }
-
-            async function logout() {
-
-                const response = await fetch('/home', {
-                    method: 'POST'
-                })
-
-                if (response.ok) {
-
-                    window.location.href = '/home'
-                }
-
-            }
-
-
-        </script>
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 col-md-3">
@@ -64,9 +64,9 @@
                 <div class="col-lg-6 col-md-6">
                     <nav class="header__menu mobile-menu">
                         <ul>
-                            <li class="active"><a href="./index.html">Home</a></li>
+                            <li class="active"><a href="/home">Home</a></li>
                             <li><a href="/shop">Shop</a></li>
-                            <li><a href="#">Pages</a>
+                            <!-- <li><a href="#">Pages</a>
                                 <ul class="dropdown">
                                     <li><a href="./about.html">About Us</a></li>
                                     <li><a href="./shop-details.html">Shop Details</a></li>
@@ -74,18 +74,24 @@
                                     <li><a href="./checkout.html">Check Out</a></li>
                                     <li><a href="./blog-details.html">Blog Details</a></li>
                                 </ul>
-                            </li>
+                            </li> -->
                             <li><a href="./blog.html">Blog</a></li>
                             <li><a href="./contact.html">Contacts</a></li>
                         </ul>
                     </nav>
                 </div>
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
                 <div class="col-lg-3 col-md-3">
                     <div class="header__nav__option">
-                        <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a>
+                        <!-- <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a> -->
                         <% if(user){ %>
                         <a href="/wishlist"><img src="img/icon/heart.png" alt=""></a>
-                        <a href="/cart"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
+                        <!-- <a href="/cart"><img src="img/icon/cart.png" alt=""> <span>0</span></a> -->
+                        <a href="/cart" class="cart-link">
+                            <i class="fas fa-shopping-cart cart-icon"></i>
+                            <span></span>
+                          </a>
                         <a href="/profile" class="profile-icon"><i class="fas fa-user"></i></a>
                         <% } %>
                          
@@ -105,3 +111,58 @@
 
         </style>
     </header>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <script>
+
+        function profile() {
+            window.location.href = '/profile';
+        }
+
+        function confirmLogout() {
+Swal.fire({
+    title: 'Are you sure?',
+    text: "You will be logged out of your account.",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, log me out',
+    cancelButtonText: 'Cancel'
+}).then((result) => {
+    if (result.isConfirmed) {
+        // Proceed with logout
+        logout();
+    }
+});
+}
+
+async function logout() {
+const response = await fetch('/logout', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+if (response.ok) {
+    Swal.fire(
+        'Logged Out',
+        'You have been logged out successfully.',
+        'success'
+    ).then(() => {
+        window.location.href = '/home'; // Redirect to home or login page
+    });
+} else {
+    Swal.fire(
+        'Error',
+        'There was a problem logging out. Please try again.',
+        'error'
+    );
+}
+}
+
+
+    </script>

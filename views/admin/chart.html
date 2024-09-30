@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Chart with Filter</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <style>
+        .filter-container {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Admin Dashboard - Sales Report</h2>
+
+    <!-- Filter options -->
+    <div class="filter-container">
+        <label for="filter">Select Filter: </label>
+        <select id="filter" onchange="updateChart()">
+            <option value="yearly">Yearly</option>
+            <option value="monthly">Monthly</option>
+            <option value="weekly">Weekly</option>
+        </select>
+    </div>
+
+    <!-- Canvas element where the chart will be drawn -->
+    <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+
+    <script>
+        // Initial Data for the chart
+        var yearlyData = [55, 49, 44, 24, 15];
+        var monthlyData = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+        var weeklyData = [12, 19, 3, 5, 2, 3, 7];
+
+        var barColors = ["red", "green", "blue", "orange", "brown"];
+
+       
+        var myChart = new Chart("myChart", {
+          type: "bar",
+          data: {
+            labels: ["Italy", "France", "Spain", "USA", "Argentina"],   
+            datasets: [{
+              backgroundColor: barColors,
+              data: yearlyData  
+            }]
+          },
+          options: {
+            title: {
+              display: true,
+              text: "Sales Report - Yearly"
+            }
+          }
+        });
+
+        
+        function updateChart() {
+            var filter = document.getElementById("filter").value;
+
+            if (filter === "yearly") {
+                myChart.data.labels = ["Italy", "France", "Spain", "USA", "Argentina"];
+                myChart.data.datasets[0].data = yearlyData;
+                myChart.options.title.text = "Sales Report - Yearly";
+            } else if (filter === "monthly") {
+                myChart.data.labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                myChart.data.datasets[0].data = monthlyData;
+                myChart.options.title.text = "Sales Report - Monthly";
+            } else if (filter === "weekly") {
+                myChart.data.labels = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Week 7"];
+                myChart.data.datasets[0].data = weeklyData;
+                myChart.options.title.text = "Sales Report - Weekly";
+            }
+
+            myChart.update();  
+        }
+    </script>
+    
+</body>
+</html>

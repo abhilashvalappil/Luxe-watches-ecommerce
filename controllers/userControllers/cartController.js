@@ -6,13 +6,107 @@ const mongoose = require('mongoose');
 const Address = require('../../models/addressModel')
 const Order = require('../../models/orderModel');
 const Wishlist = require('../../models/wishlistModel')
+const Offer = require('../../models/offerModel');
+const { checkAndUpdateExpiredOffers } = require('./shopController');
  
 
+// const loadCart = async (req, res) => {
+//     try {
+//         await checkAndUpdateExpiredOffers();    
+//         const userId = req.session.user_id;
+//         const user = await User.findById(userId);
+
+//         const offers = await Offer.find({ expiredate: { $gte: new Date() }, status: true });
+//         console.log('recdddddddddddddd..............fff offffffffrs',offers)
+
+//         const userCart = await Cart.aggregate([
+//             { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+//             { $unwind: '$cartItems' },
+//             {
+//                 $lookup: {
+//                     from: 'products',
+//                     localField: 'cartItems.productId',
+//                     foreignField: '_id',
+//                     as: 'productDetails'
+//                 }
+//             },
+//             { $unwind: '$productDetails' },
+//             {
+//                 $lookup: {
+//                     from: 'categories',
+//                     localField: 'productDetails.category',
+//                     foreignField: '_id',
+//                     as: 'categoryDetails'
+//                 }
+//             },
+//             { $unwind: '$categoryDetails' },
+//             {
+//                 $project: {
+//                     _id: 0,
+//                     productId: '$cartItems.productId',
+//                     quantity: '$cartItems.quantity',
+//                     productDetails: {
+//                         name: '$productDetails.name',
+//                         price: '$productDetails.price',
+//                         images: '$productDetails.images',
+//                         offerPercent: '$productDetails.offerPercent'
+//                     },
+//                     categoryOfferPercent: '$categoryDetails.offerPercent'
+//                 }
+//             }
+//         ]);
+        
+
+//         userCart.forEach(item => {
+//             const productOffer = item.productDetails.offerPercent || 0;  
+//             const categoryOffer = item.categoryOfferPercent || 0;  
+
+//             console.log('product offer existsssssss',productOffer)
+//             console.log('categoryOffer offer existsssssss',categoryOffer)
+
+//             if (productOffer) {
+//                 const discount = (item.productDetails.price *  item.productDetails.offerPercent) / 100;
+//                 item.offerPrice = item.productDetails.price - discount;
+//                 item.offerPercent = productOffer;
+//             } else if (!productOffer && categoryOffer) {
+//                 const discount = (item.productDetails.price * item.categoryOfferPercent) / 100;
+//                 item.offerPrice = item.productDetails.price - discount;
+//                 item.offerPercent = categoryOffer;
+//             } else {
+//                 item.offerPrice = item.productDetails.price;
+//                 item.offerPercent = 0;
+//             }
+//         });
+
+//         const totalPriceResult = userCart.reduce((total, item) => {
+//             return total + (item.offerPrice * item.quantity);
+//         }, 0);
+
+//         if (userCart.length === 0) {
+//             return res.render('cart', { user, userData: user, totalPrice: 0, userCart: [], message: 'Your cart is empty' })
+//         }
+
+//         res.render('cart', { user, userData: user, userCart, totalPrice: totalPriceResult });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Server Error');
+//     }
+// }
 const loadCart = async (req, res) => {
     try {
+        // Update expired offers first
+        await checkAndUpdateExpiredOffers();
+
         const userId = req.session.user_id;
         const user = await User.findById(userId);
 
+        const offers = await Offer.find({
+            expiredate: { $gte: new Date() },
+            status: true
+        });
+        console.log('Received offers:', offers);
+
+        // Aggregate user cart with product and category details
         const userCart = await Cart.aggregate([
             { $match: { userId: new mongoose.Types.ObjectId(userId) } },
             { $unwind: '$cartItems' },
@@ -26,6 +120,15 @@ const loadCart = async (req, res) => {
             },
             { $unwind: '$productDetails' },
             {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'productDetails.category',
+                    foreignField: '_id',
+                    as: 'categoryDetails'
+                }
+            },
+            { $unwind: '$categoryDetails' },
+            {
                 $project: {
                     _id: 0,
                     productId: '$cartItems.productId',
@@ -33,57 +136,70 @@ const loadCart = async (req, res) => {
                     productDetails: {
                         name: '$productDetails.name',
                         price: '$productDetails.price',
-                        images: '$productDetails.images'
-                    }
+                        images: '$productDetails.images',
+                        offerPercent: '$productDetails.offerPercent'
+                    },
+                    categoryOfferPercent: '$categoryDetails.offerPercent'
                 }
             }
         ]);
 
-        const totalPriceResult = await Cart.aggregate([
-            { $match: { userId: new mongoose.Types.ObjectId(userId) } },
-            { $unwind: '$cartItems' },
-            {
-                $lookup: {
-                    from: 'products',
-                    localField: 'cartItems.productId',
-                    foreignField: '_id',
-                    as: 'productDetails'
-                }
-            },
-            { $unwind: '$productDetails' },
-            {
-                $project: {
-                    _id: 0,
-                    totalPrice: { $multiply: ['$productDetails.price', '$cartItems.quantity'] }
-                }
-            },
-            {
-                $group: {
-                    _id: null,
-                    totalPrice: { $sum: '$totalPrice' }
-                }
+        // Calculate offer price and discount
+        userCart.forEach(item => {
+            const productOffer = item.productDetails.offerPercent || 0;
+            const categoryOffer = item.categoryOfferPercent || 0;
+
+            if (productOffer) {
+                const discount = (item.productDetails.price * productOffer) / 100;
+                item.offerPrice = item.productDetails.price - discount;
+                item.offerPercent = productOffer;
+            } else if (!productOffer && categoryOffer) {
+                const discount = (item.productDetails.price * categoryOffer) / 100;
+                item.offerPrice = item.productDetails.price - discount;
+                item.offerPercent = categoryOffer;
+            } else {
+                item.offerPrice = item.productDetails.price;
+                item.offerPercent = 0;
             }
-        ]);
+        });
 
-        const totalPrice = totalPriceResult.length > 0 ? totalPriceResult[0].totalPrice : 0;
+        // Calculate total price
+        const totalPriceResult = userCart.reduce((total, item) => {
+            return total + (item.offerPrice * item.quantity);
+        }, 0);
 
+        // Check if cart is empty
         if (userCart.length === 0) {
-            return res.render('cart', { user, userData: user, totalPrice, userCart: [], message: 'Your cart is empty' })
+            return res.render('cart', {
+                user,
+                userData: user,
+                totalPrice: 0,
+                userCart: [],
+                message: 'Your cart is empty'
+            });
         }
 
-        res.render('cart', { user, userData: user, userCart, totalPrice });
+        res.render('cart', {
+            user,
+            userData: user,
+            userCart,
+            totalPrice: totalPriceResult
+        });
     } catch (error) {
         console.error(error);
         res.status(500).send('Server Error');
     }
-}
+};
 
 const addToCart = async (req, res) => {
     try {
         const userId = req.session.user_id;
         const { productId } = req.body;
+        await checkAndUpdateExpiredOffers();
 
         let cart = await Cart.findOne({ userId: userId });
+        req.session.coupon = null;
+    req.session.couponDiscount = 0;
 
         if (!cart) {
             cart = new Cart({
@@ -122,6 +238,9 @@ const removeFromCart = async (req, res) => {
             { userId: userId },
             { $pull: { cartItems: { productId: productId } } }
         );
+
+        req.session.coupon = null;
+        req.session.couponDiscount = 0;
 
         if (result.modifiedCount) {
             res.status(200).json({ success: true, message: 'Item removed from cart' });
@@ -163,35 +282,7 @@ const updateQuantity = async (req, res) => {
         return res.status(500).json({ message: 'An error occurred while updating the quantity.' });
     }
 };
-
-// const loadWishlist = async (req, res) => {
-//     try {
-//         const user = req?.session?.user_id;
-//         if(!user){
-//             return res.status(400).json({success: false, message: 'Login to continue!'})
-//         }
-//         const page = parseInt(req.query.page) || 1;
-//         const limit = parseInt(req.query.limit) || 4;
-        
-//         const wishlist = await Wishlist.findOne({ userId: user })
-//         .populate({
-//             path: 'products',
-//             options: {
-//                 skip: (page - 1) * limit,
-//                 limit: limit
-//             }
-//         });
-
-//         const products = wishlist ? wishlist.products : [];
-
-//         const totalProducts = wishlist ? wishlist.products.length : 0;
-//         const totalPages = Math.ceil(totalProducts/limit)
-
-//         res.render('wishlist',{user, wishlist,products,page,totalPages,limit})
-//     } catch (error) {
-//         console.error(error)
-//     }
-// }   
+ 
 
 const loadWishlist = async (req, res) => {
     try {
@@ -218,10 +309,10 @@ const loadWishlist = async (req, res) => {
         
         const products = await Product.find({ _id: { $in: productIds } });
 
-        // Filter out any null or undefined products (in case a product was deleted)
+   
         const validProducts = products.filter(product => product != null);
 
-        // Update totalPages based on actual valid products
+        
         const actualTotalProducts = await Product.countDocuments({ _id: { $in: wishlist.products } });
         const actualTotalPages = Math.ceil(actualTotalProducts / limit);
 

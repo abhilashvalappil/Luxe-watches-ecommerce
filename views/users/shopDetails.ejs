@@ -1,5 +1,39 @@
 <%- include('../layouts/navbar.ejs') %>
 
+<style>
+    .low-stock {
+        color: red;
+        font-weight: bold;
+    }
+
+    .primary-btn.out-of-stock {
+        background-color: #d9534f;
+        cursor: not-allowed;
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
+    .primary-btn.out-of-stock:hover {
+        background-color: #d9534f;
+    }
+
+    .add-to-cart-btn {
+        background-color: #ff9f00;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        text-transform: uppercase;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .add-to-cart-btn:hover {
+        background-color: #218838;
+    }
+</style>    
+
 <script src="https://unpkg.com/js-image-zoom@0.7.0/js-image-zoom.js" type="application/javascript"></script>
 
 
@@ -117,14 +151,18 @@
                                 <h4>
                                     <%= product.name %>
                                 </h4>
-                                <div class="rating">
-                                    <% for (let i=0; i < 5; i++) { %>
-                                        <i class="fa fa-star<%= i >= product.rating ? '-o' : '' %>"></i>
-                                        <% } %>
-                                            <span> - <%= product.reviews %> Reviews</span>
-                                </div>
+                                <!-- <div class="rating">
+                                     
+                                            <span>Reviews</span>
+                                </div> -->
                                 <h3>
-                                    <%= product.price %> <span></span>
+                                    <% if (offerPercent) { %>
+                                        ₹<%= offerPrice %>
+                                    <% } else if (categoryOfferPercent) { %>
+                                        ₹<%= categoryOfferPrice %>
+                                    <% } else { %>
+                                        ₹<%= product.price %> <span></span>
+                                    <% } %>
                                 </h3>
                                 <% if(product.stock <= 5 && product.stock > 0){ %>
                                     <p class="low-stock">Only <%= product.stock %> left</p>
@@ -286,40 +324,6 @@
                         <% } %>
                 </div>
             </div>
-
-            <style>
-                .low-stock {
-                    color: red;
-                    font-weight: bold;
-                }
-
-                .primary-btn.out-of-stock {
-                    background-color: #d9534f;
-                    cursor: not-allowed;
-                    pointer-events: none;
-                    opacity: 0.6;
-                }
-            
-                .primary-btn.out-of-stock:hover {
-                    background-color: #d9534f;
-                }
-            
-                .add-to-cart-btn {
-                    background-color: #ff9f00;
-                    color: #fff;
-                    border: none;
-                    padding: 10px 20px;
-                    font-size: 16px;
-                    text-transform: uppercase;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    transition: background-color 0.3s ease;
-                }
-            
-                .add-to-cart-btn:hover {
-                    background-color: #218838;
-                }
-            </style>
         </section>
         <!-- Related Section End -->
 
@@ -334,7 +338,6 @@
                     return;
                 }
                 try {
-
                     const response = await fetch(`/addToCart`, {
                         method: 'POST',
                         headers: {
@@ -345,7 +348,7 @@
                     const data = await response.json()  ;
 
                     if (data.success) {
-                        window.location.href = '/cart';  
+                        window.location.href = `/cart`;  
                     } else {
                         console.error('Failed to add item to cart.');
                     }
@@ -355,12 +358,8 @@
 
                 }
             });
-        </script>
-
-
-
-
-<script>
+        
+    //**zoommmm
     var options2 = {
         width: 450, 
         zoomWidth: 225, 

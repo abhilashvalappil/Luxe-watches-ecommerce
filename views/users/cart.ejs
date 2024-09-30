@@ -58,46 +58,29 @@
                                             </div>
                                             <div class="product__cart__item__text">
                                                 <h6><%= item.productDetails.name %></h6>
-                                                <h5><%= item.productDetails.price %></h5>
+                                                <% if (item.offerPercent) { %>
+                                                    <h5><del>₹<%= item.productDetails.price %></del> ₹<%= item.offerPrice.toFixed(2) %></h5>
+                                                <% } else { %>
+                                                    <h5>₹<%= item.productDetails.price %></h5>
+                                                <% } %>
                                             </div>
                                         </td>
                                         <td class="quantity__item">
                                             <div class="quantity">
                                                 <button class="quantity-btn decrease" onclick="updateQuantity('<%= item.productId %>', -1)">-</button>
-                                                <input type="number" id="quantity-input" value="<%= Math.min(item.quantity, 5) %>" min="1" max="5" class="quantity-input" data-product-id="<%= item.productId %>" data-price="<%= item.productDetails.price %>" readonly>
+                                                <input type="number" id="quantity-input" value="<%= Math.min(item.quantity, 5) %>" min="1" max="5" class="quantity-input" data-product-id="<%= item.productId %>" data-price="<%= item.offerPrice || item.productDetails.price %>" readonly>
                                                 <button class="quantity-btn increase" onclick="updateQuantity('<%= item.productId %>', 1)">+</button>
                                             </div>
                                             <p id="error-message" style="color: red; display: none;"></p>
                                         </td>
-                                        <!-- <p id="error-message" style="color: red; display: none;"></p> -->
-                                        <td class="cart__price" data-product-id="<%= item.productId %>"> <span class="price-value">₹<%= item.productDetails.price * item.quantity %></span></td>
+                                        <td class="cart__price" data-product-id="<%= item.productId %>"> 
+                                            <span class="price-value">₹<%= ((item.offerPrice || item.productDetails.price) * item.quantity).toFixed(2) %></span>
+                                        </td>
                                         <td class="cart__close">
                                             <button class="btn btn-danger remove-from-cart" data-product-id="<%= item.productId %>">Remove</button>
                                         </td>
                                     </tr>
-                                <% }) %>                                
-                              
-                                <!-- <tr>
-                                    <td class="product__cart__item">
-                                        <div class="product__cart__item__pic">
-                                            <img src="img/shopping-cart/cart-4.jpg" alt="">
-                                        </div>
-                                        <div class="product__cart__item__text">
-                                            <h6>Basic Flowing Scarf</h6>
-                                            <h5>$98.49</h5>
-                                        </div>
-                                    </td>
-                                    <td class="quantity__item">
-                                        <div class="quantity">
-                                            <button class="quantity-btn decrease" onclick="updateQuantity()">-</button>
-                                            <input type="number" id="quantity-input" value="1" min="1" max="99">
-                                            <button class="quantity-btn increase" onclick="updateQuantity()">+</button>
-                                        </div>
-                                    </td>
-                                     
-                                    <td class="cart__price">$ 30.00</td>
-                                    <td class="cart__close"><i class="fa fa-close"></i></td>
-                                </tr> -->
+                                <% }) %>                            
                             </tbody>
                         </table>
                     </div>
@@ -118,9 +101,9 @@
                     <div class="cart__discount">
                         <!-- <h6>Discount codes</h6> -->
                         <a style="margin-bottom: 2rem;" href="/coupons" class="btn btn-primary mt-2">Available Coupons</a>
-                        <form action="#">
-                            <input type="text" placeholder="Coupon code">
-                            <button type="submit">Apply</button>
+                        <form id="couponForm">
+                            <input type="text" id="couponcode" placeholder="Enter Coupon Code">
+                            <button type="submit" id="applyRemove-btn" >Apply</button>
                         </form>
                     </div>
                     <div class="cart__total">
@@ -135,7 +118,7 @@
                         <a href="/checkout" class="primary-btn">Proceed to checkout</a>
 
                     </div>
-                </div>
+                </div>  
             </div>
             <% } %>
         </div>
@@ -165,56 +148,87 @@
     </style>
 
     <script>
-        document.querySelectorAll('.remove-from-cart').forEach(button => {
-            button.addEventListener('click', async function(event) {
-                event.preventDefault();
-        
-                const productId = this.getAttribute('data-product-id');
-        
-                try {
-                    const response = await fetch('/removefromcart', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ productId })
-                    });
-        
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-        
-                    const data = await response.json();
-        
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: data.message
-                        }).then(() => {
-                            window.location.href = '/cart';
+        document.getElementById('couponForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const couponCode = document.getElementById('couponcode').value;
+            const button = document.getElementById('applyRemove-btn');
+            
+            if(button.innerText === 'APPLY'){
+              const response = await fetch('/apply-coupon',{
+                method: 'POST',
+                headers:{
+                    'Content-Type' : 'application/json'
+                },
+                body : JSON.stringify({couponCode})
+              })
+            }
+            
+        })
+    </script>
+
+<script>
+    document.querySelectorAll('.remove-from-cart').forEach(button => {
+        button.addEventListener('click', async function(event) {
+            event.preventDefault();
+            
+            const productId = this.getAttribute('data-product-id');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to remove this item from the cart?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, remove it!',
+                cancelButtonText: 'No, keep it'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch('/removefromcart', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ productId })
                         });
-                    } else {
+    
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+    
+                        const data = await response.json();
+    
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: data.message
+                            }).then(() => {
+                                window.location.href = '/cart';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: data.message
+                            });
+                        }
+    
+                    } catch (error) {
+                        console.log(error);
                         Swal.fire({
-                            icon: 'warning',
-                            title: data.message
+                            icon: 'error',
+                            title: 'An error occurred',
+                            text: error.message
                         });
                     }
-        
-                } catch (error) {
-                    console.log(error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'An error occurred',
-                        text: error.message
-                    });
                 }
             });
         });
-        </script>
+    });
+    </script>
+    
 
      <script>
-
-
 
     async function updateQuantity(productId, quantityChange){
       const quantity=1

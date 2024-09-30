@@ -1,7 +1,7 @@
 const express = require('express');
 const admin_route = express();
 const adminController = require('../controllers/adminControllers/adminController');
-const couponController = require('../controllers/adminControllers/couponController');
+const offerController = require('../controllers/adminControllers/offerController');
 const session = require('express-session');
 const config = require('../config/config');
 const path = require('path');
@@ -60,11 +60,19 @@ admin_route.get('/order-details/:order_id',adminController.orderDetailsLoad);
 admin_route.get('/return-requests',adminController.loadreturnRequests);
 admin_route.post('/update-return-status',adminController.returnStatus);
 
-admin_route.get('/coupon-management', couponController.loadCouponManagement);
-admin_route.post('/add-coupon',couponController.addCoupon);
+admin_route.get('/coupon-management', offerController.loadCouponManagement);
+admin_route.post('/add-coupon',offerController.addCoupon);
 // admin_route.patch('/coupons/list',couponController.listCoupon);
-admin_route.put('/toggle-coupon-status/:couponId', couponController.listCoupon);
+admin_route.put('/toggle-coupon-status/:couponId', offerController.listCoupon);
 
- 
+admin_route.get('/sales-report',adminController.loadSalesReport);
+
+admin_route.get('/offer-management',offerController.loadOfferManagement)
+admin_route.get('/addOffer',offerController.loadAddOffer);
+admin_route.post('/add-offer',offerController.addOffer);
+admin_route.put('/update-offer',offerController.updateOffer);
+
+ admin_route.patch('/deactivate-offer/:id',offerController.deactivateOffer)
+
 
 module.exports = admin_route;

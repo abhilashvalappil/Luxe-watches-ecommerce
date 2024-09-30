@@ -965,7 +965,7 @@ ol {
 }
 
 .product__item:hover .product__item__text h6 {
-	opacity: 0;
+	/* opacity: 0; */
 }
 
 .product__item:hover .product__item__text .product__color__select {

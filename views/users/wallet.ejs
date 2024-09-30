@@ -14,7 +14,7 @@
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <div class="card">
+                <!-- <div class="card">
                     <div class="card-header bg-primary text-white">
                         <h5 class="card-title mb-0">My Wallet</h5>
                     </div>
@@ -36,10 +36,60 @@
                         </ul>
                     </div>
                     <div class="card-footer">
-                        <!-- Button for Adding Funds (you can link it to a relevant action) -->
+    
                         <button class="btn btn-primary w-100">Add Funds</button>
                     </div>
+                </div> -->
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">My Wallet</h5>
+                    </div>
+                    <div class="card-body">
+                        <h2 class="text-center mb-4">Balance: ₹<%= wallet.balance.toFixed(2) %></h2>
+                
+                        <h5>Recent Transactions</h5>
+                        <ul class="list-group">
+                            <% if (transactions.length > 0) { %>
+                                <% transactions.forEach(function(transaction) { %>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <%= transaction.description || 'Transaction' %>
+                                        <% if (transaction.type === 'credit') { %>
+                                            <span class="badge bg-success rounded-pill">+<%= transaction.amount.toFixed(2) %></span>
+                                        <% } else { %>
+                                            <span class="badge bg-danger rounded-pill">-<%= transaction.amount.toFixed(2) %></span>
+                                        <% } %>
+                                    </li>
+                                <% }); %>
+                            <% } else { %>
+                                <li class="list-group-item">No transactions found.</li>
+                            <% } %>
+                        </ul>
+                    </div>
+                
+                    <div class="card-footer">
+                        <!-- Pagination controls -->
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                <% if (currentPage > 1) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                                    </li>
+                                <% } %>
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+                                <% if (currentPage < totalPages) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
+                    </div>
                 </div>
+                
             </div>
         </div>
     </div>

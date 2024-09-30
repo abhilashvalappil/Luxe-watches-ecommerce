@@ -37,9 +37,12 @@ user_route.set('views',path.join(__dirname, '../views/users'));
 
 // user_route.use(express.static('public'));
 
-user_route.get('/',auth.isLogin,userController.loadHomePage);
+user_route.get('/',userController.loadHomePage);
 user_route.get('/home', userController.loadHomePage);
-user_route.post('/home',userController.logout)
+
+
+user_route.post('/logout',auth.isLogin,userController.logout)
+// user_route.get('/logout', userController.logout);
 
 user_route.get('/register',auth.isLogout, userController.loadRegister);
 user_route.post('/register',userController.registerUser);
@@ -53,14 +56,14 @@ user_route.post('/verifyOtp',userController.verifyOtp);
 // user_route.post('/otp', userController.createAndSendOtp);
 user_route.get('/resendOtp',userController.resendOtp)
 
-user_route.get('/',auth.isLogout, userController.loadLogin);
+// user_route.get('/',auth.isLogout, userController.loadLogin);
 user_route.get('/login',auth.isLogout, userController.loadLogin);
 user_route.post('/login',userController.verifyLogin);
 
 user_route.get('/auth/google', passport.authenticate('google',{scope: [ 'profile', 'email' ]}));
 user_route.get('/auth/google/callback', passport.authenticate('google', {failureRedirect: '/login'}), userController.googleLogin);
 
-user_route.get('/logout', userController.logout);
+
 
 user_route.get('/shop',shopController.loadShop);
 
@@ -109,15 +112,26 @@ user_route.post('/verifyPayment',orderController.verifyPayment);
 user_route.get('/order-details/:order_id',orderController.orderDetails);
 
 user_route.post('/cancel-order/:order_id',orderController.cancelOrder);
+user_route.get('/cancel-confirm',orderController.cancelConfirm);
 // user_route.post('/return-order/:order_id',orderController.requestReturn);
 user_route.post('/return-order',orderController.requestReturn);
 
-user_route.get('/cancel-confirm',orderController.cancelConfirm);
 
 user_route.post('/filter-product',shopController.productFilter);
+user_route.post('/sort-products',shopController.sortPrice)
+
 
 user_route.get('/wallet',orderController.loadWallet)
 
 user_route.get('/coupons',shopController.loadCoupons);
+user_route.post('/apply-coupon',shopController.applyCoupon)
+user_route.post('/remove-coupon',shopController.removeCoupon);
+
+user_route.post('/updatePaymentStatus',orderController.updatePaymentStatus)
+
+user_route.get('/retry-payment/:orderId',orderController.retryPayment)
+
+ 
+
 
 module.exports = user_route; 

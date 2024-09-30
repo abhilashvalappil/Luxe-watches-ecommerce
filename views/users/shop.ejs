@@ -2,6 +2,72 @@
 
 <%- include('../layouts/navbar.ejs') %>
 
+<style>
+  .low-stock {
+          color: red;
+          font-weight: bold;
+      }
+
+             .out-of-stock {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background-color: rgba(255, 0, 0, 0.7);
+          color: white;
+          padding: 5px 10px;
+          font-size: 12px;
+          font-weight: bold;
+          text-transform: uppercase;
+          border-radius: 3px;
+          z-index: 10;
+      }
+  
+      .product__item__pic img.out-of-stock-image {
+          opacity: 0.6;
+      }
+
+
+/**** wishlist icon style ******/
+
+.wishlist-link {
+position: relative;
+display: inline-block;
+}
+
+.wishlist-icon {
+font-size: 20px;
+color: #888; 
+transition: color 0.3s ease-in-out;
+}
+
+.wishlist-link:hover .wishlist-icon {
+color: #ff0000;  
+}
+
+.added-to-wishlist {
+color: #ff0000;  
+}
+
+/* offferrr */
+
+.original-price {
+  text-decoration: line-through;
+  color: #888;
+  margin-right: 10px;
+}
+
+.offer-details {
+  color: #ff6600;
+  font-weight: bold;
+}
+
+.low-stock {
+  color: red;
+  font-weight: bold;
+}
+
+</style>
+
 <body>
     <!-- Page Preloder -->
     <div id="preloder">
@@ -16,14 +82,14 @@
                 <a href="#">Sign in</a>
                 <a href="#">FAQs</a>
             </div>
-            <div class="offcanvas__top__hover">
+            <!-- <div class="offcanvas__top__hover">
                 <span>Usd <i class="arrow_carrot-down"></i></span>
                 <ul>
                     <li>USD</li>
                     <li>EUR</li>
                     <li>USD</li>
                 </ul>
-            </div>
+            </div> -->
         </div>
         <div class="offcanvas__nav__option">
             <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a>
@@ -211,17 +277,15 @@
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-6">
                             <div class="shop__product__option__left">
-                                <p>Showing 1–12 of 126 results</p>
+                                <!-- <p>Showing 1–12 of 126 results</p> -->
                             </div>
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6">
                             <div class="shop__product__option__right">
                                 <p>Sort by Price:</p>
-                                <select id="sortSelect" onchange="applySort()">
-                                  <option value="recommended">Recommended</option>
-                                  <option value="new">What's New</option>
+                                <select id="sortSelect" onchange="sortPrice()">
                                   <option value="low_to_high">Price: Low To High</option>
-                                  <option value="high_to_low">Price: High to Low</option>
+                                  <option value="high_to_low">Price: High to Low</option>          
                                 </select>
                             </div>
                         </div>
@@ -235,7 +299,6 @@
                             <div class="out-of-stock">Out of Stock</div>
                             <% } %>
                                 <ul class="product__hover">
-
                                   <li>
                                     <a href="#" onclick="handleWishlistClick(event, this, '<%= product._id %>')" class="wishlist-link" data-product-id="<%= product._id %>">
                                       <i class="fa fa-heart-o wishlist-icon"></i>
@@ -247,14 +310,28 @@
                                 </ul>
                             <div class="product__item__text">
                                 <h6><%=product.name%></h6>
-                                <div class="rating">
+                                <!-- <div class="rating">
                                     <i class="fa fa-star-o"></i>
                                     <i class="fa fa-star-o"></i>
                                     <i class="fa fa-star-o"></i>
                                     <i class="fa fa-star-o"></i>
                                     <i class="fa fa-star-o"></i>
-                                </div>
-                                <h5>₹<%=product.price%></h5>
+                                </div> -->
+
+                                <% if (product.stock === 0) { %>
+                                  <h5>₹<%= product.price %></h5>
+                              <% } else { %>
+                                  <% if (product.offerPercent) { %>
+                                      <!-- Show discounted price and offer percentage -->
+                                      <h5>₹<%= product.discountedPrice.toFixed(2) %> <span class="original-price">₹<%= product.price %></span></h5>
+                                      <p class="offer-percent">Save <%= product.offerPercent %>%</p>
+                                  <% } else { %>
+                                      <h5>₹<%= product.price %></h5>
+                                  <% } %>
+                              <% } %>
+
+                                 
+                                <!-- <h5>₹<%=product.price%></h5> -->
                                 <% if(product.stock <= 5 && product.stock > 0){  %>
                                     <p class="low-stock">Only <%= product.stock %> stock left</p>
                                     <% } %>
@@ -291,63 +368,39 @@
 </section>
 <!-- Shop Section End -->
 
-<style>
-    .low-stock {
-            color: red;
-            font-weight: bold;
-        }
-
-               .out-of-stock {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: rgba(255, 0, 0, 0.7);
-            color: white;
-            padding: 5px 10px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-            border-radius: 3px;
-            z-index: 10;
-        }
-    
-        .product__item__pic img.out-of-stock-image {
-            opacity: 0.6;
-        }
-
-
-  /**** wishlist icon style ******/
-
-  .wishlist-link {
-  position: relative;
-  display: inline-block;
-}
-
-.wishlist-icon {
-  font-size: 20px;
-  color: #888; /* Default color */
-  transition: color 0.3s ease-in-out;
-}
-
-.wishlist-link:hover .wishlist-icon {
-  color: #ff0000; /* Hover color */
-}
-
-.added-to-wishlist {
-  color: #ff0000; /* Stable color when added to wishlist */
-}
-
-    
-</style>
-
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-
-
-
+<!-- <div class="col-lg-6 col-md-6 col-sm-6">
+  <div class="shop__product__option__right">
+    <p>Sort by Price:</p>
+    <select id="sortSelect" onchange="sortPrice()">
+      <option value="low_to_high">Price: Low To High</option>
+      <option value="high_to_low">Price: High to Low</option>          
+    </select>
+  </div>
+</div> -->
 
 <script>
+  function sortPrice() {
+    const selectedOption = document.getElementById('sortSelect').value;
+
+    fetch('/sort-products', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ selectedOption })
+    })
+    .then(response => response.json())
+    .then(data => {
+      displayProducts(data.products)
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+ 
 
 async function initializeWishlistIcons() {
   try {
@@ -401,7 +454,7 @@ document.addEventListener('DOMContentLoaded', initializeWishlistIcons);
 
 
 
-  //*************Add to wishlist***********
+  //********Add to wishlist***********
   
   async function addToWishlist(productId,icon){
     try {
@@ -467,19 +520,17 @@ document.addEventListener('DOMContentLoaded', initializeWishlistIcons);
   }).showToast();
 }
 
+ 
+
 
 document.getElementById('filterForm').addEventListener('submit', function(event) {
     event.preventDefault(); 
 
     let selectedCategories = Array.from(document.querySelectorAll('input[name="categories"]:checked')).map(cb => cb.value);
-
     let selectedBrands = Array.from(document.querySelectorAll('input[name="brands"]:checked')).map(cb => cb.value);
-
     let selectedStrapColors = Array.from(document.querySelectorAll('input[name="strap"]:checked')).map(cb => cb.value);
-
     let selectedDialColors = Array.from(document.querySelectorAll('input[name="dial"]:checked')).map(cb => cb.value);
 
-   
     let minPrice = document.getElementById('minPrice').value;
     let maxPrice = document.getElementById('maxPrice').value;
 
@@ -551,10 +602,6 @@ function updateMaxPrice() {
     let priceRange = document.getElementById('priceRange').value;
     document.getElementById('maxPrice').value = priceRange;
   }
-
-</script>
-
-<script>
 
 </script>
 

@@ -164,7 +164,7 @@
                     </td>
                     
                     <td>
-                        <a href="/admin/order-details/<%= order._id %>" class="btn btn-primary">View Details</a>
+                        <a href="/admin/order-details/<%= order._id %>" class="btn btn-primary">View</a>
                     </td>
                     
                 </tr>
@@ -208,7 +208,6 @@
                 {
                     "data": "orderedItems.orderStatus",
                     "render": function(data, type, row) {
-                        // Render status based on its current value
                         if (data === 'Delivered' || data === 'Returned') {
                             return `<span>${data}</span>`;
                         } else {
@@ -236,14 +235,6 @@
         const previousStatus = $select.data('previous-status') || $select.find('option:selected').text();
         const newStatus = $select.val();
 
-        // Ensure the previous status isn't editable if it was Delivered or Returned
-        // if (previousStatus === 'Delivered' || previousStatus === 'Returned') {
-        //     e.preventDefault();
-        //     alert('Cannot change status once Delivered or Returned.');
-        //     $select.val(previousStatus);
-        //     return;
-        // }
-
         const orderId = $select.data('order-id');
         const itemId = $select.data('item-id');
 
@@ -270,7 +261,6 @@
                     }).showToast();
                 $select.data('previous-status', newStatus);
 
-                // Replace the dropdown with plain text if the new status is Delivered or Returned
                 if (newStatus === 'Delivered' || newStatus === 'Returned') {
                     $select.replaceWith(`<span>${newStatus}</span>`);
                 }
@@ -293,7 +283,7 @@
         }
     });
 
-    // Function to dynamically update order status based on return status
+    //***order status change ****/
     async function updateOrderStatusIfNeeded() {
         const rows = $('#orderTable').find('tr');
 
@@ -303,7 +293,6 @@
             const returnStatus = $row.find('.order-status').data('return-status');
 
             if (returnStatus === 'approved') {
-                // This is an AJAX call to update the order status based on return status
                 try {
                     const response = await fetch('/admin/orders/update-status', {
                         method: 'POST',
@@ -330,106 +319,11 @@
         }
     }
 
-    // Call the function to ensure the status is updated when the document is ready
     updateOrderStatusIfNeeded();
 });
 
 </script>
 
-
-<!-- <script>
-    $(document).ready(function() {
-        console.log('Document is ready');
-
-        try {
-            $('#orderTable').DataTable({
-                "processing": true,
-                "serverSide": true,
-                "ajax": "/admin/orders",
-                "columns": [
-                    { "data": "_id" },
-                    { "data": "address.Name" },
-                    { "data": "orderedItems.productId.name" },
-                    { "data": "orderedItems.quantity" },
-                    { "data": "orderedItems.totalPrice" },
-                    { "data": "paymentStatus" },
-                    { "data": "orderDate" },
-                    {
-                        "data": "orderedItems.orderStatus",
-                        "render": function(data, type, row) {
-            
-                            if (data === 'Delivered' || data === 'Returned') {
-                                return `<span>${data}</span>`;
-                            } else {
-                                return `<select class="order-status" data-order-id="${row._id}" data-item-id="${row.orderedItems._id}">
-                                            <option value="Pending" ${data === 'Pending' ? 'selected' : ''}>Pending</option>
-                                            <option value="Processing" ${data === 'Processing' ? 'selected' : ''}>Processing</option>
-                                            <option value="Shipped" ${data === 'Shipped' ? 'selected' : ''}>Shipped</option>
-                                            <option value="Delivered" ${data === 'Delivered' ? 'selected' : ''}>Delivered</option>
-                                            <option value="Cancelled" ${data === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
-                                            <option value="Returned" ${data === 'Returned' ? 'selected' : ''}>Returned</option>
-                                        </select>`;
-                            }
-                        }
-                    },
-                    { "data": null, "defaultContent": '<button class="btn btn-primary">View Details</button>' }
-                ],
-                "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-                "responsive": true
-            });
-        } catch (error) {
-            console.error('Error initializing DataTable:', error);
-        }
-
-        $('#orderTable').on('change', '.order-status', async function(e) {
-            const $select = $(this);
-            const previousStatus = $select.data('previous-status') || $select.find('option:selected').text();
-            const newStatus = $select.val();
-
-            if (previousStatus === 'Delivered' || previousStatus === 'Returned') {
-                e.preventDefault();
-                alert('Cannot change status once Delivered or Returned.');
-                $select.val(previousStatus);
-                return;
-            }
-
-            const orderId = $select.data('order-id');
-            const itemId = $select.data('item-id');
-
-            try {
-                const response = await fetch('/admin/orders', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        orderId: orderId,
-                        itemId: itemId,
-                        orderStatus: newStatus
-                    })
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    alert(result.message || 'Order status updated successfully');
-                    $select.data('previous-status', newStatus);
-
-                    if (newStatus === 'Delivered' || newStatus === 'Returned') {
-                        $select.replaceWith(`<span>${newStatus}</span>`);
-                    }
-                } else {
-                    alert(result.message || 'Error updating order status');
-                    $select.val(previousStatus);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error updating order status');
-                $select.val(previousStatus);
-            }
-        });
-    });
-</script> -->
 
 
  

@@ -26,6 +26,17 @@
      
       /* Adjust the value for desired space below content */
     }
+    .toast-container {
+      position: fixed;
+      top: 20px; /* Distance from the bottom */
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1050;
+    }
+    .toast {
+      background-color: #28a745; /* Green background for success */
+      color: white; /* White text */
+    }
   </style>
 </head>
 <body>
@@ -49,7 +60,11 @@
                       <li class="list-group-item"><strong>Name:</strong><%= user.name %></li>
                       <li class="list-group-item"><strong>Email:</strong><%= user.email %></li>
                       <li class="list-group-item"><strong>Phone:</strong><%= user.phone %></li>
-                      <li class="list-group-item"><strong>Gender:</strong> Male</li>
+                      <!-- <li class="list-group-item"><strong>Gender:</strong> Male</li> -->
+                      <li class="list-group-item">
+                        <strong>Referral Link:</strong>
+                        <button class="btn btn-secondary btn-sm ml-2" onclick="copyReferralLink()">Copy</button>
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -57,13 +72,25 @@
             </div>
           </div>
         </div>
-    
-   
-       
         </div>
     </div>
 </div>
 <div class="mt-5"></div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container">
+    <div class="toast" id="copyToast">
+      <div class="toast-header">
+        <strong class="mr-auto">Success</strong>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="toast-body">
+        Referral link copied to clipboard!
+      </div>
+    </div>
+  </div>
 
   <!-- Bootstrap JS and dependencies -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -73,3 +100,18 @@
 </html>
 
 <%- include('../layouts/footer.ejs') %>
+<script>
+  function copyReferralLink() {
+    const referralLink = "<%= user.referralLink %>";   
+    navigator.clipboard.writeText(referralLink).then(() => {
+      $('#copyToast').toast({ delay: 2000 });
+      $('#copyToast').toast('show');
+    }).catch(err => {
+      alert('Failed to copy: ', err);
+    });
+  }
+  
+  $(document).ready(function(){
+    $('.toast').toast({ autohide: true, delay: 2000 });
+  });
+</script>

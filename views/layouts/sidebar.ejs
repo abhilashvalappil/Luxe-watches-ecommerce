@@ -50,23 +50,78 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/change-password"><i class="fas fa-key"></i>Change Password</a>
                 </li>
-                <!-- <li class="nav-item">
-                    <a class="nav-link" href="/referral"><i class="fas fa-gift"></i>Referral</a>
-                </li> -->
+                
                 <li class="nav-item">
                     <a class="nav-link" href="/wallet"><i class="fas fa-wallet"></i> Wallet</a>
                 </li>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="/address"><i class="fas fa-map-marker-alt"></i>Addresses</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a>
+                    <!-- <a class="nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a> -->
+                    <button type="button" onclick="confirmLogout()" class="nav-link btn" style="border: none; background: none;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
                 </li>
             </ul>
         </div>
     </div>
+    <!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+
+<script>
+function confirmLogout() {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You will be logged out of your account.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, log me out',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Proceed with logout
+            fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    Swal.fire(
+                        'Logged Out',
+                        'You have been logged out successfully.',
+                        'success'
+                    ).then(() => {
+                        window.location.href = '/home'; // Redirect to home or login page
+                    });
+                } else {
+                    Swal.fire(
+                        'Error',
+                        'There was a problem logging out. Please try again.',
+                        'error'
+                    );
+                }
+            })
+            .catch(error => {
+                console.log(error);
+                Swal.fire(
+                    'Error',
+                    'An unexpected error occurred.',
+                    'error'
+                );
+            });
+        }
+    });
+}
+</script>

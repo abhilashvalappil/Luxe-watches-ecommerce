@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const orderSchema = new mongoose.Schema({
     userId:{
         type: mongoose.SchemaTypes.ObjectId,
+        ref: 'User',
         required: true
     },
     orderedItems:[{
@@ -23,6 +24,10 @@ const orderSchema = new mongoose.Schema({
         totalPrice: {
             type: Number,
             required: true
+        },
+        offerDiscount:{
+            type: Number,
+            default:0
         },
         orderStatus:{
             type: String,
@@ -52,9 +57,27 @@ const orderSchema = new mongoose.Schema({
         default: 'Pending',
         enum: ['Pending', 'Processing', 'Completed', 'Failed', 'Refunded']
     },
+    couponCode: {  
+        type: String,
+        required: false
+    },
+    discountAmount: {  
+        type: Number,
+        required: false,
+        default: 0
+    },
+    totalPrice: {   //* all products * quantity totalprice without deducting coupons and discounts
+        type: Number,
+        required: true
+    },  
     orderDate:{
         type: Date,
         default: Date.now(),
+    },
+    deliveryCharge: {
+        type: Number,
+        required: true,
+        default: 60,
     },
     address:{
         Name:{
@@ -97,7 +120,7 @@ const orderSchema = new mongoose.Schema({
             default:false
         },
     },
-    totalPrice :{
+    totalPrice :{ //* after overall coupon and discount deductions
         type:Number,
     }
 })

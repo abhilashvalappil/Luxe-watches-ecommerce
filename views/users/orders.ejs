@@ -27,9 +27,10 @@
                                 <p>Color: <%= item.productId.strapColor %></p>
                             </div>
                             <div class="col-md-2 text-end">
-                                <span class="fw-bold">₹<%= item.totalPrice %></span>
+                                <!-- <span class="fw-bold">₹<%= item.totalPrice %></span> -->
                             </div>
                             <div class="col-md-2">
+                                <p><h5>Order status</h5></p>
                                 <span 
                                 class="badge 
                                 <% if (item.orderStatus === 'Cancelled') { %>
@@ -48,14 +49,17 @@
                             <div class="col-md-12">
                                 <!-- Delivery status -->
                                 <% if (item.orderStatus === 'Delivered') { %>
-                                    <span class="badge bg-success">Delivery expected by <%= orderItem.deliveryDate %></span>
-                                    <p class="text-success">Your Order has been placed.</p>
+                                    <span class="badge bg-success">Delivered</span>
+                                    <p class="text-success">Your item has been Delivered.</p>
                                 <% } else if (item.orderStatus === 'Shipped') { %>
                                     <span class="badge bg-warning text-dark">Shipped</span>
                                     <p class="text-warning">Your item has been shipped.</p>
                                 <% } else if (item.orderStatus === 'Cancelled') { %>
-                                    <span class="badge bg-danger">Cancelled on <%= orderItem.cancellationDate %></span>
-                                    <p class="text-danger">You requested a cancellation due to quality issues with the product.</p>
+                                    <span class="badge bg-danger">Cancelled </span>
+                                    <p class="text-danger">Your item has been Cancelled.</p>
+                                <% } else if (item.orderStatus === 'Returned') { %>
+                                    <span class="badge bg-info">Returned</span>
+                                    <p class="text-info">Your item has been Returned.</p>
                                 <% } %>
                             </div>
                         </div>
@@ -63,6 +67,10 @@
                             <div class="col-md-12 text-end">
                                 <!-- View Order Details Button -->
                                 <a href="/order-details/<%= orderItem._id %>" class="btn btn-primary">View Order Details</a>
+                                 <!-- Place the retry payment button here if the payment has failed -->
+                                 <% if (orderItem.paymentStatus === 'Failed') { %>
+                                    <button class="btn btn-warning retryPaymentBtn" data-order-id="<%= orderItem._id %>">Try Again</button>
+                                <% } %>
                             </div>
                         </div>
                     </div>
@@ -100,3 +108,78 @@
 </html>
 
 <%- include('../layouts/footer.ejs') %>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    document.querySelectorAll('.retryPaymentBtn').forEach(button => {
+        button.addEventListener('click', async function (event) {
+            const orderId = event.target.getAttribute('data-order-id');
+    
+            try {
+                const response = await fetch(`/retry-payment/${orderId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+    
+                const data = await response.json();
+                if (data.success) {
+                    var options = {
+                        "key": data.key_id,
+                        "amount": data.amount,
+                        "currency": "INR",
+                        "name": "LuxeWatches",
+                        "description": "Transaction Description",
+                        "order_id": data.razorpayOrderId,
+                        "handler": function (response) {
+                            verifyPayment(response.razorpay_payment_id, orderId, response.razorpay_signature);
+                        },
+                        "theme": {
+                            "color": "#192e68"
+                        },
+                        "modal": {
+                            "ondismiss": function () {
+                                Swal.fire('Payment Incomplete', 'Your payment was not completed.', 'info');
+                            }
+                        }
+                    };
+                    var paymentGateway = new Razorpay(options);
+                    paymentGateway.open();
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error retrying payment:', error);
+                Swal.fire('Error', 'Network error. Please try again later.', 'error');
+            }
+        });
+    });
+    
+
+    async function verifyPayment(paymentId, orderId, razorpaySignature) {
+        const response = await fetch('/verifyPayment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ paymentId, orderId, razorpaySignature })
+        });
+        const data = await response.json();
+        if (data.success) {
+            const orderCard = document.querySelector(`[data-order-id="${orderId}"]`).closest('.card');
+            const retryButton = orderCard.querySelector('.retryPaymentBtn');
+            if (retryButton) {
+                retryButton.style.display = 'none';  
+            }
+            const badge = orderCard.querySelector('.badge');
+            badge.textContent = 'Completed';  
+            badge.classList.remove('bg-warning', 'text-dark');
+            badge.classList.add('bg-success');  
+            Swal.fire('Success', 'Your payment has been completed successfully!', 'success');
+        } else {
+            Swal.fire('Error', 'Payment verification failed. Please try again.', 'error');
+        }
+    }
+    </script>

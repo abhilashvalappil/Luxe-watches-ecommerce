@@ -1,590 +1,22 @@
 <%- include('../layouts/adminHeader.ejs') %>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <!-- Bootstrap CDN for styling -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <style>
+      .filter-container {
+          margin-bottom: 20px;
+      }
+  
+      .chart-container {
+          margin-top: 20px;
+      }
+  </style>
 
 <body>
 
   <!--start header-->
   <header class="top-header">
-    <!-- <nav class="navbar navbar-expand align-items-center gap-4">
-      <div class="btn-toggle">
-        <a href="javascript:;"><i class="material-icons-outlined">menu</i></a>
-      </div>
-      <div class="search-bar flex-grow-1">
-        <div class="position-relative">
-          <input class="form-control rounded-5 px-5 search-control d-lg-block d-none" type="text" placeholder="Search">
-          <span class="material-icons-outlined position-absolute d-lg-block d-none ms-3 translate-middle-y start-0 top-50">search</span>
-          <span class="material-icons-outlined position-absolute me-3 translate-middle-y end-0 top-50 search-close">close</span>
-          <div class="search-popup p-3">
-            <div class="card rounded-4 overflow-hidden">
-              <div class="card-header d-lg-none">
-                <div class="position-relative">
-                  <input class="form-control rounded-5 px-5 mobile-search-control" type="text" placeholder="Search">
-                  <span class="material-icons-outlined position-absolute ms-3 translate-middle-y start-0 top-50">search</span>
-                  <span class="material-icons-outlined position-absolute me-3 translate-middle-y end-0 top-50 mobile-search-close">close</span>
-                 </div>
-              </div>
-              <div class="card-body search-content">
-                <p class="search-title">Recent Searches</p>
-                <div class="d-flex align-items-start flex-wrap gap-2 kewords-wrapper">
-                  <a href="javascript:;" class="kewords"><span>Angular Template</span><i
-                      class="material-icons-outlined fs-6">search</i></a>
-                  <a href="javascript:;" class="kewords"><span>Dashboard</span><i
-                      class="material-icons-outlined fs-6">search</i></a>
-                  <a href="javascript:;" class="kewords"><span>Admin Template</span><i
-                      class="material-icons-outlined fs-6">search</i></a>
-                  <a href="javascript:;" class="kewords"><span>Bootstrap 5 Admin</span><i
-                      class="material-icons-outlined fs-6">search</i></a>
-                  <a href="javascript:;" class="kewords"><span>Html eCommerce</span><i
-                      class="material-icons-outlined fs-6">search</i></a>
-                  <a href="javascript:;" class="kewords"><span>Sass</span><i
-                      class="material-icons-outlined fs-6">search</i></a>
-                  <a href="javascript:;" class="kewords"><span>laravel 9</span><i
-                      class="material-icons-outlined fs-6">search</i></a>
-                </div>
-                <hr>
-                <p class="search-title">Tutorials</p>
-                <div class="search-list d-flex flex-column gap-2">
-                  <div class="search-list-item d-flex align-items-center gap-3">
-                    <div class="list-icon">
-                      <i class="material-icons-outlined fs-5">play_circle</i>
-                    </div>
-                    <div class="">
-                      <h5 class="mb-0 search-list-title ">Wordpress Tutorials</h5>
-                    </div>
-                  </div>
-                  <div class="search-list-item d-flex align-items-center gap-3">
-                    <div class="list-icon">
-                      <i class="material-icons-outlined fs-5">shopping_basket</i>
-                    </div>
-                 
-                  <div class="search-list-item d-flex align-items-center gap-3">
-                    <div class="list-icon">
-                      <i class="material-icons-outlined fs-5">laptop</i>
-                    </div>
-                    <div class="">
-                      <h5 class="mb-0 search-list-title">Responsive Design</h5>
-                    </div>
-                  </div>
-                </div>
   
-                <hr>
-                <p class="search-title">Members</p>
-  
-                <div class="search-list d-flex flex-column gap-2">
-                  <div class="search-list-item d-flex align-items-center gap-3">
-                    <div class="memmber-img">
-                      <img src="/adminHomeAssets/images/avatars/01.png" width="32" height="32" class="rounded-circle" alt="">
-                    </div>
-                    <div class="">
-                      <h5 class="mb-0 search-list-title ">Andrew Stark</h5>
-                    </div>
-                  </div>
-  
-                  <div class="search-list-item d-flex align-items-center gap-3">
-                    <div class="memmber-img">
-                      <img src="/adminHomeAssets/images/avatars/02.png" width="32" height="32" class="rounded-circle" alt="">
-                    </div>
-                    <div class="">
-                      <h5 class="mb-0 search-list-title ">Snetro Jhonia</h5>
-                    </div>
-                  </div>
-  
-                  <div class="search-list-item d-flex align-items-center gap-3">
-                    <div class="memmber-img">
-                      <img src="/adminHomeAssets/images/avatars/03.png" width="32" height="32" class="rounded-circle" alt="">
-                    </div>
-                    <div class="">
-                      <h5 class="mb-0 search-list-title">Michle Clark</h5>
-                    </div>
-                  </div>
-  
-                </div>
-              </div>
-              <div class="card-footer text-center bg-transparent">
-                <a href="javascript:;" class="btn w-100">See All Search Results</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <ul class="navbar-nav gap-1 nav-right-links align-items-center">
-        <li class="nav-item d-lg-none mobile-search-btn">
-          <a class="nav-link" href="javascript:;"><i class="material-icons-outlined">search</i></a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="avascript:;" data-bs-toggle="dropdown"><img src="/adminHomeAssets/images/county/02.png" width="22" alt="">
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item d-flex align-items-center py-2" href="javascript:;"><img src="/adminHomeAssets/images/county/01.png" width="20" alt=""><span class="ms-2">English</span></a>
-            </li>
-            <li><a class="dropdown-item d-flex align-items-center py-2" href="javascript:;"><img src="/adminHomeAssets/images/county/02.png" width="20" alt=""><span class="ms-2">Catalan</span></a>
-            </li>
-            <li><a class="dropdown-item d-flex align-items-center py-2" href="javascript:;"><img src="/adminHomeAssets/images/county/03.png" width="20" alt=""><span class="ms-2">French</span></a>
-            </li>
-            <li><a class="dropdown-item d-flex align-items-center py-2" href="javascript:;"><img src="/adminHomeAssets/images/county/04.png" width="20" alt=""><span class="ms-2">Belize</span></a>
-            </li>
-            <li><a class="dropdown-item d-flex align-items-center py-2" href="javascript:;"><img src="/adminHomeAssets/images/county/05.png" width="20" alt=""><span class="ms-2">Colombia</span></a>
-            </li>
-            <li><a class="dropdown-item d-flex align-items-center py-2" href="javascript:;"><img src="/adminHomeAssets/images/county/06.png" width="20" alt=""><span class="ms-2">Spanish</span></a>
-            </li>
-            <li><a class="dropdown-item d-flex align-items-center py-2" href="javascript:;"><img src="/adminHomeAssets/images/county/07.png" width="20" alt=""><span class="ms-2">Georgian</span></a>
-            </li>
-            <li><a class="dropdown-item d-flex align-items-center py-2" href="javascript:;"><img src="/adminHomeAssets/images/county/08.png" width="20" alt=""><span class="ms-2">Hindi</span></a>
-            </li>
-          </ul>
-        </li>
-
-        <li class="nav-item dropdown position-static d-md-flex d-none">
-          <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-bs-auto-close="outside"
-          data-bs-toggle="dropdown" href="javascript:;"><i class="material-icons-outlined">done_all</i></a>
-          <div class="dropdown-menu dropdown-menu-end mega-menu shadow-lg p-4 p-lg-5">
-            <div class="mega-menu-widgets">
-             <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3 g-4 g-lg-5">
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <div class="mega-menu-icon flex-shrink-0 bg-danger">
-                          <i class="material-icons-outlined">question_answer</i>
-                        </div>
-                        <div class="mega-menu-content">
-                           <h5>Marketing</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="/adminHomeAssets/images/megaIcons/02.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                           <h5>Website</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="/adminHomeAssets/images/megaIcons/03.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                            <h5>Subscribers</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="/adminHomeAssets/images/megaIcons/01.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                           <h5>Hubspot</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="/adminHomeAssets/images/megaIcons/11.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                           <h5>Templates</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>        
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="/adminHomeAssets/images/megaIcons/13.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                           <h5>Ebooks</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="/adminHomeAssets/images/megaIcons/12.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                           <h5>Sales</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="/adminHomeAssets/images/megaIcons/08.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                           <h5>Tools</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="card rounded-4 shadow-none border mb-0">
-                    <div class="card-body">
-                      <div class="d-flex align-items-start gap-3">
-                        <img src="/adminHomeAssets/images/megaIcons/09.png" width="40" alt="">
-                        <div class="mega-menu-content">
-                           <h5>Academy</h5>
-                           <p class="mb-0 f-14">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate
-                             the visual form of a document.</p>
-                        </div>
-                     </div>
-                    </div>
-                  </div>
-                </div>
-             </div><!--end row-->
-            <!-- </div>
-          </div>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-bs-auto-close="outside"
-            data-bs-toggle="dropdown" href="javascript:;"><i class="material-icons-outlined">apps</i></a>
-          <div class="dropdown-menu dropdown-menu-end dropdown-apps shadow-lg p-3">
-            <div class="border rounded-4 overflow-hidden">
-              <div class="row row-cols-3 g-0 border-bottom">
-                <div class="col border-end">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="/adminHomeAssets/images/apps/01.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">Gmail</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="col border-end">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="/adminHomeAssets/images/apps/02.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">Skype</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="/adminHomeAssets/images/apps/03.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">Slack</p>
-                    </div>
-                  </div>
-                </div>
-              </div>end row -->
-
-              <!-- <div class="row row-cols-3 g-0 border-bottom">
-                <div class="col border-end">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="/adminHomeAssets/images/apps/04.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">YouTube</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="col border-end">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="/adminHomeAssets/images/apps/05.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">Google</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="/adminHomeAssets/images/apps/06.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">Instagram</p>
-                    </div>
-                  </div>
-                </div> -->
-              <!-- </div>end row -->
-
-              <!-- <div class="row row-cols-3 g-0 border-bottom">
-                <div class="col border-end">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="/adminHomeAssets/images/apps/07.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">Spotify</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="col border-end">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="/adminHomeAssets/images/apps/08.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">Yahoo</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="/adminHomeAssets/images/apps/09.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">Facebook</p>
-                    </div>
-                  </div>
-                </div>
-              </div>end row -->
-
-              <!-- <div class="row row-cols-3 g-0">
-                <div class="col border-end">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="/adminHomeAssets/images/apps/10.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">Figma</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="col border-end">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="/adminHomeAssets/images/apps/11.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">Paypal</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="app-wrapper d-flex flex-column gap-2 text-center">
-                    <div class="app-icon">
-                      <img src="/adminHomeAssets/images/apps/12.png" width="36" alt="">
-                    </div>
-                    <div class="app-name">
-                      <p class="mb-0">Photo</p>
-                    </div>
-                  </div>
-                </div>
-              </div> 
-            </div>
-          </div>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" data-bs-auto-close="outside"
-            data-bs-toggle="dropdown" href="javascript:;"><i class="material-icons-outlined">notifications</i>
-            <span class="badge-notify">5</span>
-          </a>
-          <div class="dropdown-menu dropdown-notify dropdown-menu-end shadow">
-            <div class="px-3 py-1 d-flex align-items-center justify-content-between border-bottom">
-              <h5 class="notiy-title mb-0">Notifications</h5>
-              <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle dropdown-toggle-nocaret option" type="button"
-                  data-bs-toggle="dropdown" aria-expanded="false">
-                  <span class="material-icons-outlined">
-                    more_vert
-                  </span>
-                </button>
-                <div class="dropdown-menu dropdown-option dropdown-menu-end shadow">
-                  <div><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-                        class="material-icons-outlined fs-6">inventory_2</i>Archive All</a></div>
-                  <div><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-                        class="material-icons-outlined fs-6">done_all</i>Mark all as read</a></div>
-                  <div><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-                        class="material-icons-outlined fs-6">mic_off</i>Disable Notifications</a></div>
-                  <div><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-                        class="material-icons-outlined fs-6">grade</i>What's new ?</a></div>
-                  <div>
-                    <hr class="dropdown-divider">
-                  </div>
-                  <div><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-                        class="material-icons-outlined fs-6">leaderboard</i>Reports</a></div>
-                </div>
-              </div>
-            </div>
-            <div class="notify-list">
-              <div>
-                <a class="dropdown-item border-bottom py-2" href="javascript:;">
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="">
-                      <img src="/adminHomeAssets/images/avatars/01.png" class="rounded-circle" width="45" height="45" alt="">
-                    </div>
-                    <div class="">
-                      <h5 class="notify-title">Congratulations Jhon</h5>
-                      <p class="mb-0 notify-desc">Many congtars jhon. You have won the gifts.</p>
-                      <p class="mb-0 notify-time">Today</p>
-                    </div>
-                    <div class="notify-close position-absolute end-0 me-3">
-                      <i class="material-icons-outlined fs-6">close</i>
-                    </div>
-                  </div>
-                </a>
-              </div>
-              <div>
-                <a class="dropdown-item border-bottom py-2" href="javascript:;">
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="user-wrapper bg-primary text-primary bg-opacity-10">
-                      <span>RS</span>
-                    </div>
-                    <div class="">
-                      <h5 class="notify-title">New Account Created</h5>
-                      <p class="mb-0 notify-desc">From USA an user has registered.</p>
-                      <p class="mb-0 notify-time">Yesterday</p>
-                    </div>
-                    <div class="notify-close position-absolute end-0 me-3">
-                      <i class="material-icons-outlined fs-6">close</i>
-                    </div>
-                  </div>
-                </a>
-              </div>
-              <div>
-                <a class="dropdown-item border-bottom py-2" href="javascript:;">
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="">
-                      <img src="/adminHomeAssets/images/apps/13.png" class="rounded-circle" width="45" height="45" alt="">
-                    </div>
-                    <div class="">
-                      <h5 class="notify-title">Payment Recived</h5>
-                      <p class="mb-0 notify-desc">New payment recived successfully</p>
-                      <p class="mb-0 notify-time">1d ago</p>
-                    </div>
-                    <div class="notify-close position-absolute end-0 me-3">
-                      <i class="material-icons-outlined fs-6">close</i>
-                    </div>
-                  </div>
-                </a>
-              </div>
-              <div>
-                <a class="dropdown-item border-bottom py-2" href="javascript:;">
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="">
-                      <img src="/adminHomeAssets/images/apps/14.png" class="rounded-circle" width="45" height="45" alt="">
-                    </div>
-                    <div class="">
-                      <h5 class="notify-title">New Order Recived</h5>
-                      <p class="mb-0 notify-desc">Recived new order from michle</p>
-                      <p class="mb-0 notify-time">2:15 AM</p>
-                    </div>
-                    <div class="notify-close position-absolute end-0 me-3">
-                      <i class="material-icons-outlined fs-6">close</i>
-                    </div>
-                  </div>
-                </a>
-              </div>
-              <div>
-                <a class="dropdown-item border-bottom py-2" href="javascript:;">
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="">
-                      <img src="/adminHomeAssets/images/avatars/06.png" class="rounded-circle" width="45" height="45" alt="">
-                    </div>
-                    <div class="">
-                      <h5 class="notify-title">Congratulations Jhon</h5>
-                      <p class="mb-0 notify-desc">Many congtars jhon. You have won the gifts.</p>
-                      <p class="mb-0 notify-time">Today</p>
-                    </div>
-                    <div class="notify-close position-absolute end-0 me-3">
-                      <i class="material-icons-outlined fs-6">close</i>
-                    </div>
-                  </div>
-                </a>
-              </div>
-              <div>
-                <a class="dropdown-item py-2" href="javascript:;">
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="user-wrapper bg-danger text-danger bg-opacity-10">
-                      <span>PK</span>
-                    </div>
-                    <div class="">
-                      <h5 class="notify-title">New Account Created</h5>
-                      <p class="mb-0 notify-desc">From USA an user has registered.</p>
-                      <p class="mb-0 notify-time">Yesterday</p>
-                    </div>
-                    <div class="notify-close position-absolute end-0 me-3">
-                      <i class="material-icons-outlined fs-6">close</i>
-                    </div>
-                  </div>
-                </a>
-              </div>
-            </div>
-          </div>
-        </li>
-        <li class="nav-item d-md-flex d-none">
-          <a class="nav-link position-relative" data-bs-toggle="offcanvas" href="#offcanvasCart"><i
-              class="material-icons-outlined">shopping_cart</i>
-            <span class="badge-notify">8</span>
-          </a>
-        </li>
-        <li class="nav-item dropdown">
-          <a href="javascrpt:;" class="dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown">
-             <img src="/adminHomeAssets/images/avatars/01.png" class="rounded-circle p-1 border" width="45" height="45" alt="">
-          </a>
-          <div class="dropdown-menu dropdown-user dropdown-menu-end shadow">
-            <a class="dropdown-item  gap-2 py-2" href="javascript:;">
-              <div class="text-center">
-                <img src="/adminHomeAssets/images/avatars/01.png" class="rounded-circle p-1 shadow mb-3" width="90" height="90"
-                  alt="">
-                <h5 class="user-name mb-0 fw-bold">Hello, Jhon</h5>
-              </div>
-            </a>
-            <hr class="dropdown-divider">
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-              class="material-icons-outlined">person_outline</i>Profile</a>
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-              class="material-icons-outlined">local_bar</i>Setting</a>
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-              class="material-icons-outlined">dashboard</i>Dashboard</a>
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-              class="material-icons-outlined">account_balance</i>Earning</a>
-              <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-                class="material-icons-outlined">cloud_download</i>Downloads</a>
-            <hr class="dropdown-divider">
-            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="javascript:;"><i
-            class="material-icons-outlined">power_settings_new</i>Logout</a>
-          </div>
-        </li>
-      </ul> -->
-
-    <!-- </nav> --> 
   </header>
   <!--end top header-->
 
@@ -628,10 +60,10 @@
                 <div class="row">
                   <div class="col-12 col-sm-7">
                     <div class="d-flex align-items-center gap-3 mb-5">
-                      <img src="/adminHomeAssets/images/avatars/01.png" class="rounded-circle bg-grd-info p-1"  width="60" height="60" alt="user">
+                      <img src="/adminHomeAssets/images/avatars/001.png" class="rounded-circle bg-grd-info p-1"  width="60" height="60" alt="user">
                       <div class="">
                         <p class="mb-0 fw-semibold">Welcome back</p>
-                        <h4 class="fw-semibold mb-0 fs-4 mb-0">Jhon Anderson!</h4>
+                        <h4 class="fw-semibold mb-0 fs-4 mb-0"><%= adminName %>!</h4>
                       </div>
                     </div>
                     <div class="d-flex align-items-center gap-5">
@@ -656,7 +88,7 @@
                   </div>
                   <div class="col-12 col-sm-5">
                     <div class="welcome-back-img pt-4">
-                       <img src="/adminHomeAssets/images/gallery/welcome-back-3.png" height="180" alt="">
+                       <img src="/adminHomeAssets/images/gallery/welcome-back-034.png" height="180" alt="">
                     </div>
                   </div>
                 </div><!--end row-->
@@ -721,7 +153,116 @@
               </div>
             </div>
           </div>
-          <div class="col-xl-6 col-xxl-4 d-flex align-items-stretch">
+           
+          <!-- chart -->
+          <div class="col-12 mt-4">
+            <div class="card w-100 rounded-4">
+                <div class="card-body">
+                    <h4 class="fw-semibold mb-4">Sales Report</h4>
+        
+                    <!-- Filter options -->
+                    <div class="filter-container">
+                        <label for="filter">Select Filter: </label>
+                        <select id="filter" onchange="updateChart()">
+                            <option value="yearly">Yearly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="daily">Custom Date</option> <!-- Added Daily option -->
+                        </select>
+                    </div>
+        
+                    <!-- Custom Date Range Picker for Daily Filter -->
+                    <div class="date-range-container" id="dateRangeContainer" style="display:none; margin-top: 10px;">
+                        <label for="startDate">Start Date: </label>
+                        <input type="date" id="startDate" onchange="updateChart()">
+                        <label for="endDate">End Date: </label>
+                        <input type="date" id="endDate" onchange="updateChart()">
+                    </div>
+        
+                    <!-- Chart Container -->
+                    <div class="chart-container">
+                        <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- topp producttttttsssssssss -->
+        <!-- Top Products Table -->
+<div class="col-12 mt-4">
+  <div class="card w-100 rounded-4">
+    <div class="card-body">
+      <h4 class="fw-semibold mb-4">Best Selling Products (Top 10)</h4>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Product Name</th>
+              <th>Brand</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Units Sold</th>
+            </tr>
+          </thead>
+          <tbody id="product-table-body">
+            <!-- Table rows will be dynamically populated here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Top Categories Table -->
+<div class="col-12 mt-4">
+  <div class="card w-100 rounded-4">
+    <div class="card-body">
+      <h4 class="fw-semibold mb-4">Best Selling Categories (Top 10)</h4>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Category Name</th>
+              <th>Units Sold</th>
+            </tr>
+          </thead>
+          <tbody id="category-table-body">
+            <!-- Table rows will be dynamically populated here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Top Brands Table -->
+<div class="col-12 mt-4">
+  <div class="card w-100 rounded-4">
+    <div class="card-body">
+      <h4 class="fw-semibold mb-4">Best Selling Brands (Top 10)</h4>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Brand Name</th>
+              <th>Units Sold</th>
+            </tr>
+          </thead>
+          <tbody id="brand-table-body">
+            <!-- Table rows will be dynamically populated here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div>
+          
+          <!-- <div class="col-xl-6 col-xxl-4 d-flex align-items-stretch">
             <div class="card w-100 rounded-4">
               <div class="card-body">
                 <div class="text-center">
@@ -740,8 +281,8 @@
                 </div>
               </div>
             </div>
-          </div>
-          <div class="col-xl-6 col-xxl-4 d-flex align-items-stretch">
+          </div> -->
+          <!-- <div class="col-xl-6 col-xxl-4 d-flex align-items-stretch">
             <div class="card w-100 rounded-4">
               <div class="card-body">
                 <div class="d-flex flex-column gap-3">
@@ -794,8 +335,8 @@
                 </div>
               </div>
             </div>
-          </div>
-          <div class="col-xxl-4">
+          </div> -->
+          <!-- <div class="col-xxl-4">
             <div class="row">
               <div class="col-md-6 d-flex align-items-stretch">
                 <div class="card w-100 rounded-4">
@@ -873,8 +414,8 @@
                 <div id="chart7"></div>
               </div>
             </div>
-          </div>
-          <div class="col-xl-6 col-xxl-4 d-flex align-items-stretch">
+          </div> -->
+          <!-- <div class="col-xl-6 col-xxl-4 d-flex align-items-stretch">
             <div class="card w-100 rounded-4">
               <div class="card-body">
                 <div class="d-flex align-items-start justify-content-between mb-3">
@@ -996,8 +537,8 @@
 
               </div>
             </div>
-          </div>
-          <div class="col-xl-6 col-xxl-4 d-flex align-items-stretch">
+          </div> -->
+          <!-- <div class="col-xl-6 col-xxl-4 d-flex align-items-stretch">
             <div class="card w-100 rounded-4">
               <div class="card-body">
                 <div id="chart8"></div>
@@ -1033,8 +574,8 @@
                 </div>
               </div>
             </div>
-          </div>
-          <div class="col-xl-6 col-xxl-4 d-flex align-items-stretch">
+          </div> -->
+          <!-- <div class="col-xl-6 col-xxl-4 d-flex align-items-stretch">
             <div class="card w-100 rounded-4">
               <div class="card-body">
                 <div class="d-flex align-items-start justify-content-between mb-3">
@@ -1162,8 +703,8 @@
                 </div>
               </div>
             </div>  
-          </div>
-          <div class="col-xl-6 col-xxl-4 d-flex align-items-stretch">
+          </div> -->
+          <!-- <div class="col-xl-6 col-xxl-4 d-flex align-items-stretch">
             <div class="card w-100 rounded-4">
               <div class="card-header border-0 p-3 border-bottom">
                 <div class="d-flex align-items-start justify-content-between">
@@ -1268,8 +809,8 @@
                 </div>
               </div>
             </div>
-          </div>
-          <div class="col-lg-12 col-xxl-8 d-flex align-items-stretch">
+          </div> -->
+          <!-- <div class="col-lg-12 col-xxl-8 d-flex align-items-stretch">
             <div class="card w-100 rounded-4">
               <div class="card-body">
                <div class="d-flex align-items-start justify-content-between mb-3">
@@ -1405,7 +946,7 @@
                  </div>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
 
 
@@ -1420,3 +961,320 @@
 
   <%- include('../layouts/adminFooter.ejs') %>
     
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+   <!-- Chart.js Script -->
+   <script>
+   
+    var yearlyData = [55, 49, 44, 24, 15];
+    var monthlyData = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+    var weeklyData = [12, 19, 3, 5, 2, 3, 7];
+    var dailyData = []; 
+
+    var barColors = ["red", "green", "blue", "orange", "brown"];
+
+     
+    var myChart = new Chart("myChart", {
+        type: "bar",
+        data: {
+            labels: [],  
+            datasets: [{
+                backgroundColor: barColors,
+                data: []  
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: "Sales Report - Delivered Orders"
+            }
+        }
+    });
+
+   
+    function updateChart() {
+        var filter = document.getElementById("filter").value;
+        var dateRangeContainer = document.getElementById("dateRangeContainer");
+
+        if (filter === "yearly") {
+            myChart.data.labels = ["Italy", "France", "Spain", "USA", "Argentina"];
+            myChart.data.datasets[0].data = yearlyData;
+            myChart.options.title.text = "Sales Report - Yearly";
+            dateRangeContainer.style.display = "none";
+        } else if (filter === "monthly") {
+            myChart.data.labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            myChart.data.datasets[0].data = monthlyData;
+            myChart.options.title.text = "Sales Report - Monthly";
+            dateRangeContainer.style.display = "none";
+        } else if (filter === "weekly") {
+            myChart.data.labels = ["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6", "Week 7"];
+            myChart.data.datasets[0].data = weeklyData;
+            myChart.options.title.text = "Sales Report - Weekly";
+            dateRangeContainer.style.display = "none";
+        } else if (filter === "daily") {
+            dateRangeContainer.style.display = "block";
+
+            var startDate = document.getElementById("startDate").value;
+            var endDate = document.getElementById("endDate").value;
+
+            if (startDate && endDate) {
+                var daysArray = generateDateLabels(startDate, endDate);
+                var dataArray = daysArray.map(() => Math.floor(Math.random() * 100));  
+                myChart.data.labels = daysArray;
+                myChart.data.datasets[0].dat = "Sales Report - Daily (" + startDate + " to " + endDate + ")";
+            }
+        }
+
+        myChart.update();  
+    }
+
+    function generateDateLabels(start, end) {
+        var startDate = new Date(start);
+        var endDate = new Date(end);
+        var dateArray = [];
+
+        while (startDate <= endDate) {
+            var day = startDate.getDate();
+            var month = startDate.getMonth() + 1;  
+            var year = startDate.getFullYear();
+            dateArray.push(`${day}-${month}-${year}`);
+            startDate.setDate(startDate.getDate() + 1);  
+        }
+
+        return dateArray;
+    }
+</script>
+
+
+<script type="text/javascript">
+  const orderData = JSON.parse('<%- orderData %>');
+  
+ 
+  function processYearlyData(data) {
+      const yearlyData = {};
+      data.forEach(order => {
+          const year = new Date(order.date).getFullYear();
+          yearlyData[year] = (yearlyData[year] || 0) + order.totalPrice;
+      });
+      return Object.entries(yearlyData).map(([year, total]) => ({ label: year, value: total }));
+  }
+  
+  function processMonthlyData(data) {
+      const monthlyData = {};
+      data.forEach(order => {
+          const date = new Date(order.date);
+          const monthYear = `${date.getMonth() + 1}-${date.getFullYear()}`;
+          monthlyData[monthYear] = (monthlyData[monthYear] || 0) + order.totalPrice;
+      });
+      return Object.entries(monthlyData).map(([monthYear, total]) => ({ label: monthYear, value: total }));
+  }
+  
+  function processWeeklyData(data) {
+  }
+  
+  function processDailyData(data, startDate, endDate) {
+      const dailyData = {};
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+  
+      data.forEach(order => {
+          const orderDate = new Date(order.date);
+          if (orderDate >= start && orderDate <= end) {
+              const dateString = orderDate.toISOString().split('T')[0];
+              dailyData[dateString] = (dailyData[dateString] || 0) + order.totalPrice;
+          }
+      });
+  
+      return Object.entries(dailyData).map(([date, total]) => ({ label: date, value: total }));
+  }
+  
+  function updateChart() {
+      const filter = document.getElementById("filter").value;
+      const dateRangeContainer = document.getElementById("dateRangeContainer");
+      let chartData;
+  
+      if (filter === "yearly") {
+          chartData = processYearlyData(orderData);
+          myChart.options.title.text = "Sales Report - Yearly";
+          dateRangeContainer.style.display = "none";
+      } else if (filter === "monthly") {
+          chartData = processMonthlyData(orderData);
+          myChart.options.title.text = "Sales Report - Monthly";
+          dateRangeContainer.style.display = "none";
+      } else if (filter === "weekly") {
+          chartData = processWeeklyData(orderData);
+          myChart.options.title.text = "Sales Report - Weekly";
+          dateRangeContainer.style.display = "none";
+      } else if (filter === "daily") {
+          dateRangeContainer.style.display = "block";
+          const startDate = document.getElementById("startDate").value;
+          const endDate = document.getElementById("endDate").value;
+          if (startDate && endDate) {
+              chartData = processDailyData(orderData, startDate, endDate);
+              myChart.options.title.text = `Sales Report - Daily (${startDate} to ${endDate})`;
+          }
+      }
+  
+      if (chartData) {
+          myChart.data.labels = chartData.map(item => item.label);
+          myChart.data.datasets[0].data = chartData.map(item => item.value);
+          myChart.update();
+      }
+  }
+  
+  var myChart = new Chart("myChart", {
+      type: "bar",
+      data: {
+          labels: [],
+          datasets: [{
+              backgroundColor: ["red", "green", "blue", "orange", "brown"],
+              data: []
+          }]
+      },
+      options: {
+          title: {
+              display: true,
+              text: "Sales Report - Delivered Orders"
+          }
+      }
+  });
+  
+  updateChart();
+  
+  document.getElementById("filter").addEventListener("change", updateChart);
+  document.getElementById("startDate").addEventListener("change", updateChart);
+  document.getElementById("endDate").addEventListener("change", updateChart);
+  </script>
+
+ 
+
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+
+<!-- toppppp productsssssssssss -->
+
+<script>
+  async function loadTopSellingProducts() {
+    try {
+      const response = await fetch('/api/reports/top-products');
+      const data = await response.json();
+      
+      const productTableBody = document.getElementById('product-table-body');
+      productTableBody.innerHTML = '';  
+
+      if (data.products && data.products.length) {
+        data.products.forEach((product, index) => {
+          const tr = document.createElement('tr');
+          
+         
+          tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${product.name}</td>
+            <td>${product.brand}</td>
+            <td>${product.category}</td>
+            <td>${product.price.toFixed(2)}</td>
+            <td>${product.sold}</td>
+          `;
+          
+          productTableBody.appendChild(tr);  
+        });
+      } else {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="6" class="text-center">No data available</td>';
+        productTableBody.appendChild(tr);
+      }
+    } catch (error) {
+      console.error('Error fetching top products:', error);
+      const productTableBody = document.getElementById('product-table-body');
+      productTableBody.innerHTML = '<tr><td colspan="6" class="text-center">Failed to load data</td></tr>';
+    }
+  }
+
+  window.onload = function() {
+    loadTopSellingProducts();
+  };
+</script>
+
+
+<!-- topppppppppppp -->
+<script>
+  function populateTopProductsTable(topProducts) {
+    const productTableBody = document.getElementById('product-table-body');
+    productTableBody.innerHTML = '';
+
+    if (topProducts && topProducts.length) {
+      topProducts.forEach((product, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${product.name}</td>
+          <td>${product.brand}</td>
+          <td>${product.category}</td>
+          <td>${product.price.toFixed(2)}</td>
+          <td>${product.sold}</td>
+        `;
+        productTableBody.appendChild(tr);
+      });
+    } else {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="6" class="text-center">No data available</td>';
+      productTableBody.appendChild(tr);
+    }
+  }
+
+  function populateTopCategoriesTable(topCategories) {
+    const categoryTableBody = document.getElementById('category-table-body');
+    categoryTableBody.innerHTML = '';
+
+    if (topCategories && topCategories.length) {
+      topCategories.forEach((category, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${category.name}</td>
+          <td>${category.sold}</td>
+        `;
+        categoryTableBody.appendChild(tr);
+      });
+    } else {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="3" class="text-center">No data available</td>';
+      categoryTableBody.appendChild(tr);
+    }
+  }
+
+ 
+  function populateTopBrandsTable(topBrands) {
+    const brandTableBody = document.getElementById('brand-table-body');
+    brandTableBody.innerHTML = '';
+
+    if (topBrands && topBrands.length) {
+      topBrands.forEach((brand, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${brand.name}</td>
+          <td>${brand.sold}</td>
+        `;
+        brandTableBody.appendChild(tr);
+      });
+    } else {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="3" class="text-center">No data available</td>';
+      brandTableBody.appendChild(tr);
+    }
+  }
+
+ 
+  window.onload = function() {
+    const topProductsData = <%- topProducts %>;
+    const topCategoriesData = <%- topCategories %>;
+    const topBrandsData = <%- topBrands %>;
+
+    populateTopProductsTable(topProductsData);
+    populateTopCategoriesTable(topCategoriesData);
+    populateTopBrandsTable(topBrandsData);
+
+  };
+</script>

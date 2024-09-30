@@ -1,0 +1,263 @@
+<%- include('../layouts/adminHeader.ejs') %>
+<%- include('../layouts/adminPanelSidebar.ejs') %>
+
+<main class="main-wrapper">
+    <div class="main-content">
+        <!--breadcrumb-->
+        <div class="page-breadcrumb d-none d-sm-flex align-items-center mb-3">
+            <a href="/admin/home">
+                <div class="breadcrumb-title pe-3">LuxeWatches</div>
+            </a>
+            <div class="ps-3">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0 p-0">
+                        <li class="breadcrumb-item"><a href="javascript:;"><i class="bx bx-home-alt"></i></a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Add Offer</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <!--end breadcrumb-->
+        <div class="row">
+            <div class="col-12 col-lg-10 ms-5 itachi">
+                <form id="addOfferForm" action="" method="post">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <h5 class="mb-2">Offer Name</h5>
+                                <label for="offerName" class="form-label mb-2">Enter offer title here</label><br>
+                                <input type="text" class="form-control" placeholder="Enter here" id="offerName" required>
+                                <span id="offerNameError" style="color: red;"></span>
+                            </div>
+                            <div class="col-md-12">
+                                <h5 class="mb-2">Discount Percentage</h5>
+                                <label for="DPercentage" class="form-label">Enter number Only</label>
+                                <input type="number" class="form-control rounded-0" id="DPercentage"
+                                    placeholder="Enter Percentage from 10% - 70%" required>
+                                <span id="discountError" style="color: red;"></span>
+                            </div>
+
+                            <div class="col-md-12 mt-4 mb-3">
+                                <h6 class="mb-2">Select a Start Date</h6>
+                                <input type="date" class="form-control datepicker flatpickr-input" id="startDatePicker" required>
+                                <span id="startDateError" style="color: red;"></span>
+                            </div>
+
+                            <div class="col-md-12 mt-4 mb-3">
+                                <h6 class="mb-2">Select an Expiry Date</h6>
+                                <input type="date" class="form-control datepicker flatpickr-input" id="datePicker" required>
+                                <span id="dateError" style="color: red;"></span>
+                            </div>
+                            <div class="mb-4">
+                                <label for="selectOfferType" class="form-label">Select Offer Type</label>
+                                <select class="form-select" id="selectOfferType" required>
+                                    <option selected disabled>Select One</option>
+                                    <option>Product Offer</option>
+                                    <option>Category Offer</option>
+                                </select>
+                            </div>
+                            <div class="mb-4" id="selectProductDiv" style="display:none;">
+                                <label for="selctProduct" class="form-label">Select a Product</label>
+                                <select class="form-select" id="selctProduct">
+                                    <option selected disabled>Select One</option>
+                                    <% products.forEach(product => { %>
+                                        <option value="<%= product._id %>"><%= product.name %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <div class="mb-4" id="selectCategoryDiv" style="display:none;">
+                                <label for="selectCategory" class="form-label">Select a Category</label>
+                                <select class="form-select" id="selectCategory">
+                                    <option selected disabled>Select One</option>
+                                    <% categories.forEach(category => { %>
+                                        <option value="<%= category._id %>"><%= category.name %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-primary mt-4" onclick="addOffer()">Submit</button>
+                            <a href="/admin/offer-management">
+                                <button type="button" class="btn btn-info mt-4 ms-4">Go back</button>
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+<%- include('../layouts/adminFooter.ejs') %>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const offerTypeSelect = document.getElementById('selectOfferType');
+        const selectProductDiv = document.getElementById('selectProductDiv');
+        const selectCategoryDiv = document.getElementById('selectCategoryDiv');
+        const selectProduct = document.getElementById('selctProduct');
+        const selectCategory = document.getElementById('selectCategory');
+
+        selectProductDiv.style.display = "none";
+        selectCategoryDiv.style.display = "none";
+
+        offerTypeSelect.addEventListener('change', function () {
+            const offerType = offerTypeSelect.value;
+
+            if (offerType === 'Product Offer') {
+                selectProductDiv.style.display = "block";
+                selectCategoryDiv.style.display = "none";
+                fetchProducts();
+            } else if (offerType === 'Category Offer') {
+                selectCategoryDiv.style.display = "block";
+                selectProductDiv.style.display = "none";
+                fetchCategories();
+            }
+        });
+
+        function fetchProducts() {
+            fetch('/api/products')
+                .then(response => response.json())
+                .then(products => {
+                    selectProduct.innerHTML = '<option selected disabled>Select One</option>';
+ 
+                    products.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product._id;
+                        option.textContent = product.name;
+                        selectProduct.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching products:', error));
+        }
+
+        function fetchCategories() {
+            fetch('/api/categories')
+                .then(response => response.json())
+                .then(categories => {
+                    selectCategory.innerHTML = '<option selected disabled>Select One</option>';
+                    categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category._id;
+                        option.textContent = category.name;
+                        selectCategory.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching categories:', error));
+        }
+    });
+
+
+    //***add offer****
+
+    async function addOffer() {
+
+        const offerName = document.getElementById('offerName')?.value || '';
+        const disPercentage = document.getElementById('DPercentage')?.value || '';
+        const startDate = document.getElementById('startDatePicker')?.value || '';
+        const expiryDate = document.getElementById('datePicker')?.value || '';
+        const offerType = document.getElementById('selectOfferType')?.value || '';
+    
+        const productId = document.getElementById('selctProduct') ? document.getElementById('selctProduct').value : null;
+        const categoryId = document.getElementById('selectCategory') ? document.getElementById('selectCategory').value : null;
+
+
+        const formData = {
+            offerName,
+            disPercentage,
+            startDate,
+            expiryDate,
+            offerType,
+            productId,
+            categoryId
+        };
+
+    try {
+        const response = await fetch('/admin/add-offer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            Swal.fire({
+            title: "Offer Added!",
+            text: "Your offer has been successfully created.",
+            icon: "success"
+            })
+            .then(() => {
+                window.location.href = '/admin/offer-management';  
+            })
+            
+        } else {
+            Swal.fire({
+            title: "Error!",
+            text: errorData.message || "Failed to submit offer.",
+            icon: "error",
+            confirmButtonText: "Try Again"
+        });
+        }
+    } catch (error) {
+        console.error("Error submitting offer:", error);
+        Swal.fire({
+        title: "Error!",
+        text: "An unexpected error occurred. Please try again later.",
+        icon: "error",
+        confirmButtonText: "OK"
+    });
+    }
+}
+
+
+/*** validationnnnnnnnn ***/
+
+function validateOfferForm() {
+    const offerName = document.getElementById('offerName').value.trim();
+    const disPercentage = document.getElementById('DPercentage').value.trim();
+    const startDate = document.getElementById('startDatePicker').value
+    const expiryDate = document.getElementById('datePicker').value;
+    const offerType = document.getElementById('selectOfferType').value;
+    // const productId = document.getElementById('productId').value;
+    // const categoryId = document.getElementById('categoryId').value;
+    const productId = document.getElementById('selctProduct') ? document.getElementById('selctProduct').value : null;
+    const categoryId = document.getElementById('selectCategory') ? document.getElementById('selectCategory').value : null;
+
+    let errors = [];
+
+    if (!offerName || offerName.length < 3) {
+        errors.push('Offer Name must be at least 3 characters long.');
+    }
+
+    if (!disPercentage || isNaN(disPercentage) || disPercentage <= 0 || disPercentage > 100) {
+        errors.push('Discount percentage must be a number between 1 and 100.');
+    }
+ 
+    if (!expiryDate) {
+        errors.push('Expiry date is required.');
+    } else {
+        const currentDate = new Date();
+        const selectedDate = new Date(expiryDate);
+        if (selectedDate <= currentDate) {
+            errors.push('Expiry date must be in the future.');
+        }
+    }
+
+    if (offerType === 'Select One') {
+        errors.push('Offer type must be selected.');
+    }
+
+    if (offerType === 'Product Offer' && productId === 'Select One') {
+        errors.push('Please select a product.');
+    } else if (offerType === 'Category Offer' && categoryId === 'Select One') {
+        errors.push('Please select a category.');
+    }
+
+    if (errors.length > 0) {
+        alert(errors.join('\n'));   
+        return false;
+    }
+
+    return true;
+}
+    
+
+</script>
