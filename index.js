@@ -1,11 +1,17 @@
 const express = require("express");
+require('dotenv').config();
 const morgan = require("morgan");
 const nocache = require("nocache");
 const mongoose = require("mongoose");
 const path = require('path');
 const session = require('express-session');
 const passport = require('passport');
-mongoose.connect("mongodb://127.0.0.1:27017/luxewatches").then(() => console.log('mongodb connected'));
+const uri = process.env.MONGODB_URI;
+
+mongoose.connect(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
 
 const app = express();
 
