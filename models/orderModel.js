@@ -79,6 +79,10 @@ const orderSchema = new mongoose.Schema({
         required: true,
         default: 60,
     },
+    invoiceNumber:{
+        type: String,
+        unique: true,
+    },
     address:{
         Name:{
             type: String,

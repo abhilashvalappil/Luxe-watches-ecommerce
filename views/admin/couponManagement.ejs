@@ -42,7 +42,7 @@
                     <th>Type</th>
                     <th>Valid From</th>
                     <th>Valid To</th>
-                    <th>Status</th>
+                    <!-- <th>Status</th> -->
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -54,11 +54,14 @@
                     <td>Percentage</td>
                     <td><%= new Date(coupon.validFrom).toLocaleDateString() %></td>
                     <td><%= new Date(coupon.validTo).toLocaleDateString() %></td>
-                    <td><%= coupon.listed ? 'Listed' : 'Unlisted' %></td>
+                    <!-- <td><%= coupon.listed ? 'Listed' : 'Unlisted' %></td> -->
                     <td>
-                        <button class="btn btn-sm <%= coupon.listed ? 'btn-secondary' : 'btn-success' %>"
+                        <!-- <button class="btn btn-sm <%= coupon.listed ? 'btn-secondary' : 'btn-success' %>"
                             onclick="toggleCouponStatus('<%= coupon._id %>', this)">
                             <%= coupon.listed ? 'Unlist' : 'List' %>
+                        </button> -->
+                        <button class="btn btn-sm btn-warning" onclick="editCoupon('<%= coupon._id %>')">
+                            Edit
                         </button>
                         <button class="btn btn-sm btn-danger btn-delete" data-coupon-id="<%= coupon._id %>">Delete</button>
                     </td>
@@ -112,12 +115,62 @@
         </div>
     </form>
 
+  <!-- Edit Coupon Modal -->
+<div class="modal fade" id="editCouponModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Coupon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCouponForm">
+                    <input type="hidden" id="editCouponId" name="couponId">
+                    <div class="mb-3">
+                        <label for="editCouponCode" class="form-label">Coupon Code</label>
+                        <input type="text" class="form-control" id="editCouponCode" name="couponCode" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDiscountValue" class="form-label">Discount Value (%)</label>
+                        <input type="number" class="form-control" id="editDiscountValue" name="discountPercent" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editMinimumPurchase" class="form-label">Minimum Purchase</label>
+                        <input type="number" class="form-control" id="editMinimumPurchase" name="minimumPurchase" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editMaxRedeem" class="form-label">Max Redeemable Amount</label>
+                        <input type="number" class="form-control" id="editMaxRedeem" name="maxRedeem" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editValidFrom" class="form-label">Valid From</label>
+                        <input type="date" class="form-control" id="editValidFrom" name="validFrom" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editValidTo" class="form-label">Valid To</label>
+                        <input type="date" class="form-control" id="editValidTo" name="validTo" required>
+                    </div>
+                    <button id="editCoupon-btn" type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+ 
+
+
+
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+
 
     <script>
         
@@ -173,12 +226,60 @@
 }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>
 
 <%- include('../layouts/adminFooter.ejs') %>
 
 <script>
+ function editCoupon(couponId) {
+    console.log('Fetching coupon data for ID:', couponId);
+    fetch(`/admin/coupons/${couponId}`)
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(`Network response was not ok: ${err.error}`);
+                });
+            }
+            return response.json();
+        })
+        .then(couponData => {
+            console.log('Coupon data received:', couponData);
+            // Populate the modal fields
+            document.getElementById('editCouponId').value = couponData._id;
+            document.getElementById('editCouponCode').value = couponData.couponCode;
+            document.getElementById('editDiscountValue').value = couponData.discountPercent;
+            document.getElementById('editMinimumPurchase').value = couponData.minPurchase;
+            document.getElementById('editMaxRedeem').value = couponData.maxRedeemAmount;
+            document.getElementById('editValidFrom').value = couponData.validFrom.split('T')[0];
+            document.getElementById('editValidTo').value = couponData.validTo.split('T')[0];
+
+            // Show the modal
+            const editModal = new bootstrap.Modal(document.getElementById('editCouponModal'));
+            editModal.show();
+        })
+        .catch(error => {
+            console.error('Error fetching coupon data:', error);
+        });
+}
+ 
+// Dummy function to simulate fetching coupon data
+function getCouponData(couponId) {
+    // Replace this with actual AJAX call or data retrieval logic
+    return {
+        _id: couponId,
+        code: 'SAVE20',
+        discountPercent: 20,
+        minimumPurchase: 50,
+        maxRedeem: 100,
+        validFrom: '2024-01-01',
+        validTo: '2024-12-31',
+    };
+}
+
+
+
     document.getElementById('addCoupon-btn').addEventListener('click', async function (event){
         event.preventDefault();
 
@@ -265,3 +366,146 @@
         return message;
     }
 </script>
+ 
+
+
+ <script>
+     document.getElementById('editCouponForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const couponCode = document.getElementById('editCouponCode').value;
+    const discountPercent = document.getElementById('editDiscountValue').value;
+    const minimumPurchase = document.getElementById('editMinimumPurchase').value;
+    const maxRedeemAmount = document.getElementById('editMaxRedeem').value;
+    const validFrom = document.getElementById('editValidFrom').value;
+    const validTo = document.getElementById('editValidTo').value;
+    const message = document.getElementById('message'); // Ensure you have a message element for showing errors
+
+    message.style.display = 'none';
+
+    const errorMessage = validateCouponForm(couponCode, discountPercent, minimumPurchase, maxRedeemAmount, validFrom, validTo);
+
+    if (errorMessage) {
+        message.style.display = 'block';
+        message.textContent = errorMessage;
+        return;
+    }
+
+
+
+    const formData = new FormData(this);
+    fetch('/admin/update-coupon', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(Object.fromEntries(formData))
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(`Network response was not ok: ${err.error}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Coupon updated successfully:', data);
+        // Hide the modal
+        const editModal = bootstrap.Modal.getInstance(document.getElementById('editCouponModal'));
+        editModal.hide();
+        // Show success message using SweetAlert
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Coupon updated successfully',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        }).then((result) => {
+            // Refresh the page after the user clicks 'OK'
+            if (result.isConfirmed) {
+                window.location.reload();
+            }
+        });
+    })
+    .catch(error => {
+        console.error('Error updating coupon:', error);
+        // Show error message using SweetAlert
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to update coupon. Please try again.',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'OK'
+        });
+    });
+});
+
+document.querySelectorAll('.btn-delete').forEach(button => {
+    button.addEventListener('click', async function() {
+        const couponId = this.getAttribute('data-coupon-id');
+        const action = 'delete'; // Set your action here
+
+        const confirmDelete = await Swal.fire({
+            title: `Are you sure you want to ${action} this coupon?`,
+            text: `You are about to ${action} the coupon.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: `Yes, ${action} coupon`,
+            cancelButtonText: 'Cancel'
+        });
+
+        if (confirmDelete.isConfirmed) {
+            fetch(`/admin/delete-coupon/${couponId}`, {
+                method: 'PATCH'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(`Network response was not ok: ${err.error}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Coupon deleted successfully.',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload(); // Refresh the page
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Warning!',
+                        text: data.message,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting coupon:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to delete coupon. Please try again.',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+    });
+});
+
+
+ </script>
+
+ 
+    

@@ -74,5 +74,12 @@ admin_route.put('/update-offer',offerController.updateOffer);
 
  admin_route.patch('/deactivate-offer/:id',offerController.deactivateOffer)
 
+ admin_route.post('/logout',adminController.logOut)
+
+ admin_route.get('/coupons/:id',offerController.loadEditCoupon)
+ admin_route.post('/update-coupon',offerController.updateCoupon)
+
+ admin_route.patch('/delete-coupon/:id',offerController.deleteCoupon)
+
 
 module.exports = admin_route;

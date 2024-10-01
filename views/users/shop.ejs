@@ -129,8 +129,8 @@ color: #ff0000;
             <div class="col-lg-3">
                 <div class="shop__sidebar">
                     <div class="shop__sidebar__search">
-                        <form id="searchForm" action="#">
-                            <input type="text" id="searchInput" placeholder="Search...">
+                        <form id="searchForm" action="#" onsubmit="handleSearch(event)">
+                            <input type="text" id="searchInput" placeholder="Search..." required>
                             <button type="submit"><span class="icon_search"></span></button>
                         </form>
                     </div>
@@ -322,7 +322,6 @@ color: #ff0000;
                                   <h5>₹<%= product.price %></h5>
                               <% } else { %>
                                   <% if (product.offerPercent) { %>
-                                      <!-- Show discounted price and offer percentage -->
                                       <h5>₹<%= product.discountedPrice.toFixed(2) %> <span class="original-price">₹<%= product.price %></span></h5>
                                       <p class="offer-percent">Save <%= product.offerPercent %>%</p>
                                   <% } else { %>
@@ -506,7 +505,7 @@ document.addEventListener('DOMContentLoaded', initializeWishlistIcons);
     }
   }
 
-  //**************Toast function ********/
+  //****Toast function ******/
   function showToast(message, backgroundColor) {
   Toastify({
     text: message,
@@ -519,6 +518,68 @@ document.addEventListener('DOMContentLoaded', initializeWishlistIcons);
     close: true,
   }).showToast();
 }
+
+async function handleSearch(event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const searchTerm = document.getElementById('searchInput').value;
+    console.log('the searchhhhh',searchTerm)
+
+    if (!searchTerm) {
+        // If no search term, fetch all products
+        await fetchAllProducts();
+        return;
+    }
+
+    // Send data to the server
+    await fetch('/search', { // Change '/search' to your actual endpoint
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: searchTerm }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+      displayProducts(data.products)
+        console.log('Search results:', data.products);
+      } else {
+      console.log('No products found');
+      displayProducts([]); // Clear the product display if no results
+    }
+  })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
+
+async function fetchAllProducts() {
+    const response = await fetch('/all-products'); // Adjust the endpoint accordingly
+    const data = await response.json();
+    displayProducts(data.products);
+}
+
+document.getElementById('searchInput').addEventListener('input', async (event) => {
+    const query = event.target.value;
+
+    if (query === '') {
+        // If the search input is cleared, fetch all products
+        await fetchAllProducts();
+    } else {
+        // Otherwise, perform the search
+        await handleSearch(event);
+    }
+});
+document.getElementById('clearSearch').addEventListener('click', async () => {
+    document.getElementById('searchInput').value = ''; // Clear the input
+    await fetchAllProducts(); // Fetch and display all products
+});
 
  
 
@@ -606,3 +667,4 @@ function updateMaxPrice() {
 </script>
 
  <%- include('../layouts/footer.ejs') %>    
+ 

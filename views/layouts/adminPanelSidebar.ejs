@@ -92,6 +92,13 @@
           <div class="menu-title">Offer Management</div>
       </a>
   </li>
+  <li>
+    <a href="" class="arrow_right">
+        <div class="parent-icon"><i class="material-icons-outlined">logout</i></div>
+        <div onclick="confirmLogout(event)" class="menu-title">Logout</div>
+    </a>
+</li>
+
   
     
       
@@ -100,3 +107,54 @@
     </div>
   </aside>
   <!--end sidebar-->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    function confirmLogout(event) {
+      event.preventDefault();
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You will be logged out of your account.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, log me out',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Proceed with logout
+                fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        Swal.fire(
+                            'Logged Out',
+                            'You have been logged out successfully.',
+                            'success'
+                        ).then(() => {
+                            window.location.href = '/admin/login'; // Redirect to home or login page
+                        });
+                    } else {
+                        Swal.fire(
+                            'Error',
+                            'There was a problem logging out. Please try again.',
+                            'error'
+                        );
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                    Swal.fire(
+                        'Error',
+                        'An unexpected error occurred.',
+                        'error'
+                    );
+                });
+            }
+        });
+    }
+    </script>

@@ -52,22 +52,28 @@
         <h2 class="mb-4">Order Details</h2>
 
         <!-- Order Summary -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5>Order Summary</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <p><strong>Order Number:</strong> <%= order._id.toString().slice(-5) %></p>
-                        <p><strong>Order Date:</strong> <%= new Date(order.orderDate).toLocaleDateString() %></p>
-                    </div>
-                    <div class="col-md-4">
-                        <p><strong>Total Order Amount:</strong> ₹<%= order.totalPrice %></p>
-                    </div>
-                </div>
-            </div>
+       <!-- Order Summary -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5>Order Summary</h5>
+    </div>
+    <div class="card-body d-flex justify-content-between">
+        <div>
+            <p><strong>Order Number:</strong> <%= order._id.toString().slice(-5) %></p>
+            <p><strong>Order Date:</strong> <%= new Date(order.orderDate).toLocaleDateString() %></p>
+            <p><strong>Total Order Amount:</strong> ₹<%= order.totalPrice %></p>
         </div>
+        <div>
+            <!-- <a href="/download-invoice/<%= order._id %>" class="btn btn-primary">Download Invoice</a> -->
+            <% if(order.orderedItems.some(item => item.orderStatus === 'Delivered')) { %>
+            <!-- <a href="" class="btn btn-primary" onclick="downloadInvoice('<%= order._id %>')">Download Invoice</a> -->
+            <a href="#" class="btn btn-primary" onclick="downloadInvoice('<%= order._id %>'); return false;">Download Invoice</a>
+
+            <% } %>
+        </div>
+    </div>
+</div>
+
 
         <!-- Shipping Address -->
         <div class="card mb-4">
@@ -253,3 +259,31 @@
 
     </script>
     
+    <script src="https://cdn.jsdelivr.net/npm/easyinvoice/dist/easyinvoice.min.js"></script>
+
+    <script>
+       async function downloadInvoice(orderId) {
+            try {
+                console.log('Attempting to download invoice for order ID:', orderId); 
+
+                const response = await fetch(`/download-invoice/${orderId}`);
+                
+                if (response.ok) {
+                    console.log('Invoice is being downloaded...')
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `invoice-${orderId}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    console.error('Failed to download invoice');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>

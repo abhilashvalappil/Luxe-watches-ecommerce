@@ -65,7 +65,7 @@ user_route.get('/auth/google/callback', passport.authenticate('google', {failure
 
 
 
-user_route.get('/shop',shopController.loadShop);
+user_route.get('/shop',auth.isLogin,shopController.loadShop);
 
 
 //user_route.get('/home',auth.isLoggedin, userController.loadHomePage);
@@ -131,7 +131,10 @@ user_route.post('/updatePaymentStatus',orderController.updatePaymentStatus)
 
 user_route.get('/retry-payment/:orderId',orderController.retryPayment)
 
- 
+user_route.get('/download-invoice/:orderId',orderController.downloadInvoice);
+
+user_route.post('/search',shopController.searchProduct);
+
 
 
 module.exports = user_route; 

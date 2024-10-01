@@ -60,6 +60,43 @@ const verifyLogin = async (req, res) => {
         console.log(error.message);
     }
 }
+
+// const logOut = async(req,res) => {
+//     try {
+
+//         if(req.session.admin_id){
+//             req.session.destroy();
+//             return res.status(200).json({})
+//         }
+//         res.redirect('/admin/login')
+        
+//     } catch (error) {
+//         console.error('Error occured when logout',error)
+//     }
+// }
+const logOut = async (req, res) => {
+    try {
+        if (req.session.admin_id) {
+            req.session.destroy((err) => {
+                if (err) {
+                    console.error('Session destruction error', err);
+                    return res.status(500).json({ message: 'Failed to log out' });
+                }else{
+                    console.log("kerindooooooooooooo");
+                    
+                    return res.status(200).json({ message: 'Logged out successfully' });
+
+                }
+            });
+        } else {
+            return res.status(401).json({ message: 'Not logged in' });
+        }
+    } catch (error) {
+        console.error('Error occurred during logout', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
  
  
 const loadDashboard = async (req, res) => {
@@ -587,14 +624,44 @@ const editProduct = async(req,res) => {
      }
 }
 
-const loadOrders = async(req,res) => {
+// const loadOrders = async(req,res) => {
+//     try {
+//         const orders = await Order.find({}).populate('orderedItems.productId')
+//         res.render('orders',{orders})
+//     } catch (error) {
+//         console.log(error)
+//     }
+// }
+const loadOrders = async (req, res) => {
     try {
-        const orders = await Order.find({}).populate('orderedItems.productId')
-        res.render('orders',{orders})
+        
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 6; 
+        const skip = (page - 1) * limit;
+       
+        const totalOrders = await Order.countDocuments();
+      
+        const orders = await Order.find({})
+            .populate('orderedItems.productId')
+            .limit(limit)
+            .skip(skip);
+
+       
+        const totalPages = Math.ceil(totalOrders / limit);
+ 
+        res.render('orders', {
+            orders,
+            currentPage: page,
+            totalPages,
+            limit
+        });
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        res.status(500).send('Server error');
     }
-}
+};
+
+
 const orderDetailsLoad = async(req,res) => {
     try {
         
@@ -899,7 +966,7 @@ module.exports = {
     loadreturnRequests,
     returnStatus,
     loadSalesReport,
- 
+    logOut
      
 }
 

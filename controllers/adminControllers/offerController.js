@@ -292,6 +292,62 @@ const deactivateOffer = async(req,res) => {
     }
 }
 
+const loadEditCoupon = async (req, res) => {
+    try {
+        // console.log('Fetching coupon with ID:', req.params.id);
+        const coupon = await Coupon.findById(req.params.id); // Ensure this line is correct
+        if (!coupon) {
+            // console.log('Coupon not found for ID:', req.params.id);
+            return res.status(404).json({ error: 'Coupon not found' });
+        }
+        // console.log('Coupon found:', coupon);
+        res.json(coupon);
+    } catch (error) {
+        console.error('Error fetching coupon:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+const updateCoupon = async (req, res) => {
+    try {
+        console.log('the coupon data:', req.body);
+        const { couponId, couponCode, discountPercent, minimumPurchase, maxRedeem, validFrom, validTo } = req.body;
+
+        const updatedCoupon = await Coupon.findByIdAndUpdate(couponId, {
+            couponCode,
+            discountPercent,
+            minimumPurchase,
+            maxRedeemAmount: maxRedeem,
+            validFrom,
+            validTo
+        }, { new: true });
+
+        if (!updatedCoupon) {
+            return res.status(404).json({ error: 'Coupon not found' });
+        }
+
+        res.json({ message: 'Coupon updated successfully', coupon: updatedCoupon });
+    } catch (error) {
+        console.error('Error updating coupon:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+const deleteCoupon = async(req,res) => {
+    try {
+        const couponId = req.params.id;
+        if(!couponId){
+            return res.status(400).json({message: 'Coupon not found'})
+        }
+
+        await Coupon.findByIdAndDelete(couponId)
+        return res.status(200).json({ success: true, message: 'Coupon deleted successfully' });
+        
+    } catch (error) {
+        console.error('Error found when deleting',error)
+    }
+}
+
 
 
 
@@ -303,5 +359,8 @@ module.exports = {
     loadAddOffer,
     addOffer,
     updateOffer,
-    deactivateOffer
+    deactivateOffer,
+    loadEditCoupon,
+    updateCoupon,
+    deleteCoupon
 }

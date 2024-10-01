@@ -334,6 +334,26 @@ const removeCoupon = async (req, res) => {
   }
 }
 
+const searchProduct = async(req,res) => {
+  try {
+
+    const { query } = req.body;
+    console.log('searcheddddddddddd..........',query)
+
+    const results = await Product.find({
+      $or: [
+          { name: { $regex: query, $options: 'i' } },
+          { description: { $regex: query, $options: 'i' } },
+      ],
+  });
+
+  res.json({ success: true, products: results });
+    
+  } catch (error) {
+    console.error('Error searching products:', error);
+  }
+}
+
 
 
 
@@ -345,5 +365,6 @@ module.exports = {
     sortPrice,
     applyCoupon,
     removeCoupon,
-    checkAndUpdateExpiredOffers
+    checkAndUpdateExpiredOffers,
+    searchProduct
 }
