@@ -81,7 +81,7 @@ const orderSchema = new mongoose.Schema({
     },
     invoiceNumber:{
         type: String,
-        unique: true,
+        
     },
     address:{
         Name:{

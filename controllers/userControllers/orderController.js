@@ -105,7 +105,7 @@ const placeOrder = async (req, res) => {
     try {
         const user = req.session.user_id;
         let { addressId, paymentMethod, cartItems, totalAmount, couponCode } = req.body;
-
+        console.log('place orderil kerindeeeeeeeeee')
 
         const cart = await Cart.findOne({ userId: user });
         const addresses = await Address.findOne({ userId: user });
