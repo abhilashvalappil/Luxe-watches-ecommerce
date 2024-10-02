@@ -201,7 +201,8 @@ const placeOrder = async (req, res) => {
             },
             totalPrice: finalTotalPrice - discountAmount,  
             couponCode: couponCode,
-            discountAmount: discountAmount
+            discountAmount: discountAmount,
+            invoiceNumber: Date.now()
         });
 
         if (paymentMethod === 'Razorpay') {
