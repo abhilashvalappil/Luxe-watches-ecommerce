@@ -9,9 +9,21 @@ const moment = require('moment');
 
 const loadCouponManagement = async(req,res) => {
     try {
-        const coupons = await Coupon.find();
 
-        res.render('couponManagement',{coupons})
+        const perPage = parseInt(req.query.perPage) || 10;  
+        const page = parseInt(req.query.page) || 1; 
+
+        const totalCoupons = await Coupon.countDocuments();
+
+        const coupons = await Coupon.find().skip((page - 1) * perPage).limit(perPage);
+        const totalPages = Math.ceil(totalCoupons / perPage);
+
+        res.render('couponManagement',{
+            coupons,
+            currentPage: page,
+            totalPages: totalPages,
+            perPage: perPage,
+        })
     } catch (error) {
         console.error(error)
     }
@@ -82,14 +94,30 @@ const listCoupon = async(req,res) => {
 
 const loadOfferManagement = async(req,res) => {
     try {
+
+        const page = parseInt(req.query.page) || 1;  
+        const limit = 2;  
+        const skip = (page - 1) * limit; 
+
+        const offerCount = await Offer.countDocuments();  
+        const totalPages = Math.ceil(offerCount / limit);
+
         const offers = await Offer.find({})
         .populate('product', 'name')
-        .populate('category', 'name');
+        .populate('category', 'name')
+        .limit(limit)
+        .skip(skip);
 
         const products = await Product.find({}, 'name _id');   
         const categories = await Category.find({}, 'name _id'); 
         
-        res.render('offerManagement', { offers, products, categories })
+        res.render('offerManagement', { 
+            offers,
+            products, 
+            categories,
+            currentPage: page,
+            totalPages 
+         })
     } catch (error) {
         console.error('Error occured',error)
     }
@@ -98,12 +126,9 @@ const loadOfferManagement = async(req,res) => {
 
 const loadAddOffer = async (req, res) => {
     try {
-        //*** distinct for unique
-    //   const categoriesWithOffers = await Offer.distinct('category');
-    //   const productsWithOffers = await Offer.distinct('product');
 
     const categoriesWithOffers = await Offer.distinct('category', { status: true });
-        const productsWithOffers = await Offer.distinct('product', { status: true });
+    const productsWithOffers = await Offer.distinct('product', { status: true });
   
       const categories = await Category.find({ 
         is_listed: true,
@@ -294,13 +319,10 @@ const deactivateOffer = async(req,res) => {
 
 const loadEditCoupon = async (req, res) => {
     try {
-        // console.log('Fetching coupon with ID:', req.params.id);
-        const coupon = await Coupon.findById(req.params.id); // Ensure this line is correct
+        const coupon = await Coupon.findById(req.params.id);  
         if (!coupon) {
-            // console.log('Coupon not found for ID:', req.params.id);
             return res.status(404).json({ error: 'Coupon not found' });
         }
-        // console.log('Coupon found:', coupon);
         res.json(coupon);
     } catch (error) {
         console.error('Error fetching coupon:', error);

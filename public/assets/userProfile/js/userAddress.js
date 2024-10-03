@@ -13,72 +13,7 @@ const city = document.getElementById('city').value;
 const state = document.getElementById('state').value;
 const landmark = document.getElementById('landmark').value;
 const addresstype = document.getElementById('addresstype').value;
-
-const nameRegex = /^[^\s][a-zA-Z\s]*[^\s]$/;
-const phoneRegex = /^[6-9]\d{9}$/;
-const pincodeRegex = /^[0-9]{1,6}$/;
-const localityRegex = /^[A-Za-z ]{5,}$/;
-const addressRegex = /^[A-Za-z0-9.,' -]{5,}$/;
-const cityRegex = /^[A-Za-z ]{5,}$/;
-const stateRegex = /^[A-Za-z ]{5,}$/;
-const landmarkRegex = /^[A-Za-z ]{5,}$/;
  
-
-if(!nameRegex.test(name)){
-    showError('name-error', "Please enter a valid name!")
-    return;
-}else{
-    hideError('name-error')
-}
-
-if(!phoneRegex.test(phone)){
-    showError('phone-error', "Please enter a valid phone number !")
-    return;
-}else{
-    hideError('phone-error')
-}
-
-if(!pincodeRegex.test(pincode)){
-    showError('pincode-error', "Please enter a valid pincode !")
-    return;
-}else{
-    hideError('pincode-error')
-}
-
-if(!localityRegex.test(locality)){
-    showError('locality-error', "Please enter a valid locality !")
-    return;
-}else{
-    hideError('locality-error')
-}
-
-if(!addressRegex.test(address)){
-    showError('address-error', "Please enter a valid address !")
-    return;
-}else{
-    hideError('address-error')
-}
-
-if(!cityRegex.test(city)){
-    showError('city-error', "Please enter a valid city name !")
-    return;
-}else{
-    hideError('city-error')
-}
-
-if(!stateRegex.test(state)){
-    showError('state-error', "Please enter a valid state name !")
-    return;
-}else{
-    hideError('state-error')
-}
-
-if(!landmarkRegex.test(landmark)){
-    showError('landmark-error', "Please enter a valid landmark !")
-    return;
-}else{
-    hideError('landmark-error')
-}
 
 try {
     const response = await fetch('/add-address',{
@@ -107,31 +42,63 @@ try {
         }).then(() => {
             window.location.href = '/address'
         })
-    }else{
+    } else if (data.errors) {
+        // Handle validation errors
+        let errorMessage = '<ul>';
+        for (const [field, message] of Object.entries(data.errors)) {
+            errorMessage += `<li>${message}</li>`;
+            showError(`${field}-error`, message);
+        }
+        errorMessage += '</ul>';
+
         Swal.fire({
-            icon:'warning',
-            title: data.message
-        })
+            icon: 'error',
+            title: 'Validation Error',
+            html: errorMessage
+        });
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message || 'An unknown error occurred'
+        });
     }
     
 } catch (error) {
     Swal.fire({
         icon: 'warning',
         title: 'An error occured',
+        text: error.message || 'Please try again later.',
     })
 }
 
 });
 
-function showError(errorId, message) {
-    let errorElement = document.getElementById(errorId);
-    errorElement.textContent = message;
+function showError(elementId, message) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
 }
 
-function hideError(errorId) {
-    let errorElement = document.getElementById(errorId);
-    errorElement.textContent = '';
+function hideError(elementId) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
+    }
 }
+
+// function showError(errorId, message) {
+//     let errorElement = document.getElementById(errorId);
+//     errorElement.textContent = message;
+// }
+
+// function hideError(errorId) {
+//     let errorElement = document.getElementById(errorId);
+//     errorElement.textContent = '';
+// }
 
 
 
@@ -185,11 +152,15 @@ document.querySelectorAll('.update-address-btn').forEach(button => {
             }else{
                 Swal.fire({
                     icon: 'warning',
-                    title: data.message
+                    title: data.error || data.message,
                 })
             }
         } catch (error) {
-           console.log(error)
+           console.log(error);
+           Swal.fire({
+            icon: 'error',
+            title: 'An error occurred while updating the address.'
+        });
         }
     });
 });

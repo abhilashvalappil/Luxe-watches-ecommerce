@@ -130,7 +130,42 @@
                 </tbody>
             </table>
         </div>
+        <div class="pagination">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentPage - 1 %><%= filterType ? `&filterType=${filterType}` : '' %>&date=<%= currentDate %>">Previous</a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item disabled">
+                            <a class="page-link">Previous</a>
+                        </li>
+                    <% } %>
+        
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage == i ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %><%= filterType ? `&filterType=${filterType}` : '' %>&date=<%= currentDate %>"><%= i %></a>
+                        </li>
+                    <% } %>
+        
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentPage + 1 %><%= filterType ? `&filterType=${filterType}` : '' %>&date=<%= currentDate %>">Next</a>
+                        </li>
+                    <% } else { %>
+                        <li class="page-item disabled">
+                            <a class="page-link">Next</a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        </div>
+        
+
     </div>
+</body>
+</html>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
@@ -214,5 +249,3 @@ document.getElementById('pdfBtn').addEventListener('click', function() {
 
 
     </script>
-</body>
-</html>

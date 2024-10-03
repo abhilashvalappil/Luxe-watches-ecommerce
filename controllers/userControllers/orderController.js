@@ -80,6 +80,10 @@ const loadCheckout = async (req, res) => {
         console.log('checkoutloadddddd',newTotal)
 
         console.log('Total amount after discount:', newTotal);
+        
+        if(cart.cartItems.length > 0){
+
+       
 
         res.render('checkout', {
             user,
@@ -93,6 +97,8 @@ const loadCheckout = async (req, res) => {
             deliveryCharge,
             couponCode  
         });
+
+    }
 
     } catch (error) {
         console.error(error);
@@ -641,91 +647,6 @@ const retryPayment = async (req, res) => {
 };
 
  
-// const downloadInvoice = async (req, res) => {
-//     try {
-//         const order = await Order.findById(req.params.orderId);
-//         console.log('The order ID is:', order);
-        
-//         if (!order) {
-//             return res.status(404).send('Order not found');
-//         }
-
-//         // Fetch product details for each ordered item
-//         const orderedItemsWithDetails = await Promise.all(order.orderedItems.map(async (item) => {
-//             const product = await Product.findById(item.productId);
-//             return {
-//                 quantity: item.quantity,
-//                 description: product ? product.name : 'Unknown Product',
-//                 price: item.price
-//             };
-//         }));
-
-//         // Calculate the subtotal
-//         const subtotal = orderedItemsWithDetails.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-//         const deliveryCharge = order.deliveryCharge; // Extract delivery charge
-//         const totalAmount = subtotal + deliveryCharge;
-
-//         const data = {
-//             apiKey: "free",  
-//             mode: "development",  
-//             images: {
-//                 logo: "https://public.budgetinvoice.com/img/logo_en_original.png",
-//                 background: "https://public.budgetinvoice.com/img/watermark-draft.jpg"
-//             },
-//             sender: {
-//                 company: "Sample Corp",
-//                 address: "Sample Street 123",
-//                 zip: "1234 AB",
-//                 city: "Sampletown",
-//                 country: "Samplecountry"
-//             },
-//             client: {
-//                 company: order.address.Name,
-//                 address: order.address.address,
-//                 zip: order.address.PIN,
-//                 city: order.address.city,
-//                 country: order.address.state
-//             },
-//             information: {
-//                 number: order._id.toString(),
-//                 date: new Date(order.orderDate).toLocaleDateString(),
-//                 dueDate: new Date(new Date().setDate(new Date().getDate() + 15)).toLocaleDateString()
-//             },
-//             products: [
-//                 ...orderedItemsWithDetails,
-//                 {
-//                     quantity: 1,
-//                     description: "Delivery Charge",
-//                     price: deliveryCharge
-//                 }
-//             ],
-//             bottomNotice: "Kindly pay your invoice within 15 days.",
-//             settings: { currency: "INR" },
-//             totals: [
-//                 { label: "Subtotal", amount: subtotal },
-//                 { label: "Delivery Charge", amount: deliveryCharge },
-//                 { label: "Total", amount: totalAmount }
-//             ]
-//         };
-
-//         easyinvoice.createInvoice(data, async (result) => {
-//             const pdfBuffer = Buffer.from(result.pdf, 'base64');
-//             res.set({
-//                 'Content-Type': 'application/pdf',
-//                 'Content-Disposition': `attachment; filename=invoice-${order._id}.pdf`,
-//                 'Content-Length': pdfBuffer.length
-//             });
-//             res.send(pdfBuffer);
-//         });
-
-//         console.log('Ordered Items with details:', orderedItemsWithDetails);
-        
-//     } catch (error) {
-//         console.error('Error while generating invoice:', error);
-//         res.status(500).send('Internal server error');
-//     }
-// };
-
 const downloadInvoice = async (req, res) => {
     try {
         const order = await Order.findById(req.params.orderId);
@@ -735,14 +656,14 @@ const downloadInvoice = async (req, res) => {
             return res.status(404).send('Order not found');
         }
 
-        // Generate the invoice number if it doesn't exist
+        //* Generate the invoice number 
         if (!order.invoiceNumber) {
             const currentYear = new Date(order.orderDate).getFullYear();
             order.invoiceNumber = await InvoiceCounter.getNextInvoiceNumber(currentYear);
             await order.save();
         }
 
-        // Fetch product details for each ordered item
+        //* Fetch product details for each ordered item
         const orderedItemsWithDetails = await Promise.all(order.orderedItems.map(async (item) => {
             const product = await Product.findById(item.productId);
             return {
@@ -751,8 +672,7 @@ const downloadInvoice = async (req, res) => {
                 price: item.price
             };
         }));
-
-        // Calculate the subtotal
+ 
         const subtotal = orderedItemsWithDetails.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const deliveryCharge = order.deliveryCharge;
         const totalAmount = subtotal + deliveryCharge;

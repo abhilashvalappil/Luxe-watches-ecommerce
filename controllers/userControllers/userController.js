@@ -506,29 +506,35 @@ const addAddress = async (req, res) => {
         const stateRegex = /^[A-Za-z ]{5,}$/;
         const pincodeRegex = /^[0-9]{1,6}$/;
 
-        if (!nameRegex.test(name) || name.length < 4) {
-            return res.status(400).json({ error: "Input validation failed !" })
+        const errors = {};
+
+        if (!nameRegex.test(name)) {
+            errors.name = "Name must be at least 2 characters long and can only contain letters and spaces.";
         }
         if (!phoneRegex.test(phone)) {
-            return res.status(400).json({ error: "Input validation failed !" })
+            errors.phone = "Phone number must be a valid 10-digit number.";
         }
         if (!addressRegex.test(address)) {
-            return res.status(400).json({ error: "Input validation failed !" })
+            errors.address = "Address must be at least 5 characters long and can include letters, numbers, and specific symbols.";
         }
         if (!localityRegex.test(locality)) {
-            return res.status(400).json({ error: "Input validation failed !" })
+            errors.locality = "Locality must be at least 5 characters long and can only contain letters and spaces.";
         }
         if (!landmarkRegex.test(landmark)) {
-            return res.status(400).json({ error: "Input validation failed !" })
+            errors.landmark = "Landmark must be at least 5 characters long and can only contain letters and spaces.";
         }
         if (!cityRegex.test(city)) {
-            return res.status(400).json({ error: "Input validation failed !" })
+            errors.city = "City must be at least 5 characters long and can only contain letters and spaces.";
         }
         if (!stateRegex.test(state)) {
-            return res.status(400).json({ error: "Input validation failed !" })
+            errors.state = "State must be at least 5 characters long and can only contain letters and spaces.";
         }
         if (!pincodeRegex.test(pincode)) {
-            return res.status(400).json({ error: "Input validation failed !" })
+            errors.pincode = "Pincode must be exactly 6 digits.";
+        }
+
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({ success: false, errors });
         }
 
         const newAddress = {
@@ -569,8 +575,6 @@ const addAddress = async (req, res) => {
                 return res.status(400).json({ success: false, message: "Failed try Again!" })
             }
         }
-
-
     } catch (error) {
         console.log(error);
         return res.status(400).json({ success: false, message: "An error occured!" })
@@ -599,28 +603,28 @@ const editAddress = async (req, res) => {
             const pincodeRegex = /^[0-9]{1,6}$/;
 
             if (!nameRegex.test(name) || name.length < 4) {
-                return res.status(400).json({ error: "Input validation failed !" });
+                return res.status(400).json({ error: "Name must be at least 4 characters long !" });
             }
             if (!phoneRegex.test(phone)) {
-                return res.status(400).json({ error: "Input validation failed !" });
+                return res.status(400).json({ error: "Phone number must be a valid 10-digit number. !" });
             }
             if (!addressRegex.test(address)) {
-                return res.status(400).json({ error: "Input validation failed !" });
+                return res.status(400).json({ error: "Address must be at least 5 characters long." });
             }
             if (!localityRegex.test(locality)) {
-                return res.status(400).json({ error: "Input validation failed !" });
+                return res.status(400).json({ error: "Locality must be at least 5 characters long." });
             }
             if (!landmarkRegex.test(landmark)) {
-                return res.status(400).json({ error: "Input validation failed !" });
+                return res.status(400).json({ error: "Landmark must be at least 5 characters long." });
             }
             if (!cityRegex.test(city)) {
-                return res.status(400).json({ error: "Input validation failed !" });
+                return res.status(400).json({ error: "City must be at least 5 characters long." });
             }
             if (!stateRegex.test(state)) {
-                return res.status(400).json({ error: "Input validation failed !" });
+                return res.status(400).json({ error: "State must be at least 5 characters long." });
             }
             if (!pincodeRegex.test(pincode)) {
-                return res.status(400).json({ error: "Input validation failed !" });
+                return res.status(400).json({ error: "Pincode must be a valid 6-digit number." });
             }
 
             await Address.updateOne(

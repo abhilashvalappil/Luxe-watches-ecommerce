@@ -65,7 +65,7 @@ user_route.get('/auth/google/callback', passport.authenticate('google', {failure
 
 
 
-user_route.get('/shop',auth.isLogin,shopController.loadShop);
+user_route.get('/shop', shopController.loadShop);
 
 
 //user_route.get('/home',auth.isLoggedin, userController.loadHomePage);

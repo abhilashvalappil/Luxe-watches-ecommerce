@@ -61,19 +61,7 @@ const verifyLogin = async (req, res) => {
     }
 }
 
-// const logOut = async(req,res) => {
-//     try {
-
-//         if(req.session.admin_id){
-//             req.session.destroy();
-//             return res.status(200).json({})
-//         }
-//         res.redirect('/admin/login')
-        
-//     } catch (error) {
-//         console.error('Error occured when logout',error)
-//     }
-// }
+ 
 const logOut = async (req, res) => {
     try {
         if (req.session.admin_id) {
@@ -261,8 +249,20 @@ const loadDashboard = async (req, res) => {
 
 const loadUsers = async (req, res) => {
     try {
-        const users = await User.find({})
-        res.render('user', { users })
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;  
+        const skip = (page - 1) * limit;
+
+        const users = await User.find({}).skip(skip).limit(limit);
+
+        const totalUsers = await User.countDocuments({});
+        const totalPages = Math.ceil(totalUsers / limit);
+
+        res.render('user', { 
+            users,
+            currentPage: page,
+            totalPages 
+        })
 
     } catch (error) {
         console.log(error.message)
@@ -287,8 +287,21 @@ const blockUser = async (req, res) => {
 
 const loadCategory = async (req, res) => {
     try {
-        const category = await Category.find({})
-        res.render('category', { category })
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10; // Categories per page
+        const skip = (page - 1) * limit;
+
+
+        const category = await Category.find({}).skip(skip).limit(limit);
+
+        const totalCategories = await Category.countDocuments({});
+        const totalPages = Math.ceil(totalCategories / limit);
+
+        res.render('category', { 
+            category,
+            currentPage: page,
+            totalPages
+         })
 
     } catch (error) {
         console.log(error.message);
@@ -376,8 +389,18 @@ const editCategory = async (req, res) => {
 
 const loadBrand = async(req,res) => {
     try {
-        const brand = await Brand.find({})
-        res.render('brand', {brand})
+
+         const page = parseInt(req.query.page) || 1;  
+        const limit = 5;  
+        const skip = (page - 1) * limit; 
+
+        const totalBrands = await Brand.countDocuments({});
+
+        const brand = await Brand.find({}).skip(skip) .limit(limit);
+
+        const totalPages = Math.ceil(totalBrands / limit);
+
+        res.render('brand', {brand,currentPage: page, totalPages})
     } catch (error) {
         console.log(error)
     }
@@ -462,11 +485,24 @@ const editBrand = async (req, res) => {
 
 const loadProducts = async(req,res) => {
     try {
+
+        const perPage = 5;  
+        const page = parseInt(req.query.page) || 1;
+
+        const totalProducts = await Product.countDocuments();
+
         const product = await Product.find({})
         .populate('brand', 'brandName')
-        .populate('category', 'name');
+        .populate('category', 'name')
+        .skip((page - 1) * perPage).limit(perPage);
 
-        res.render('products',{product})
+        const totalPages = Math.ceil(totalProducts / perPage);
+
+        res.render('products',{
+            product,
+            currentPage: page, 
+            totalPages 
+        })
     } catch (error) {
         console.log(error)
     }
@@ -838,7 +874,9 @@ const returnStatus = async (req, res) => {
 
 const loadSalesReport = async(req,res) => {
     try {
-        const { date, filterType, startDate, endDate, year } = req.query;
+        const { date, filterType, startDate, endDate, year, page = 1 } = req.query;
+        const limit = 10;  
+        const skip = (page - 1) * limit;
         let orders;
         
         const deliveredFilter = {
@@ -900,8 +938,13 @@ const loadSalesReport = async(req,res) => {
         } else {
             orders = await Order.find({...deliveredFilter,})
             .populate('userId')
-            .populate('orderedItems.productId');
+            .populate('orderedItems.productId')
+            .skip(skip)
+            .limit(limit);
         }
+
+        const totalOrders = await Order.countDocuments(deliveredFilter);
+        const totalPages = Math.ceil(totalOrders / limit);
 
         let totalSalesCount = 0;
         let totalOrderAmount = 0;
@@ -919,13 +962,21 @@ const loadSalesReport = async(req,res) => {
         });
 
         const overallDiscount = totalCouponDiscount + totalOfferDiscount;
-
         const currentDate = date || new Date().toISOString().split('T')[0];
-        res.render('salesReport', { orders, currentDate,totalSalesCount,
+
+        res.render('salesReport', { 
+            orders,
+            currentDate,
+            totalSalesCount,
             totalOrderAmount,
             totalCouponDiscount,
             totalOfferDiscount,
-            overallDiscount, });
+            overallDiscount, 
+            currentPage: page,
+            totalPages,
+            filterType: req.query.filterType || 'defaultFilter',
+            currentDate: req.query.date || '',
+        });
         
     } catch (error) {
         console.error(error);

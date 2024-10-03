@@ -520,19 +520,15 @@ document.addEventListener('DOMContentLoaded', initializeWishlistIcons);
 }
 
 async function handleSearch(event) {
-    event.preventDefault(); // Prevent the default form submission
-
+    event.preventDefault();  
     const searchTerm = document.getElementById('searchInput').value;
     console.log('the searchhhhh',searchTerm)
 
     if (!searchTerm) {
-        // If no search term, fetch all products
         await fetchAllProducts();
         return;
     }
-
-    // Send data to the server
-    await fetch('/search', { // Change '/search' to your actual endpoint
+    await fetch('/search', {  
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -551,7 +547,7 @@ async function handleSearch(event) {
         console.log('Search results:', data.products);
       } else {
       console.log('No products found');
-      displayProducts([]); // Clear the product display if no results
+      displayProducts([]);  
     }
   })
     .catch(error => {
@@ -560,7 +556,7 @@ async function handleSearch(event) {
 }
 
 async function fetchAllProducts() {
-    const response = await fetch('/all-products'); // Adjust the endpoint accordingly
+    const response = await fetch('/all-products');  
     const data = await response.json();
     displayProducts(data.products);
 }
@@ -569,10 +565,8 @@ document.getElementById('searchInput').addEventListener('input', async (event) =
     const query = event.target.value;
 
     if (query === '') {
-        // If the search input is cleared, fetch all products
         await fetchAllProducts();
     } else {
-        // Otherwise, perform the search
         await handleSearch(event);
     }
 });
@@ -583,41 +577,6 @@ document.getElementById('clearSearch').addEventListener('click', async () => {
 
  
 
-
-document.getElementById('filterForm').addEventListener('submit', function(event) {
-    event.preventDefault(); 
-
-    let selectedCategories = Array.from(document.querySelectorAll('input[name="categories"]:checked')).map(cb => cb.value);
-    let selectedBrands = Array.from(document.querySelectorAll('input[name="brands"]:checked')).map(cb => cb.value);
-    let selectedStrapColors = Array.from(document.querySelectorAll('input[name="strap"]:checked')).map(cb => cb.value);
-    let selectedDialColors = Array.from(document.querySelectorAll('input[name="dial"]:checked')).map(cb => cb.value);
-
-    let minPrice = document.getElementById('minPrice').value;
-    let maxPrice = document.getElementById('maxPrice').value;
-
-
-  const data=new URLSearchParams({
-    maxPrice,
-    selectedDialColors,
-    selectedStrapColors,
-    selectedBrands,
-    selectedCategories 
-    
-  })
-  
-
-  fetch(`/filter-product?${data.toString()}`,{
-    method:'POST',
-    headers:{'Content-Type':"application/json"},
-  })
-  .then(response=>response.json())
-  .then(response=>{
-    if (response.success) {
-        displayProducts(response.products)
-        
-    }
-  })
-})
 
 
 function displayProducts(products) {
@@ -668,3 +627,43 @@ function updateMaxPrice() {
 
  <%- include('../layouts/footer.ejs') %>    
  
+ <script>
+  
+document.getElementById('filterForm').addEventListener('submit', function(event) {
+    event.preventDefault(); 
+
+    let selectedCategories = Array.from(document.querySelectorAll('input[name="categories"]:checked')).map(cb => cb.value);
+    let selectedBrands = Array.from(document.querySelectorAll('input[name="brands"]:checked')).map(cb => cb.value);
+    let selectedStrapColors = Array.from(document.querySelectorAll('input[name="strap"]:checked')).map(cb => cb.value);
+    let selectedDialColors = Array.from(document.querySelectorAll('input[name="dial"]:checked')).map(cb => cb.value);
+
+    console.log('the brandddddddddddddddd',selectedBrands)
+
+    let minPrice = document.getElementById('minPrice').value;
+    let maxPrice = document.getElementById('maxPrice').value;
+
+
+  const data=new URLSearchParams({
+    maxPrice,
+    selectedDialColors,
+    selectedStrapColors,
+    selectedBrands,
+    selectedCategories 
+    
+  })
+  
+
+  fetch(`/filter-product?${data.toString()}`,{
+    method:'POST',
+    headers:{'Content-Type':"application/json"},
+  })
+  .then(response=>response.json())
+  .then(response=>{
+    if (response.success) {
+        displayProducts(response.products)
+        
+    }
+  })
+})
+
+ </script>

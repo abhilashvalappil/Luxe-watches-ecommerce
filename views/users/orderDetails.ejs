@@ -180,8 +180,6 @@
 
 <script>
 
-
-
     function confirmCancel(orderId, productId) {
     Swal.fire({
         title: 'Are you sure?',
@@ -202,7 +200,10 @@
             .then(response => response.json())
             .then(data => {
                 if (data.message) {
-                    Swal.fire('Cancelled', data.message, 'success');
+                    // Swal.fire('Cancelled', data.message, 'success');
+                    Swal.fire('Cancelled', data.message, 'success').then(() => {
+                        window.location.href = '/orders';  
+                    });
                 }
             })
             .catch(error => {

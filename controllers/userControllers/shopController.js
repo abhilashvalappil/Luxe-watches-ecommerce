@@ -113,13 +113,16 @@ const shopDetailsLoad = async(req,res) => {
       const productId = req.query.productId;
 
       const product = await Product.findById(productId)
-      const category = await Category.findById(product.category)
-      const  brand = await Brand.findById(product.brand)
+      .populate('category', 'name')
+      .populate('brand', 'brandName');
 
-      product.category = category.name
-      product.brand = brand.brandName
+      // const category = await Category.findById(product.category)
+      // const  brand = await Brand.findById(product.brand)
 
-      const relatedProducts = await Product.find({category: product.category}).limit(4)
+      // product.category = category.name
+      // product.brand = brand.brandName
+
+      const relatedProducts = await Product.find({category: product.category._id }).limit(4)
       const offers = await Offer.find({ expiredate: { $gte: new Date() }, status: true });
       
       let offerPrice = null;
@@ -133,15 +136,23 @@ const shopDetailsLoad = async(req,res) => {
           offerPrice = product.price - (product.price * offer.discountPercent) / 100;
         }
 
-        if (offer.offerType === 'Category Offer' && offer.category.equals(product.category)) {
+        if (offer.offerType === 'Category Offer' && offer.category.equals(product.category._id)) {
           categoryOfferPercent = offer.discountPercent;
           categoryOfferPrice = product.price - (product.price * offer.discountPercent) / 100;
         }
       });
 
-      res.render('shopDetails',{user, product,relatedProducts,offerPrice,categoryOfferPrice, offerPercent,categoryOfferPercent,})
+      res.render('shopDetails',{
+        user, 
+        product,
+        relatedProducts,
+        offerPrice,
+        categoryOfferPrice, 
+        offerPercent,
+        categoryOfferPercent
+      })
   } catch (error) {
-      console.log(error)
+      console.log('Error loading product details',error)
   }
 }
  
@@ -267,38 +278,7 @@ const applyCoupon = async(req,res) => {
   }
 }
 
-// const removeCoupon = async(req,res) =>{
-//   try {
-//       if (!req.session.coupon) {
-//             return res.status(400).json({ success: false, message: 'No coupon applied' });
-//         }
-
-//         const cart = await Cart.findOne({ userId: req.session.user_id });
-//         if (!cart) {
-//           return res.status(404).json({ success: false, message: 'Cart not found' });
-//       }
-
-//       let totalAmount = 0;
-//       for (const item of cart.cartItems) {
-//           const product = await Product.findById(item.productId);
-//           if (product) {
-//               totalAmount += product.price * item.quantity;
-//           }
-//       }
-//         req.session.coupon = null;
-
-//         res.json({
-//             success: true,
-//             message: 'Coupon removed successfully!',
-//             newTotal: totalAmount.toFixed(2)  
-//         });
-
-    
-//   } catch (error) {
-//     console.error('Error removing coupon:', error);
-//     res.status(500).json({ success: false, message: 'An error occurred. Please try again.' });
-//   }
-// }
+ 
 const removeCoupon = async (req, res) => { 
   try {
       if (!req.session.coupon) {
@@ -338,7 +318,6 @@ const searchProduct = async(req,res) => {
   try {
 
     const { query } = req.body;
-    console.log('searcheddddddddddd..........',query)
 
     const results = await Product.find({
       $or: [
