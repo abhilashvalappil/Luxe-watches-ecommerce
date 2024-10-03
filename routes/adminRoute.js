@@ -23,7 +23,7 @@ admin_route.set('views',path.join(__dirname, '../views/admin'));
 
 
 admin_route.get('/',auth.isLogout,adminController.loadAdminLogin);
-admin_route.get('/login',auth.isLogout,adminController.loadAdminLogin);
+admin_route.get('/login',auth.isLogin,adminController.loadAdminLogin);
 admin_route.post('/login',adminController.verifyLogin);
 
 admin_route.get('/home',auth.isLogin,adminController.loadDashboard);
