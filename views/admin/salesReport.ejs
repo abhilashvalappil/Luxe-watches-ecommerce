@@ -79,7 +79,7 @@
                 <div class="col-md-6 text-md-end mt-3 mt-md-0">
                     <!-- <button class="btn btn-outline-success me-2">PDF</button> -->
                     <button class="btn btn-outline-primary" id="pdfBtn">Download PDF</button>
-                    <button class="btn btn-outline-primary me-2">Excel</button>
+                    <button class="btn btn-outline-primary me-2" id="excelBtn">Excel</button>
                     <button class="btn btn-primary">Go Back</button>
                 </div>
             </div>
@@ -177,7 +177,7 @@
 <script src="https://cdn.jsdelivr.net/npm/moment/moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 
 $(document).ready(function() {
@@ -245,6 +245,40 @@ document.getElementById('pdfBtn').addEventListener('click', function() {
                 console.error('Error generating PDF:', error);
             });
         });
+
+
+        //***Excel******
+
+        document.getElementById('excelBtn').addEventListener('click', function() {
+    const tableData = [];
+
+    const summary = [
+        ['Total Sales Count:', '<%= totalSalesCount %>'],
+        ['Total Order Amount:', '₹<%= totalOrderAmount.toFixed(2) %>'],
+        ['Total Coupon Discount:', '₹<%= totalCouponDiscount.toFixed(2) %>'],
+        ['Total Offer Discount:', '₹<%= totalOfferDiscount.toFixed(2) %>'],
+        ['Overall Discount:', '₹<%= overallDiscount.toFixed(2) %>']
+    ];
+    
+    summary.forEach(item => tableData.push(item));  
+
+    tableData.push([]);
+
+    const headers = Array.from(document.querySelectorAll('thead th')).map(th => th.innerText);
+    tableData.push(headers);
+
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const rowData = Array.from(row.querySelectorAll('td')).map(td => td.innerText);
+        tableData.push(rowData);
+    });
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(tableData);
+    XLSX.utils.book_append_sheet(wb, ws, 'Sales Report');
+
+    XLSX.writeFile(wb, 'SalesReport.xlsx');
+});
 
 
 

@@ -99,6 +99,12 @@ const loadDashboard = async (req, res) => {
             return res.redirect('/admin/login');
         }
 
+        const totalOrdersCount = await Order.countDocuments();
+
+        const deliveredOrdersCount = await Order.countDocuments({
+            'orderedItems.orderStatus': 'Delivered'
+        });
+
        
         const deliveredOrders = await Order.find({
             'orderedItems.orderStatus': 'Delivered'
@@ -233,6 +239,8 @@ const loadDashboard = async (req, res) => {
         ]);
 
         res.render('dashboard', {
+            totalOrdersCount,
+            deliveredOrdersCount,
             orderData: JSON.stringify(processedData),
             adminName: adminData.name,
             topProducts: JSON.stringify(topProducts),
@@ -533,6 +541,11 @@ const addProduct = async (req, res, next) => {
             return res.status(400).json({ success: false, warning: 'Product already exists' });
         }
 
+        // Check if images were uploaded
+        if (!req.files || req.files.length < 3) {
+            return res.status(400).json({ success: false, warning: 'Please upload at least three images.' });
+        }
+
         const images = [];
 
         for (const file of req.files) {
@@ -617,31 +630,80 @@ const editProductLoad = async(req,res) => {
     }
 }
 
-const editProduct = async(req,res) => {
-     try {
+// const editProduct = async(req,res) => {
+//      try {
+//         const productId = req.body.productId;
+//         console.log('the iddddddddddddddddddd',productId)
+//         const product = await Product.findById(productId);
+
+
+
+//         if(!product){
+//             return res.status(400).json({ success: false, message: 'Product not found!'})
+//         }
+
+//         let images = [];
+
+        
+//         if (req.files) {
+//             const bodyImages = req.files;
+//             const fields = ['image1', 'image2', 'image3'];
+//             fields.forEach((field, index) => {
+//                 if (bodyImages[field] && bodyImages[field][0]) {
+//                     images[index] = bodyImages[field][0].filename;
+//                 } else if (product.images[index]) {
+//                     images[index] = product.images[index];
+//                 }
+//             });
+//         }
+
+//         const update = await Product.findByIdAndUpdate(req.body.productId,{
+//             name: req.body.name,
+//             brand: req.body.brand,
+//             model: req.body.model,
+//             category: req.body.category,
+//             price: req.body.price,
+//             dialColor: req.body.dialColor,
+//             strapColor: req.body.strapColor,
+//             stock: req.body.stock,
+//             description: req.body.description,
+//             image: req.body.image
+//         })
+//         res.status(200).json({success: true, message: 'Product updated successfully.'})
+        
+//      } catch (error) {
+//         console.log(error)
+//      }
+// }
+const editProduct = async (req, res) => {
+    try {
         const productId = req.body.productId;
         const product = await Product.findById(productId);
 
-        if(!product){
-            return res.status(400).json({ success: false, message: 'Product not found!'})
+        if (!product) {
+            return res.status(400).json({ success: false, message: 'Product not found!' });
         }
 
         let images = [];
-
         
+        // Check if files are uploaded
         if (req.files) {
             const bodyImages = req.files;
             const fields = ['image1', 'image2', 'image3'];
+
             fields.forEach((field, index) => {
                 if (bodyImages[field] && bodyImages[field][0]) {
-                    images[index] = bodyImages[field][0].filename;
+                    images[index] = bodyImages[field][0].filename; // New image file
                 } else if (product.images[index]) {
-                    images[index] = product.images[index];
+                    images[index] = product.images[index]; // Retain old image if not uploaded
                 }
             });
+        } else {
+            images = product.images; // Retain old images if no new images are uploaded
         }
 
-        const update = await Product.findByIdAndUpdate(req.body.productId,{
+        // Update the product with new details and images
+        await Product.findByIdAndUpdate(productId, {
             name: req.body.name,
             brand: req.body.brand,
             model: req.body.model,
@@ -651,23 +713,18 @@ const editProduct = async(req,res) => {
             strapColor: req.body.strapColor,
             stock: req.body.stock,
             description: req.body.description,
-            image: req.body.image
-        })
-        res.status(200).json({success: true, message: 'Product updated successfully.'})
-        
-     } catch (error) {
-        console.log(error)
-     }
-}
+            images: images // Updated images array
+        });
 
-// const loadOrders = async(req,res) => {
-//     try {
-//         const orders = await Order.find({}).populate('orderedItems.productId')
-//         res.render('orders',{orders})
-//     } catch (error) {
-//         console.log(error)
-//     }
-// }
+        res.status(200).json({ success: true, message: 'Product updated successfully.' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+
+ 
 const loadOrders = async (req, res) => {
     try {
         
@@ -715,6 +772,7 @@ const orderDetailsLoad = async(req,res) => {
 const orderStatusUpdate = async(req,res) => {
     try {
         const {orderId , itemId, orderStatus} = req.body;
+        console.log('the satusssssssssssssssssss',orderStatus)
         const order = await Order.findOne({_id:orderId,"orderedItems._id": itemId});
         const item = order.orderedItems.find(item => item._id.toString() === itemId);
 
@@ -722,7 +780,13 @@ const orderStatusUpdate = async(req,res) => {
             return res.status(400).json({message: 'Status cannot be changed once it is Delivered or Returned'})
         }
         
+        
         item.orderStatus = orderStatus;
+
+        if (orderStatus === 'Delivered' && order.paymentMethod === 'cash') {
+            order.paymentStatus = 'Completed';
+        }
+
         await order.save();
         return res.status(200).json({message: 'Status updated successfully'})
         
@@ -751,62 +815,7 @@ const loadreturnRequests = async(req,res)=> {
     }
 }
 
-// const returnStatus = async(req,res) => {
-//     try {
-//         const{orderId, itemId, status} = req.body;
-//         const order = await Order.findById({_id: orderId})
-//         const item = order.orderedItems.find(item => item._id.toString() === itemId)
-        
-//         if (!order) {
-//             return res.status(404).json({ success: false, message: 'Order not found' });
-//         }
 
-//         if (!item) {
-//             return res.status(404).json({ success: false, message: 'Item not found' });
-//         }
-
-//         item.returnStatus = status;
-
-//         if(item.returnStatus === 'approved'){
-//             item.orderStatus = 'Returned';
-
-//              await Wallet.findOneAndUpdate(
-//                 { userId: order.userId },
-//                 {
-//                     $inc: { balance: item.totalPrice },   
-//                     $push: {
-//                         transactionHistory: {
-//                             amount: item.totalPrice,
-//                             type: 'credit',
-//                             description: 'Order return refund',
-//                             date: Date.now()   
-//                         }
-//                     }
-//                 }
-//             );
-
-
-//             const product = await Product.findById(item.productId)
-             
-//             if(product){
-//                 await Product.updateOne(
-//                     {_id: item.productId},
-//                     {$inc:{stock: item.quantity}}
-//                 )
-//             }else{
-//                 return res.status(400).json({message: 'Product not found !'})
-//             }
-//         } else if(item.returnStatus == 'rejected'){
-//             item.orderStatus = 'Delivered'
-//         }
-       
-//         await order.save();
-//         res.json({ success: true });
- 
-//     } catch (error) {
-//         console.log(error)
-//     }
-// }
 const returnStatus = async (req, res) => {
     try {
         const { orderId, itemId, status } = req.body;

@@ -199,7 +199,7 @@ const addToCart = async (req, res) => {
 
         let cart = await Cart.findOne({ userId: userId });
         req.session.coupon = null;
-    req.session.couponDiscount = 0;
+        req.session.couponDiscount = 0;
 
         if (!cart) {
             cart = new Cart({

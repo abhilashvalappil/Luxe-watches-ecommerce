@@ -148,21 +148,26 @@ const response = await fetch('/logout', {
 });
 
 if (response.ok) {
-    Swal.fire(
-        'Logged Out',
-        'You have been logged out successfully.',
-        'success'
-    ).then(() => {
-        window.location.href = '/home';  
-    });
-} else {
-    Swal.fire(
-        'Error',
-        'There was a problem logging out. Please try again.',
-        'error'
-    );
-}
-}
+            Swal.fire({
+                title: 'Logged Out',
+                text: 'You have been logged out successfully.',
+                icon: 'success',
+                timer: 1000, // Show for 2 seconds
+                showConfirmButton: false // Hide the OK button
+            });
+
+            // Redirect after the alert is shown
+            setTimeout(() => {
+                window.location.href = '/home';
+            }, 1000); // Match this with the timer above
+        } else {
+            Swal.fire(
+                'Error',
+                'There was a problem logging out. Please try again.',
+                'error'
+            );
+        }
+    }
 
 
     </script>

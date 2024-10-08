@@ -41,4 +41,12 @@ const upload = multer({
     }
 }).array('images', 10);
 
-module.exports = upload;
+const Upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024 * 5, // 5 MB limit per file
+    },
+    fileFilter: fileFilter,
+}).fields([{ name: 'image1' }, { name: 'image2' }, { name: 'image3' }]);
+
+module.exports = {upload,Upload}

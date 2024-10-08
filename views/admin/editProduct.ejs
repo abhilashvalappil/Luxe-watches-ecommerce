@@ -41,43 +41,44 @@
                   </div>
                   <div class="mb-4">
                     <h5 class="mb-3">Add Images</h5>
-                    <!-- <input id="fancy-file-upload" type="file" name="files" accept=".jpg, .png, image/jpeg, image/png" multiple> -->
                     <div class="image-upload-container" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                      <!-- Image 1 -->
                       <div class="image-upload">
-                        <label class="btn btn-primary"
-                          style="display: flex; align-items: center; background-color: #007bff; border: none; color: white; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px;">
-                          <i class="bx bx-image-add" style="margin-right: 5px;"></i> Upload Image 1
-                          <input type="file" name="image1" accept=".jpg, .png, image/jpeg, image/png" hidden
-                            onchange="previewImage(event, 'imagePreview1')">
+                        <label class="btn btn-primary">Upload Image 1
+                          <!-- <input type="file" name="image1" accept=".jpg, .png, image/jpeg, image/png" hidden onchange="previewImage(event, 'imagePreview1')"> -->
+                          <input type="file" name="image1" accept=".jpg, .png, image/jpeg, image/png" hidden onchange="openCropModal(event, 'imagePreview1')">
                         </label>
                         <% if(product.images[0]) { %>
-                        <img id="imagePreview1" src="/uploadedImages/<%= product.images[0] %>" alt="Image 1 Preview" style="display: block; max-width: 100px;">
+                          <img id="imagePreview1" src="/uploadedImages/<%= product.images[0] %>" alt="Image 1 Preview" style="display: block; max-width: 100px;">
+                          <button type="button" class="btn btn-danger" onclick="removeImage('image1')">Remove</button>
                         <% } %>
                       </div>
+                      
+                      <!-- Image 2 -->
                       <div class="image-upload">
-                        <label class="btn btn-primary"
-                          style="display: flex; align-items: center; background-color: #007bff; border: none; color: white; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px;">
-                          <i class="bx bx-image-add" style="margin-right: 5px;"></i> Upload Image 2
-                          <input type="file" name="image2" accept=".jpg, .png, image/jpeg, image/png" hidden
-                            onchange="previewImage(event, 'imagePreview2')">
+                        <label class="btn btn-primary">Upload Image 2
+                          <input type="file" name="image2" accept=".jpg, .png, image/jpeg, image/png" hidden onchange="openCropModal(event, 'imagePreview2')">
                         </label>
                         <% if(product.images[1]) { %>
-                        <img id="imagePreview2" src="/uploadedImages/<%= product.images[1] %>" alt="Image 2 Preview" style="display: block; max-width: 100px;">
+                          <img id="imagePreview2" src="/uploadedImages/<%= product.images[1] %>" alt="Image 2 Preview" style="display: block; max-width: 100px;">
+                          <button type="button" class="btn btn-danger" onclick="removeImage('image2')">Remove</button>
                         <% } %>
                       </div>
+                      
+                      <!-- Image 3 -->
                       <div class="image-upload">
-                        <label class="btn btn-primary"
-                          style="display: flex; align-items: center; background-color: #007bff; border: none; color: white; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px;">
-                          <i class="bx bx-image-add" style="margin-right: 5px;"></i> Upload Image 3
-                          <input type="file" name="image3" accept=".jpg, .png, image/jpeg, image/png" hidden
-                            onchange="previewImage(event, 'imagePreview3')">
+                        <label class="btn btn-primary">Upload Image 3
+                          <input type="file" name="image3" accept=".jpg, .png, image/jpeg, image/png" hidden onchange="openCropModal(event, 'imagePreview3')">
                         </label>
                         <% if(product.images[2]) { %>
-                        <img id="imagePreview3" src="/uploadedImages/<%= product.images[2] %>" alt="Image 3 Preview" style="display: block; max-width: 100px;">
+                          <img id="imagePreview3" src="/uploadedImages/<%= product.images[2] %>" alt="Image 3 Preview" style="display: block; max-width: 100px;">
+                          <button type="button" class="btn btn-danger" onclick="removeImage('image3')">Remove</button>
                         <% } %>
                       </div>
                     </div>
+                    <div id="image-error" class="message" style="color: red; font-weight: bold;"></div>
                   </div>
+                  <!-- /////////////////////////// -->
                   <div class="mb-4" style="margin-top: 60px;">
                     <h5 class="mb-3">Inventory</h5>
 
@@ -103,12 +104,6 @@
                         </div> -->
                       </div>
 
-
-                      <!-- 
-                      <div class="col-12">
-                        <label for="Collection" class="form-label">Stock</label>
-                        <input type="text" class="form-control" id="Collection" placeholder="Enter Stock in Number">
-                      </div> -->
 
                       <div style="margin-top: 40px;">
                         <h5 style="margin-bottom: 20px;">Organize</h5>
@@ -214,9 +209,104 @@
     </main>
     <!--end main wrapper-->
 
+    <div class="modal fade" id="cropperModal" tabindex="-1" aria-labelledby="cropperModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="cropperModalLabel">Crop Image</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="img-container">
+              <img id="imageToCrop" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="cropImage()">Crop & Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
 
     <!--start overlay-->
     <div class="overlay btn-toggle"></div>
+
+    <script>
+ let cropper;
+let fileInput;
+let croppedImageDataURL;
+let previewId;
+
+// Function to open the cropper modal
+function openCropModal(event, prevId) {
+  fileInput = event.target;  // Capture the file input element
+  previewId = prevId;  // Capture the preview image ID
+
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    const image = document.getElementById('imageToCrop');
+    image.src = e.target.result;
+
+    // Open Bootstrap modal
+    const cropperModal = new bootstrap.Modal(document.getElementById('cropperModal'));
+    cropperModal.show();
+
+    // Initialize Cropper.js
+    cropper = new Cropper(image, {
+      aspectRatio: 1, // Change the aspect ratio if needed
+      viewMode: 1,
+      preview: '.img-preview',
+    });
+  };
+
+  reader.readAsDataURL(fileInput.files[0]);  // Read the file
+}
+
+// Function to crop the image
+function cropImage() {
+  const canvas = cropper.getCroppedCanvas({
+    width: 300,  // Adjust the width and height as needed
+    height: 300,
+  });
+
+  // Convert cropped canvas to data URL
+  croppedImageDataURL = canvas.toDataURL('image/png');
+
+  // Set the preview image source to the cropped image (based on the previewId)
+  const imagePreview = document.getElementById(previewId);
+  imagePreview.src = croppedImageDataURL;
+  imagePreview.style.display = 'block';
+
+  // Convert the cropped data URL to a Blob
+  canvas.toBlob((blob) => {
+    // Create a new File object from the blob and assign it to the file input
+    const croppedFile = new File([blob], 'cropped-image.png', { type: 'image/png' });
+
+    // Create a DataTransfer to replace the input file with the cropped file
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(croppedFile);
+
+    // Replace the file input value with the cropped file
+    fileInput.files = dataTransfer.files;
+  });
+
+  // Close the modal
+  const cropperModal = bootstrap.Modal.getInstance(document.getElementById('cropperModal'));
+  cropperModal.hide();
+
+  // Destroy the cropper instance after cropping
+  cropper.destroy();
+}
+
+    </script>
+
+
     <!--end overlay-->
     <script>
       function previewImage(event, imagePreviewId) {
@@ -230,9 +320,60 @@
         };
         reader.readAsDataURL(input.files[0]);
       }
+
+  //     function removeImage(imageField) {
+  //   const input = document.querySelector(`input[name="${imageField}"]`);
+  //   input.value = ''; // Clear the file input
+  //   const imagePreview = document.getElementById(`imagePreview${imageField.charAt(imageField.length - 1)}`);
+  //   imagePreview.src = ''; // Clear the preview image
+  //   imagePreview.style.display = 'none'; // Hide the preview
+  // }
+  function removeImage(imageInputName) {
+    const imagePreviewId = 'imagePreview' + imageInputName.charAt(imageInputName.length - 1); // Match preview ID with input
+    document.querySelector(`input[name="${imageInputName}"]`).value = ""; // Clear the file input
+    document.getElementById(imagePreviewId).src = ""; // Clear the image preview
+    document.getElementById(imagePreviewId).style.display = "none"; // Hide the preview image
+}
+
     
       document.getElementById('savebutton').addEventListener('click', async function (event) {
         event.preventDefault();
+
+        const image1 = document.querySelector('input[name="image1"]').files[0];
+    const image2 = document.querySelector('input[name="image2"]').files[0];
+    const image3 = document.querySelector('input[name="image3"]').files[0];
+
+    // Count the number of uploaded images
+    let uploadedImagesCount = 0;
+    if (image1) uploadedImagesCount++;
+    if (image2) uploadedImagesCount++;
+    if (image3) uploadedImagesCount++;
+
+    // Count the number of existing images (those already shown in the form)
+    let existingImagesCount = 0;
+    if (document.getElementById('imagePreview1').src && document.getElementById('imagePreview1').style.display !== "none") existingImagesCount++;
+    if (document.getElementById('imagePreview2').src && document.getElementById('imagePreview2').style.display !== "none") existingImagesCount++;
+    if (document.getElementById('imagePreview3').src && document.getElementById('imagePreview3').style.display !== "none") existingImagesCount++;
+    
+    // Total images (existing + newly uploaded)
+    const totalImagesCount = uploadedImagesCount + existingImagesCount;
+
+    // Check if at least 3 images are present (either uploaded or existing)
+    if (totalImagesCount < 3) {
+        document.getElementById('image-error').textContent = 'Please ensure there are at least three images before submitting the form.';
+        
+        // Show SweetAlert for better user experience
+        Swal.fire({
+            icon: 'error',
+            title: 'Missing Images',
+            text: 'Please upload at least three images before submitting the form.'
+        });
+        
+        return;  // Prevent form submission
+    } else {
+        document.getElementById('image-error').textContent = ''; // Clear error message
+    }
+        
     
         const form = document.getElementById('editProductForm');
         let formData = new FormData(form);
@@ -247,7 +388,8 @@
         const strapColor = document.getElementById('strapColor').value.trim();
         const stock = document.getElementById('quantity').value.trim();
     
-        const nameRegex = /^[a-zA-Z0-9\s]+$/;
+        // const nameRegex = /^[a-zA-Z0-9\s]+$/;
+        const nameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s]+$/;
         if (!nameRegex.test(name) || name.length < 5) {
           showError('name-error', 'Name must be required and contain only alphabets, spaces, and numbers and at least 5 characters long.');
           return;
@@ -271,7 +413,8 @@
           hideError('price-error');
         }
     
-        const modelRegex = /^[a-zA-Z0-9\s-]{1,20}$/;
+        // const modelRegex = /^[a-zA-Z0-9\s-]{1,20}$/;
+         const modelRegex = /^[a-zA-Z0-9][a-zA-Z0-9\s_-]{0,18}[a-zA-Z0-9]$/;
         if (!modelRegex.test(model) || model.length < 1) {
           showError('model-error', 'Model cannot be empty, cannot exceed 20 characters in length, and must contain only alphanumeric characters, spaces, or dashes.')
           return;

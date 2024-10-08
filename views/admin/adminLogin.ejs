@@ -130,13 +130,7 @@
             console.log('Response data:', data);
              
             if (response.ok) {
-                Swal.fire({
-                    icon: 'success',
-                    title: data.message
-                }).then(() => {
-                    window.location.href = '/admin/dashboard'
-                })
-                 
+                window.location.href = '/admin/dashboard' 
             }else{
                 alert(data.message)
             }
@@ -162,7 +156,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <!-- Jquery Core Js --> 
 <!-- <script src="/adminLoginAssets/bundles/libscripts.bundle.js"></script> -->
-<!-- <script src="/adminLoginAssets/bundles/vendorscripts.bundle.js"></script> <!-- Lib Scripts Plugin Js  -->
+<!-- <script src="/adminLoginAssets/bundles/vendorscripts.bundle.js"></script> <! Lib Scripts Plugin Js  -->
 
 </body>
 </html>

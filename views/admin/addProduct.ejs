@@ -1,7 +1,17 @@
 <%- include('../layouts/adminHeader.ejs') %>
 <%- include('../layouts/adminPanelSidebar.ejs') %>
  
+<style>
+  #image-error {
+    font-size: 14px;
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+}
 
+</style>
 
     <!--start main wrapper-->
     <main class="main-wrapper">
@@ -38,8 +48,8 @@
                       placeholder="write a description here.."></textarea>
                     <div id="description-error" class="message" style="color: red;"></div>
                   </div>
-<!-- 
-                  <div class="mb-4">
+
+                 <!--  <div class="mb-4">
                     <h5 class="mb-3">Add Images</h5>
                     <div class="image-upload-container" style="display: flex; flex-wrap: wrap; gap: 10px;">
                       <label class="btn btn-primary" style="display: flex; align-items: center; background-color: #007bff; border: none; color: white; padding: 10px 20px; font-size: 16px; cursor: pointer; border-radius: 5px;">
@@ -61,7 +71,9 @@
                             </label>
                         </div>
                     </div>
-                    
+
+                    <div id="image-error" class="message" style="color: red; font-weight: bold;"></div>
+  
                     <div id="image-previews" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
                 </div>
                 
@@ -234,10 +246,17 @@ function handleFiles(event) {
   const files = Array.from(event.target.files);
   const newFiles = selectedFiles.concat(files);
 
+  // if (newFiles.length < 3) {
+  //   alert('Please select at least 3 images.');
+  //   return;
+  // }
   if (newFiles.length < 3) {
-    alert('Please select at least 3 images.');
-    return;
-  }
+        document.getElementById('image-error').textContent = 'Please select at least 3 images.'; // Display error message
+        return;
+    } else {
+        // Clear error message when there are enough images
+        document.getElementById('image-error').textContent = '';
+    }
 
   selectedFiles = newFiles.slice(0, 5);  
   updateImagePreviews();
@@ -312,9 +331,23 @@ function closeCropModal() {
       document.getElementById('savebutton').addEventListener('click', async function (event) {
         event.preventDefault();
 
-      const form = document.getElementById('addProductForm');
-      
+        const form = document.getElementById('addProductForm');
 
+        // Retrieve the files from the file input
+    const imageInput = document.querySelector('input[type="file"]');
+    const files = imageInput.files;
+
+    // if (files.length < 3) {
+    //     alert('Please upload at least three images before submitting the form.');
+    //     return;
+    // }
+    if (files.length < 3) {
+        document.getElementById('image-error').textContent = 'Please upload at least three images before submitting the form.'; // Show error message
+        return;
+    } else {
+        document.getElementById('image-error').textContent = ''; // Clear error message
+    }
+      
         const name = document.getElementById('name').value.trim();
         const description = document.getElementById('description').value.trim();
         const price = document.getElementById('price').value.trim();
@@ -324,7 +357,8 @@ function closeCropModal() {
         const stock = document.getElementById('quantity').value.trim();
 
   
-        const nameRegex = /^[a-zA-Z0-9\s]+$/;
+        // const nameRegex = /^[a-zA-Z0-9\s]+$/;
+        const nameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s]+$/;
     if (!nameRegex.test(name) || name.length < 5) {
       showError('name-error', 'Name must be required and contain only alphabets, spaces, and numbers and at least 5 characters long.');
       return;
@@ -348,7 +382,9 @@ function closeCropModal() {
       hideError('price-error');
     }
 
-    const modelRegex = /^[a-zA-Z0-9\s-]{1,20}$/;
+    // const modelRegex = /^[a-zA-Z0-9\s-]{1,20}$/;
+    const modelRegex = /^[a-zA-Z0-9][a-zA-Z0-9\s_-]{0,18}[a-zA-Z0-9]$/;
+
     if (!modelRegex.test(model) || model.length < 1) {
       showError('model-error', 'Model cannot be empty, cannot exceed 20 characters in length, and must contain only alphanumeric characters, spaces, or dashes.')
       return;
@@ -384,8 +420,11 @@ function closeCropModal() {
         
         const formData = new FormData();
         
-      selectedFiles.forEach((file, index) => {
-     formData.append('images', file, `image_${index}.jpg`);
+    //   selectedFiles.forEach((file, index) => {
+    //  formData.append('images', file, `image_${index}.jpg`);
+    // });
+    Array.from(files).forEach((file, index) => {
+        formData.append('images', file, `image_${index}.jpg`);
     });
 
    

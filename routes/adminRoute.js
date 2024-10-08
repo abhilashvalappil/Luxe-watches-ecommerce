@@ -7,7 +7,8 @@ const config = require('../config/config');
 const path = require('path');
 const { Admin } = require('mongodb');
 const auth = require("../middleware/adminAuth");
-const upload = require('../middleware/multer');
+// const upload = require('../middleware/multer');
+const { upload, Upload } = require('../middleware/multer');
 
 admin_route.use(session({
     secret:config.sessionSecret,
@@ -50,7 +51,7 @@ admin_route.get('/addproduct',adminController.loadAddProduct);
 admin_route.post('/addproduct',upload,adminController.addProduct)
 admin_route.put('/listproduct/:productId',adminController.listProduct);
 admin_route.get('/editproduct',adminController.editProductLoad);
-admin_route.post('/editproduct',upload,adminController.editProduct);
+admin_route.post('/editproduct',Upload,adminController.editProduct);
 
 admin_route.get('/orders',adminController.loadOrders);
 admin_route.post('/update-orderstatus',adminController.orderStatusUpdate);

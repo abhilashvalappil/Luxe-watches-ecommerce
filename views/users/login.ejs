@@ -27,6 +27,42 @@
 	<link rel="stylesheet" type="text/css" href="/userLoginAssets/css/util.css">
 	<link rel="stylesheet" type="text/css" href="/userLoginAssets/css/main.css">
 	<!--===============================================================================================-->
+	
+	<style>
+		.container-login100-form-btn {
+		  display: flex;
+		  justify-content: center;
+		  align-items: center;
+		}
+		
+		.button-group {
+		  display: flex;
+		  flex-direction: column;
+		  align-items: center;
+		}
+		
+		.login100-form-btn {
+		  display: inline-block;
+		  padding: 10px 20px;
+		  margin: 5px;
+		  text-align: center;
+		}
+		
+		.or-text {
+		  margin: 10px 0;
+		}
+		
+		.google-btn {
+		  background-color: #4285f4;
+		  color: white;
+		}
+		
+		.register-link {
+		  margin-top: 10px;
+		  color: #007bff;
+		  text-decoration: none;
+		}
+		</style>
 </head>
 
 <body>
@@ -101,42 +137,7 @@
 		</div>
 		 
 	</div>
-
-	<style>
-		.container-login100-form-btn {
-		  display: flex;
-		  justify-content: center;
-		  align-items: center;
-		}
-		
-		.button-group {
-		  display: flex;
-		  flex-direction: column;
-		  align-items: center;
-		}
-		
-		.login100-form-btn {
-		  display: inline-block;
-		  padding: 10px 20px;
-		  margin: 5px;
-		  text-align: center;
-		}
-		
-		.or-text {
-		  margin: 10px 0;
-		}
-		
-		.google-btn {
-		  background-color: #4285f4;
-		  color: white;
-		}
-		
-		.register-link {
-		  margin-top: 10px;
-		  color: #007bff;
-		  text-decoration: none;
-		}
-		</style>
+ 
 
 	<script>
 		document.getElementById('loginButton').addEventListener('click', async function (event) {
@@ -179,16 +180,7 @@
 				})
 				const data = await response.json()
 				if (data.success) {
-					Swal.fire({
-						icon: 'success',
-						title: data.message
-
-					}).then((result) => {
-						if(result.isConfirmed){
-							window.location.href = '/';
-						}
-					})
-					  
+					window.location.href = '/';  
 				} else {
 					Swal.fire({
 						icon: 'warning',

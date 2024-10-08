@@ -88,7 +88,7 @@ user_route.post('/addToWishlist',cartController.addToWishlist);
 user_route.post('/removeFromWishlist',cartController.removeFromWishlist);
 
 user_route.get('/cart',cartController.loadCart);
-user_route.post('/addToCart', cartController.addToCart);
+user_route.post('/addToCart',auth.isLoggedin, cartController.addToCart);
 user_route.post('/removeFromCart',cartController.removeFromCart);
 user_route.post('/update-Quantity',cartController.updateQuantity)
 // user_route.post('/update-cart', cartController.updateCart)

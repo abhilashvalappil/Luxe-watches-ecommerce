@@ -191,6 +191,7 @@
                         <label for="editValidTo" class="form-label">Valid To</label>
                         <input type="date" class="form-control" id="editValidTo" name="validTo" required>
                     </div>
+                    <p id="message" style="display:none; color:red;"></p>
                     <button id="editCoupon-btn" type="submit" class="btn btn-primary">Save Changes</button>
                 </form>
             </div>
@@ -217,7 +218,7 @@
     <script>
         $(document).ready(function() {
             $('#couponTable').DataTable({
-                paging: true, // Disable DataTables paging as we're using custom pagination
+                paging: true,  
                 searching: true,
             });
         });
@@ -297,7 +298,6 @@
             return response.json();
         })
         .then(couponData => {
-            console.log('Coupon data received......', couponData);
             document.getElementById('editCouponId').value = couponData._id;
             document.getElementById('editCouponCode').value = couponData.couponCode;
             document.getElementById('editDiscountValue').value = couponData.discountPercent;
@@ -396,7 +396,8 @@ function getCouponData(couponId) {
 
     function validateCouponForm(couponCode, discountPercent, minimumPurchase, maxRedeemAmount, validFrom, validTo) {
         let message = '';
-        let codeRegex = /^[A-Za-z0-9]{5,10}$/;
+        // let codeRegex = /^[A-Za-z0-9]{5,10}$/;
+        let codeRegex = /^(?=.*[A-Za-z])[A-Za-z0-9]{5,10}$/;
         let discountRegex = /^([1-9]|[1-9][0-9]|100)$/;  
         let numberRegex = /^[0-9]+(\.[0-9]+)?$/;
 
@@ -408,7 +409,9 @@ function getCouponData(couponId) {
             message = "Minimum purchase must be a positive number.";
         } else if (!numberRegex.test(maxRedeemAmount) || maxRedeemAmount <= 0) {
             message = "Max redeem must be a positive number.";
-        } else if (new Date(validFrom) > new Date(validTo)) {
+        }else if (new Date(validFrom) < new Date(new Date().setHours(0, 0, 0, 0))) {
+        message = "Valid From date cannot be in the past.";
+        }else if (new Date(validFrom) > new Date(validTo)) {
             message = "Valid From date cannot be after Valid To date.";
         }
 
@@ -460,10 +463,8 @@ function getCouponData(couponId) {
     })
     .then(data => {
         console.log('Coupon updated successfully:', data);
-        // Hide the modal
         const editModal = bootstrap.Modal.getInstance(document.getElementById('editCouponModal'));
         editModal.hide();
-        // Show success message using SweetAlert
         Swal.fire({
             icon: 'success',
             title: 'Success!',
@@ -471,7 +472,6 @@ function getCouponData(couponId) {
             confirmButtonColor: '#3085d6',
             confirmButtonText: 'OK'
         }).then((result) => {
-            // Refresh the page after the user clicks 'OK'
             if (result.isConfirmed) {
                 window.location.reload();
             }
@@ -479,7 +479,6 @@ function getCouponData(couponId) {
     })
     .catch(error => {
         console.error('Error updating coupon:', error);
-        // Show error message using SweetAlert
         Swal.fire({
             icon: 'error',
             title: 'Error',
@@ -527,7 +526,7 @@ document.querySelectorAll('.btn-delete').forEach(button => {
                         confirmButtonColor: '#3085d6',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.reload(); // Refresh the page
+                        window.location.reload();  
                     });
                 } else {
                     Swal.fire({

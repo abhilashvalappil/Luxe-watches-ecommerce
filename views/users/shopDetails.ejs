@@ -184,9 +184,9 @@
                                 
                                 
                                 <div class="product__details__btns__option">
-                                    <a href="#" class="add-to-wishlist" data-product-id="<%= product._id %>">
+                                    <!-- <a href="#" class="add-to-wishlist" data-product-id="<%= product._id %>">
                                         <i class="fa fa-heart"></i> Add to Wishlist
-                                    </a>
+                                    </a> -->
                                     
                                     <!-- <a href=""><i class="fa fa-heart"></i> add to wishlist</a> -->
                                     <!-- <a href="#"><i class="fa fa-exchange"></i> Add To Compare</a> -->
@@ -196,7 +196,7 @@
                                     <img src="img/shop-details/details-payment.png" alt="">
                                     <ul>
                                         <!-- <li><span>SKU:</span>  </li> -->
-                                        <li><span>Categories:</span>
+                                        <li><span>Category:</span>
                                             <%= product.category.name %>
                                         </li>
                                     </ul>
@@ -294,7 +294,7 @@
                                         <li><a href="#"><img src="img/icon/search.png" alt=""></a></li>
                                     </ul>
                                 </div>
-                                <div class="product__item__text">
+                                <!-- <div class="product__item__text">
                                     <h6>Piqué Biker Jacket</h6>
                                     <a href="#" class="add-cart">+ Add To Cart</a>
                                     <div class="rating">
@@ -316,7 +316,7 @@
                                             <input type="radio" id="pc-3">
                                         </label>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
 
                         </div>
@@ -331,6 +331,7 @@
                 event.preventDefault();
 
                 const productId = this.getAttribute('data-product-id');
+console.log('ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',productId);
 
                 if (!productId) {
                     console.error('Product ID not found.');
@@ -349,7 +350,7 @@
                     if (data.success) {
                         window.location.href = `/cart`;  
                     } else {
-                        console.error('Failed to add item to cart.');
+                        window.location.href = `/login`; 
                     }
                 }
                 catch (err) {
