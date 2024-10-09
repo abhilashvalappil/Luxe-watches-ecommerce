@@ -89,48 +89,12 @@
                             </div>
                         </div>
                     </div>
-                    <!-- <div class="row">
-                        <div class="col-lg-3 col-md-3">
-                            <ul class="nav nav-tabs" role="tablist">
-                                <% if (product.images.length> 0) { %>
-                                    <% for(let i=0; i < product.images.length; i++) { %>
-                                        <li class="nav-item">
-                                            <a class="nav-link <%= i === 0 ? 'active' : '' %>" data-toggle="tab"
-                                                href="#tabs-<%= i+1 %>" role="tab">
-                                                <div class="product__thumb__pic set-bg"
-                                                    data-setbg="/uploadedImages/<%= product.images[i] %>">
-                                                    <img src="/uploadedImages/<%= product.images[i] %>"
-                                                        alt="Thumbnail" />
-                                                </div>
-                                            </a>
-                                        </li>
-                                        <% } %>
-                                            <% } %>
-                               
-                            </ul>
-                        </div>
-
-
-
-                        <div class="col-lg-6 col-md-9">
-                            <div class="tab-content">
-                                <% for(let i=0; i < product.images.length; i++) { %>
-                                    <div class="tab-pane <%= i === 0 ? 'active' : '' %>" id="tabs-<%= i+1 %>"
-                                        role="tabpanel">
-                                        <div class="product__details__pic__item">
-                                            <img class="zooming-image" data-zoom-image="/uploadedImages/<%= product.images[i] %>" src="/uploadedImages/<%= product.images[i] %>" />
-                                        </div>
-                                    </div>
-                                    <% } %>
-                                  
-                            </div>
-                        </div>
-                    </div> -->
+                    
 
 
                     <div class="col-12 d-flex justify-content-between p-5" style="background-color: rgb(191, 191, 191); border-radius: 5px; box-shadow: 0px 0px 5px black;">
                      <div class="selectedPic" id="selectedImageId" style="width: 450px; height: 450px;">
-                        <img id="zoomed-pic" alt="img-for-zoom">
+                        <img id="zoomed-pic" alt="img-for-zoom" src="/uploadedImages/<%= product.images[0] %>" >
                      </div>
 
                      <div class="product-pic-wrapper flex" style="width: 600px; height: 250px;">
@@ -331,7 +295,6 @@
                 event.preventDefault();
 
                 const productId = this.getAttribute('data-product-id');
-console.log('ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo',productId);
 
                 if (!productId) {
                     console.error('Product ID not found.');
@@ -378,12 +341,15 @@ console.log('ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
     }
 
     const productPics = document.querySelectorAll('.product-pic');
+    
+    
     productPics.forEach(pic => {
         pic.addEventListener('click', function() {
             const imageSrc = this.src;
             setZoomedPic(imageSrc);
         });
     });
+    
 
     if (productPics.length > 0) {
         setZoomedPic(productPics[0].src);
@@ -403,3 +369,41 @@ console.log('ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 </script>
 
         <%- include('../layouts/footer.ejs') %>
+
+        <!-- <div class="row">
+                        <div class="col-lg-3 col-md-3">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <% if (product.images.length> 0) { %>
+                                    <% for(let i=0; i < product.images.length; i++) { %>
+                                        <li class="nav-item">
+                                            <a class="nav-link <%= i === 0 ? 'active' : '' %>" data-toggle="tab"
+                                                href="#tabs-<%= i+1 %>" role="tab">
+                                                <div class="product__thumb__pic set-bg"
+                                                    data-setbg="/uploadedImages/<%= product.images[i] %>">
+                                                    <img src="/uploadedImages/<%= product.images[i] %>"
+                                                        alt="Thumbnail" />
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <% } %>
+                                            <% } %>
+                               
+                            </ul>
+                        </div>
+
+
+
+                        <div class="col-lg-6 col-md-9">
+                            <div class="tab-content">
+                                <% for(let i=0; i < product.images.length; i++) { %>
+                                    <div class="tab-pane <%= i === 0 ? 'active' : '' %>" id="tabs-<%= i+1 %>"
+                                        role="tabpanel">
+                                        <div class="product__details__pic__item">
+                                            <img class="zooming-image" data-zoom-image="/uploadedImages/<%= product.images[i] %>" src="/uploadedImages/<%= product.images[i] %>" />
+                                        </div>
+                                    </div>
+                                    <% } %>
+                                  
+                            </div>
+                        </div>
+                    </div> -->

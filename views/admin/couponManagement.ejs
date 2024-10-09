@@ -191,7 +191,7 @@
                         <label for="editValidTo" class="form-label">Valid To</label>
                         <input type="date" class="form-control" id="editValidTo" name="validTo" required>
                     </div>
-                    <p id="message" style="display:none; color:red;"></p>
+                    <p id="message1" style="display:none; color:red;"></p>
                     <button id="editCoupon-btn" type="submit" class="btn btn-primary">Save Changes</button>
                 </form>
             </div>
@@ -232,51 +232,51 @@
         });
 
     
-        $('#couponTable').on('click', '.btn-list', function() {
-            const couponId = $(this).data('coupon-id');
-            handleCouponStatus(couponId, 'list');
-        });
+        // $('#couponTable').on('click', '.btn-list', function() {
+        //     const couponId = $(this).data('coupon-id');
+        //     handleCouponStatus(couponId, 'list');
+        // });
 
-        $('#couponTable').on('click', '.btn-unlist', function() {
-            const couponId = $(this).data('coupon-id');
-            handleCouponStatus(couponId, 'unlist');
-        });
+        // $('#couponTable').on('click', '.btn-unlist', function() {
+        //     const couponId = $(this).data('coupon-id');
+        //     handleCouponStatus(couponId, 'unlist');
+        // });
 
         $('#couponTable').on('click', '.btn-delete', function() {
             const couponId = $(this).data('coupon-id');
         });
 
-        async function toggleCouponStatus(couponId, buttonElement) {
-    try {
-        const response = await fetch(`/admin/toggle-coupon-status/${couponId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+//         async function toggleCouponStatus(couponId, buttonElement) {
+//     try {
+//         const response = await fetch(`/admin/toggle-coupon-status/${couponId}`, {
+//             method: 'PUT',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             }
+//         });
 
-        const data = await response.json();
+//         const data = await response.json();
 
-        if (data.success) {
-            if (data.listed) {
-                buttonElement.textContent = 'Unlist';
-                buttonElement.classList.remove('btn-success');
-                buttonElement.classList.add('btn-secondary');
-            } else {
-                buttonElement.textContent = 'List';
-                buttonElement.classList.remove('btn-secondary');
-                buttonElement.classList.add('btn-success');
-            }
+//         if (data.success) {
+//             if (data.listed) {
+//                 buttonElement.textContent = 'Unlist';
+//                 buttonElement.classList.remove('btn-success');
+//                 buttonElement.classList.add('btn-secondary');
+//             } else {
+//                 buttonElement.textContent = 'List';
+//                 buttonElement.classList.remove('btn-secondary');
+//                 buttonElement.classList.add('btn-success');
+//             }
     
-            const statusCell = buttonElement.closest('tr').querySelector('td:nth-child(6)');
-            statusCell.textContent = data.listed ? 'Listed' : 'Unlisted';
-        } else {
-            console.error('Failed to toggle coupon status:', data.message);
-        }
-    } catch (error) {
-        console.error('Error toggling coupon status:', error.message);
-    }
-}
+//             const statusCell = buttonElement.closest('tr').querySelector('td:nth-child(6)');
+//             statusCell.textContent = data.listed ? 'Listed' : 'Unlisted';
+//         } else {
+//             console.error('Failed to toggle coupon status:', data.message);
+//         }
+//     } catch (error) {
+//         console.error('Error toggling coupon status:', error.message);
+//     }
+// }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -394,69 +394,58 @@ function getCouponData(couponId) {
         }
     });
 
-    function validateCouponForm(couponCode, discountPercent, minimumPurchase, maxRedeemAmount, validFrom, validTo) {
-        let message = '';
-        // let codeRegex = /^[A-Za-z0-9]{5,10}$/;
-        let codeRegex = /^(?=.*[A-Za-z])[A-Za-z0-9]{5,10}$/;
-        let discountRegex = /^([1-9]|[1-9][0-9]|100)$/;  
-        let numberRegex = /^[0-9]+(\.[0-9]+)?$/;
-
-        if (!codeRegex.test(couponCode) || couponCode[0] == ' ') {
-            message = "Coupon code must be 5-10 characters long and contain only letters and numbers.";
-        } else if (!discountRegex.test(discountPercent)) {
-            message = "Discount value must be a number between 1 and 100.";
-        } else if (!numberRegex.test(minimumPurchase) || minimumPurchase <= 0) {
-            message = "Minimum purchase must be a positive number.";
-        } else if (!numberRegex.test(maxRedeemAmount) || maxRedeemAmount <= 0) {
-            message = "Max redeem must be a positive number.";
-        }else if (new Date(validFrom) < new Date(new Date().setHours(0, 0, 0, 0))) {
-        message = "Valid From date cannot be in the past.";
-        }else if (new Date(validFrom) > new Date(validTo)) {
-            message = "Valid From date cannot be after Valid To date.";
-        }
-
-        return message;
-    }
-</script>
- 
-
-
- <script>
-     document.getElementById('editCouponForm').addEventListener('submit', function(event) {
+    //*********
+    document.getElementById('editCoupon-btn').addEventListener('click', async function(event) {
     event.preventDefault(); 
+    console.log('mmmmmmmmmmmmmmmmmmmmmmmmmmm');
+    
 
+    const form = document.getElementById('editCouponForm');
+    const couponId = document.getElementById('editCouponId').value;
     const couponCode = document.getElementById('editCouponCode').value;
     const discountPercent = document.getElementById('editDiscountValue').value;
     const minimumPurchase = document.getElementById('editMinimumPurchase').value;
     const maxRedeemAmount = document.getElementById('editMaxRedeem').value;
     const validFrom = document.getElementById('editValidFrom').value;
     const validTo = document.getElementById('editValidTo').value;
-    const message = document.getElementById('message');  
+    const message1 = document.getElementById('message1');  
 
-    message.style.display = 'none';
+    message1.style.display = 'none';
+     
 
     const errorMessage = validateCouponForm(couponCode, discountPercent, minimumPurchase, maxRedeemAmount, validFrom, validTo);
 
     if (errorMessage) {
-        message.style.display = 'block';
-        message.textContent = errorMessage;
+        message1.style.display = 'block';
+        message1.textContent = errorMessage;
         return;
     }
 
 
 
-    const formData = new FormData(this);
+    // const formData = new FormData(this);
+    const formData = {
+            couponId: couponId,
+            couponCode: couponCode,
+            discountPercent: discountPercent,
+            minPurchase: minimumPurchase,
+            maxRedeemAmount: maxRedeemAmount,
+            validFrom: validFrom,
+            validTo: validTo
+        }
+
     fetch('/admin/update-coupon', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(Object.fromEntries(formData))
+        // body: JSON.stringify(Object.fromEntries(formData))
+        body: JSON.stringify(formData)
     })
     .then(response => {
         if (!response.ok) {
             return response.json().then(err => {
-                throw new Error(`Network response was not ok: ${err.error}`);
+                throw new Error(err.message || `Network response was not ok `);
             });
         }
         return response.json();
@@ -482,12 +471,46 @@ function getCouponData(couponId) {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'Failed to update coupon. Please try again.',
+            text: error.message || 'Failed to update coupon. Please try again.',
             confirmButtonColor: '#d33',
             confirmButtonText: 'OK'
         });
     });
 });
+
+    function validateCouponForm(couponCode, discountPercent, minimumPurchase, maxRedeemAmount, validFrom, validTo) {
+        console.log("inside the function",couponCode);
+        
+        let message = '';
+        // let codeRegex = /^[A-Za-z0-9]{5,10}$/;
+        let codeRegex = /^(?=.*[A-Za-z])[A-Za-z0-9]{5,10}$/;
+        let discountRegex = /^([1-9]|[1-9][0-9]|100)$/;  
+        let numberRegex = /^[0-9]+(\.[0-9]+)?$/;
+
+        if (!codeRegex.test(couponCode) || couponCode[0] == ' ') {
+            console.log("first ifff");
+            
+            message = "Coupon code must be 5-10 characters long and contain only letters and numbers.";
+        } else if (!discountRegex.test(discountPercent)) {
+            message = "Discount value must be a number between 1 and 100.";
+        } else if (!numberRegex.test(minimumPurchase) || minimumPurchase <= 0) {
+            message = "Minimum purchase must be a positive number.";
+        } else if (!numberRegex.test(maxRedeemAmount) || maxRedeemAmount <= 0) {
+            message = "Max redeem must be a positive number.";
+        }else if (new Date(validFrom) < new Date(new Date().setHours(0, 0, 0, 0))) {
+        message = "Valid From date cannot be in the past.";
+        }else if (new Date(validFrom) > new Date(validTo)) {
+            message = "Valid From date cannot be after Valid To date.";
+        }
+
+        return message;
+    }
+</script>
+ 
+
+
+ <script>
+     
 
 document.querySelectorAll('.btn-delete').forEach(button => {
     button.addEventListener('click', async function() {

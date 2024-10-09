@@ -74,6 +74,8 @@
                                     <% }); %>
                                 </select>
                             </div>
+                            <p id="offerMessage" style="display:none; color:red;"></p>
+
                             <button type="button" class="btn btn-primary mt-4" onclick="addOffer()">Submit</button>
                             <a href="/admin/offer-management">
                                 <button type="button" class="btn btn-info mt-4 ms-4">Go back</button>
@@ -149,6 +151,12 @@
 
     async function addOffer() {
 
+    const messageElement = document.getElementById('offerMessage');
+    messageElement.style.display = 'none'; // Hide the message initially
+    messageElement.textContent = ''; // Clear previous messages
+
+    if (!validateOfferForm()) return;
+
         const offerName = document.getElementById('offerName')?.value || '';
         const disPercentage = document.getElementById('DPercentage')?.value || '';
         const startDate = document.getElementById('startDatePicker')?.value || '';
@@ -191,7 +199,7 @@
         } else {
             Swal.fire({
             title: "Error!",
-            text: errorData.message || "Failed to submit offer.",
+            text: result.message || "Failed to submit offer.",
             icon: "error",
             confirmButtonText: "Try Again"
         });
@@ -210,54 +218,134 @@
 
 /*** validationnnnnnnnn ***/
 
+// function validateOfferForm() {
+//     const offerName = document.getElementById('offerName').value.trim();
+//     const disPercentage = document.getElementById('DPercentage').value.trim();
+//     const startDate = document.getElementById('startDatePicker').value
+//     const expiryDate = document.getElementById('datePicker').value;
+//     const offerType = document.getElementById('selectOfferType').value;
+//     // const productId = document.getElementById('productId').value;
+//     // const categoryId = document.getElementById('categoryId').value;
+//     const productId = document.getElementById('selctProduct') ? document.getElementById('selctProduct').value : null;
+//     const categoryId = document.getElementById('selectCategory') ? document.getElementById('selectCategory').value : null;
+
+//     let errors = [];
+
+//     if (!offerName || offerName.length < 3) {
+//         errors.push('Offer Name must be at least 3 characters long.');
+//     }
+
+//     if (!disPercentage || isNaN(disPercentage) || disPercentage <= 0 || disPercentage > 100) {
+//         errors.push('Discount percentage must be a number between 1 and 100.');
+//     }
+ 
+//     if (!expiryDate) {
+//         errors.push('Expiry date is required.');
+//     } else {
+//         const currentDate = new Date();
+//         const selectedDate = new Date(expiryDate);
+//         if (selectedDate <= currentDate) {
+//             errors.push('Expiry date must be in the future.');
+//         }
+//     }
+
+//     if (offerType === 'Select One') {
+//         errors.push('Offer type must be selected.');
+//     }
+
+//     if (offerType === 'Product Offer' && productId === 'Select One') {
+//         errors.push('Please select a product.');
+//     } else if (offerType === 'Category Offer' && categoryId === 'Select One') {
+//         errors.push('Please select a category.');
+//     }
+
+//     if (errors.length > 0) {
+//         alert(errors.join('\n'));   
+//         return false;
+//     }
+
+//     return true;
+// }
+    
 function validateOfferForm() {
     const offerName = document.getElementById('offerName').value.trim();
     const disPercentage = document.getElementById('DPercentage').value.trim();
-    const startDate = document.getElementById('startDatePicker').value
+    const startDate = document.getElementById('startDatePicker').value;
     const expiryDate = document.getElementById('datePicker').value;
     const offerType = document.getElementById('selectOfferType').value;
-    // const productId = document.getElementById('productId').value;
-    // const categoryId = document.getElementById('categoryId').value;
     const productId = document.getElementById('selctProduct') ? document.getElementById('selctProduct').value : null;
     const categoryId = document.getElementById('selectCategory') ? document.getElementById('selectCategory').value : null;
 
     let errors = [];
+    const messageElement = document.getElementById('offerMessage');
+    messageElement.style.display = 'none'; // Hide the message initially
+    messageElement.textContent = ''; // Clear previous messages
 
-    if (!offerName || offerName.length < 3) {
+    // Regex for offer name (at least 3 characters)
+    // const offerNameRegex = /^.{3,}$/;
+    const offerNameRegex = /^(?=.*[A-Za-z]).{3,10}$/;
+    if (!offerNameRegex.test(offerName)) {
         errors.push('Offer Name must be at least 3 characters long.');
     }
 
-    if (!disPercentage || isNaN(disPercentage) || disPercentage <= 0 || disPercentage > 100) {
+    // Regex for discount percentage (must be a number between 1 and 100)
+    const discountPercentageRegex = /^(100|[1-9][0-9]?)$/;
+    if (!discountPercentageRegex.test(disPercentage)) {
         errors.push('Discount percentage must be a number between 1 and 100.');
     }
- 
+
+    if (!startDate) {
+        errors.push('Start date is required.');
+    } else {
+        const selectedStartDate = new Date(startDate);
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0); // Set to midnight to compare date only
+
+        if (selectedStartDate < currentDate) {
+            errors.push('Start date must be today or in the future.');
+        }
+    }
+
+    // Check expiry date
+    // if (!expiryDate) {
+    //     errors.push('Expiry date is required.');
+    // } else {
+    //     const currentDate = new Date();
+    //     const selectedDate = new Date(expiryDate);
+    //     if (selectedDate <= currentDate) {
+    //         errors.push('Expiry date must be in the future.');
+    //     }
+    // }
     if (!expiryDate) {
         errors.push('Expiry date is required.');
     } else {
-        const currentDate = new Date();
-        const selectedDate = new Date(expiryDate);
-        if (selectedDate <= currentDate) {
+        const selectedExpiryDate = new Date(expiryDate);
+        if (selectedExpiryDate <= new Date()) {
             errors.push('Expiry date must be in the future.');
         }
     }
 
+    // Validate offer type
     if (offerType === 'Select One') {
         errors.push('Offer type must be selected.');
     }
 
+    // Validate product or category selection
     if (offerType === 'Product Offer' && productId === 'Select One') {
         errors.push('Please select a product.');
     } else if (offerType === 'Category Offer' && categoryId === 'Select One') {
         errors.push('Please select a category.');
     }
 
+    // Show errors if any
     if (errors.length > 0) {
-        alert(errors.join('\n'));   
+        messageElement.style.display = 'block'; // Show the message element
+        messageElement.textContent = errors.join(' '); // Display all errors in the message element
         return false;
     }
 
     return true;
 }
-    
+
 
 </script>

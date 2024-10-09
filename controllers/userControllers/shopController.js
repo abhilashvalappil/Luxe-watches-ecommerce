@@ -228,11 +228,11 @@ const sortPrice = async(req,res) => {
   }
 }
 
-const applyCoupon = async(req,res) => {
+const 
+applyCoupon = async(req,res) => {
   try {
 
     const {couponCode,totalAmount} = req.body;
-    console.log('couppppppppppp.........onnnnnnnnnnnn',totalAmount,couponCode)
 
     const coupon = await Coupon.findOne({ couponCode: couponCode });
     if (!coupon) {
@@ -250,7 +250,7 @@ const applyCoupon = async(req,res) => {
       return res.status(400).json({ success: false, message: `This coupon is only valid for Purchases Over ${coupon.minPurchase}` });
     }
  
-    let discount = (totalAmount * coupon.discountPercent) / 100;
+    let discount = Math.floor((totalAmount * coupon.discountPercent) / 100);
  
     if (discount > coupon.maxRedeemAmount) {
       discount = coupon.maxRedeemAmount;

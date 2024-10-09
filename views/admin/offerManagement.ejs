@@ -261,6 +261,8 @@
                 <% }); %>
               </select>
             </div>
+            <p id="editOfferMessage" style="display:none; color:red;"></p>
+
             <button type="submit" id="updateOffer-btn" class="btn btn-primary">Save Changes</button>
           </form>
         </div>
@@ -334,6 +336,10 @@
 
 document.getElementById('updateOffer-btn').addEventListener('click', async function(event) {
     event.preventDefault();
+
+    if (!validateEditOfferForm()) {
+        return; // Stop if validation fails
+    }
     
     const offerId = document.getElementById('editOfferId').value;
     const offerName = document.getElementById('editOfferName').value;
@@ -401,6 +407,71 @@ document.getElementById('updateOffer-btn').addEventListener('click', async funct
         });
     }
 });
+
+//************
+
+function validateEditOfferForm() {
+    const offerName = document.getElementById('editOfferName').value.trim();
+    const discountPercent = document.getElementById('editDPercentage').value.trim();
+    const startDate = document.getElementById('editStartDate').value;
+    const expiryDate = document.getElementById('editExpiryDate').value;
+    const offerType = document.getElementById('editOfferType').value;
+
+    let errors = [];
+    const messageElement = document.getElementById('editOfferMessage'); // Ensure you have an element for errors
+    messageElement.style.display = 'none';
+    messageElement.textContent = '';
+
+    // Regex for offer name (at least 3 characters and contains at least one letter)
+    const offerNameRegex = /^(?=.*[A-Za-z]).{3,10}$/;
+    if (!offerNameRegex.test(offerName)) {
+        errors.push('Offer Name must be at least 3 characters long and contain at least one letter.');
+    }
+
+    // Regex for discount percentage (must be a number between 1 and 100)
+    const discountPercentageRegex = /^(100|[1-9][0-9]?)$/;
+    if (!discountPercentageRegex.test(discountPercent)) {
+        errors.push('Discount percentage must be a number between 1 and 100.');
+    }
+
+    // Check start date
+    if (!startDate) {
+        errors.push('Start date is required.');
+    } else {
+        const selectedStartDate = new Date(startDate);
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0); // Set to midnight for comparison
+
+        if (selectedStartDate < currentDate) {
+            errors.push('Start date must be today or in the future.');
+        }
+    }
+
+    // Check expiry date
+    if (!expiryDate) {
+        errors.push('Expiry date is required.');
+    } else {
+        const selectedExpiryDate = new Date(expiryDate);
+        if (selectedExpiryDate <= new Date()) {
+            errors.push('Expiry date must be in the future.');
+        }
+    }
+
+    // Validate offer type
+    if (offerType === 'Select One') {
+        errors.push('Offer type must be selected.');
+    }
+
+    // Show errors if any
+    if (errors.length > 0) {
+        messageElement.style.display = 'block';
+        messageElement.textContent = errors.join(' ');
+        return false;
+    }
+
+    return true; // Valid
+}
+
 
 </script>
 

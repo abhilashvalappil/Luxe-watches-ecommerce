@@ -72,6 +72,65 @@ const addCoupon = async(req,res) => {
     }
 }
 
+const updateCoupon = async (req, res) => {
+    try {
+        console.log('the coupon data:', req.body);
+        const { couponId, couponCode, discountPercent, minimumPurchase, maxRedeem, validFrom, validTo } = req.body;
+
+        const existingCoupon = await Coupon.findById(couponId);
+        if (!existingCoupon) {
+            return res.status(404).json({ success: false, message: 'Coupon not found' });
+        }
+
+        if (couponCode[0] === ' ') {
+            return res.status(403).json({ success: false, message: "Enter a proper coupon code." });
+        }
+
+        if (discountPercent < 1 || discountPercent > 100) {
+            return res.status(400).json({ success: false, message: "Discount percent must be between 1 and 100." });
+        }
+
+        if (minimumPurchase <= 0 || maxRedeem <= 0) {
+            return res.status(400).json({ success: false, message: "Minimum purchase and max redeem must be positive numbers." });
+        }
+
+        if (new Date(validFrom) > new Date(validTo)) {
+            return res.status(400).json({ success: false, message: "Valid From date cannot be after Valid To date." });
+        }
+
+        console.log('hellllllssssssssssss')
+
+        await Coupon.findByIdAndUpdate(couponId, {
+            couponCode,
+            discountPercent,
+            minimumPurchase,
+            maxRedeemAmount: maxRedeem,
+            validFrom,
+            validTo
+        }, { new: true });
+
+        res.json({success: true, message: 'Coupon updated successfully', coupon: updatedCoupon });
+    } catch (error) {
+        console.error('Error updating coupon:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+const deleteCoupon = async(req,res) => {
+    try {
+        const couponId = req.params.id;
+        if(!couponId){
+            return res.status(400).json({message: 'Coupon not found'})
+        }
+
+        await Coupon.findByIdAndDelete(couponId)
+        return res.status(200).json({ success: true, message: 'Coupon deleted successfully' });
+        
+    } catch (error) {
+        console.error('Error found when deleting',error)
+    }
+}
+
 const listCoupon = async(req,res) => {
     try {
         const couponId = req.params.id;
@@ -241,6 +300,18 @@ const addOffer = async(req,res) => {
     }
 }
 
+const loadEditCoupon = async (req, res) => {
+    try {
+        const coupon = await Coupon.findById(req.params.id);  
+        if (!coupon) {
+            return res.status(404).json({ error: 'Coupon not found' });
+        }
+        res.json(coupon);
+    } catch (error) {
+        console.error('Error fetching coupon:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
  
 const updateOffer = async (req, res) => {
     try {
@@ -317,58 +388,11 @@ const deactivateOffer = async(req,res) => {
     }
 }
 
-const loadEditCoupon = async (req, res) => {
-    try {
-        const coupon = await Coupon.findById(req.params.id);  
-        if (!coupon) {
-            return res.status(404).json({ error: 'Coupon not found' });
-        }
-        res.json(coupon);
-    } catch (error) {
-        console.error('Error fetching coupon:', error);
-        res.status(500).json({ error: 'Server error' });
-    }
-};
 
-const updateCoupon = async (req, res) => {
-    try {
-        console.log('the coupon data:', req.body);
-        const { couponId, couponCode, discountPercent, minimumPurchase, maxRedeem, validFrom, validTo } = req.body;
 
-        const updatedCoupon = await Coupon.findByIdAndUpdate(couponId, {
-            couponCode,
-            discountPercent,
-            minimumPurchase,
-            maxRedeemAmount: maxRedeem,
-            validFrom,
-            validTo
-        }, { new: true });
 
-        if (!updatedCoupon) {
-            return res.status(404).json({ error: 'Coupon not found' });
-        }
 
-        res.json({ message: 'Coupon updated successfully', coupon: updatedCoupon });
-    } catch (error) {
-        console.error('Error updating coupon:', error);
-        res.status(500).json({ error: 'Server error' });
-    }
-};
 
-const deleteCoupon = async(req,res) => {
-    try {
-        const couponId = req.params.id;
-        if(!couponId){
-            return res.status(400).json({message: 'Coupon not found'})
-        }
-
-        await Coupon.findByIdAndDelete(couponId)
-        return res.status(200).json({ success: true, message: 'Coupon deleted successfully' });
-        
-    } catch (error) {
-        console.error('Error found when deleting',error)
-    }
-}
 
 
 

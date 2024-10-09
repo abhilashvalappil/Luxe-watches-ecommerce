@@ -427,6 +427,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        let  discount = 0;
         document.getElementById('coupon-form').addEventListener('submit', async function(event) {
             event.preventDefault();   
              
@@ -453,6 +454,7 @@
                 if (result.success) {
                     couponMessage.innerHTML = `<div class="alert alert-success">Coupon applied! Discount: ${result.discount}%</div>`;
                     document.getElementById('discount-amount').textContent = result.discount;
+                    discount = result.discount
                     document.getElementById('final-total').textContent = `₹${result.newTotal}`;
                     document.getElementById('remove-coupon-btn').classList.remove('d-none');
                     alert(result.message);
@@ -466,49 +468,17 @@
                 couponMessage.innerHTML = `<div class="alert alert-danger">An error occurred. Please try again.</div>`;
             }
         });
-
-
-        //Removeeeeeeeeeeeeeeeeeeeeeeee coupon
-        
-    //     document.getElementById('remove-coupon-btn').addEventListener('click', async function() {
-    //     try {
-    //         const response = await fetch('/remove-coupon', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },
-    //         });
-
-    //         const result = await response.json();
-
-    //         if (result.success) {
-    //             document.getElementById('coupon-message').innerHTML = `<div class="alert alert-success">${result.message}</div>`;
-    //             document.getElementById('discount-amount').textContent = '0';
-    //             document.getElementById('final-total').textContent = `₹${result.newTotal}`;
-    //             document.getElementById('coupon-code').value = '';
-    //             document.getElementById('remove-coupon-btn').classList.add('d-none');  
-    //             alert(result.message);
-    //         } else {
-    //             document.getElementById('coupon-message').innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
-    //             alert(result.message);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error removing coupon:', error);
-    //         document.getElementById('coupon-message').innerHTML = `<div class="alert alert-danger">An error occurred. Please try again.</div>`;
-    //     }
-    // });
+ 
     document.getElementById('remove-coupon-btn').addEventListener('click', async function() {
     try {
-        // Change 'subtotal' to 'total-amount' to match your EJS
+        
         const subtotalElement = document.getElementById('total-amount');
-
-        // Check if subtotal element exists
+ 
         if (!subtotalElement) {
             console.error('Subtotal element not found!');
-            return; // Exit if element doesn't exist
+            return;  
         }
 
-        // Get the subtotal amount from the element
         const subtotal = parseFloat(subtotalElement.textContent.replace('₹', '')) || 0; 
         console.log('Current subtotal:', subtotal);
 
@@ -517,17 +487,17 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ subtotal }), // Send subtotal to backend
+            body: JSON.stringify({ subtotal }), 
         });
 
         const result = await response.json();
 
         if (result.success) {
             document.getElementById('coupon-message').innerHTML = `<div class="alert alert-success">${result.message}</div>`;
-            document.getElementById('discount-amount').textContent = '0'; // Set discount to 0
-            document.getElementById('final-total').textContent = `₹${result.newTotal}`; // Update final total
-            document.getElementById('coupon-code').value = ''; // Clear coupon code input
-            document.getElementById('remove-coupon-btn').classList.add('d-none'); // Hide remove button
+            document.getElementById('discount-amount').textContent = '0';  
+            document.getElementById('final-total').textContent = `₹${result.newTotal}`;  
+            document.getElementById('coupon-code').value = '';  
+            document.getElementById('remove-coupon-btn').classList.add('d-none');  
             alert(result.message);
         } else {
             document.getElementById('coupon-message').innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
@@ -557,14 +527,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
         
-
-        // function copyCouponCode(code) {
-        //     navigator.clipboard.writeText(code).then(() => {
-        //         alert('Coupon code copied to clipboard!');
-        //     }).catch(err => {
-        //         console.error('Failed to copy code: ', err);
-        //     });
-        // }
         function copyCouponCode(code) {
     navigator.clipboard.writeText(code).then(() => {
         const toast = new bootstrap.Toast(document.getElementById('couponToast'));
@@ -674,6 +636,7 @@
                     cartItems: updatedCartItems,
                     totalAmount: totalAmount,
                     couponCode: couponCode,
+                    discount : discount
                 };
             
                 try {

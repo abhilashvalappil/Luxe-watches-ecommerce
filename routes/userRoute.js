@@ -74,20 +74,20 @@ user_route.get('/shopdetails',shopController.shopDetailsLoad);
 
 user_route.get('/profile',auth.isLogin,userController.loadProfile);
 
-user_route.get('/editprofile',userController.loadEditProfile);
+user_route.get('/editprofile',auth.isLogin,userController.loadEditProfile);
 user_route.put('/editprofile',userController.editProfile);
 
-user_route.get('/address',userController.loadAddress);
+user_route.get('/address',auth.isLogin,userController.loadAddress);
 user_route.post('/add-address',userController.addAddress);
 user_route.post('/edit-address', userController.editAddress);
 user_route.post('/delete-address', userController.deleteAddress)
 
-user_route.get('/wishlist',cartController.loadWishlist);
+user_route.get('/wishlist',auth.isLogin,cartController.loadWishlist);
 user_route.get('/get-wishlist',cartController.getWishlist);
 user_route.post('/addToWishlist',cartController.addToWishlist);
 user_route.post('/removeFromWishlist',cartController.removeFromWishlist);
 
-user_route.get('/cart',cartController.loadCart);
+user_route.get('/cart',auth.isLogin,cartController.loadCart);
 user_route.post('/addToCart',auth.isLoggedin, cartController.addToCart);
 user_route.post('/removeFromCart',cartController.removeFromCart);
 user_route.post('/update-Quantity',cartController.updateQuantity)
@@ -103,37 +103,32 @@ user_route.post('/resetPassword',userController.resetPassword);
 
 user_route.post('/place-order/',orderController.placeOrder)
 user_route.get('/show-orderConfirm/:orderid',orderController.loadOrderConfirm)
-user_route.get('/orders',orderController.loadOrders)
+user_route.get('/orders',auth.isLogin,orderController.loadOrders)
+user_route.get('/order-details/:order_id',orderController.orderDetails);
 
 user_route.post('/verifyPayment',orderController.verifyPayment);
-
-
-
-user_route.get('/order-details/:order_id',orderController.orderDetails);
 
 user_route.post('/cancel-order/:order_id',orderController.cancelOrder);
 user_route.get('/cancel-confirm',orderController.cancelConfirm);
 // user_route.post('/return-order/:order_id',orderController.requestReturn);
 user_route.post('/return-order',orderController.requestReturn);
 
-
+user_route.post('/search',shopController.searchProduct);
 user_route.post('/filter-product',shopController.productFilter);
 user_route.post('/sort-products',shopController.sortPrice)
 
 
-user_route.get('/wallet',orderController.loadWallet)
+user_route.get('/wallet',auth.isLogin,orderController.loadWallet)
 
-user_route.get('/coupons',shopController.loadCoupons);
+user_route.get('/coupons',auth.isLogin,shopController.loadCoupons);
 user_route.post('/apply-coupon',shopController.applyCoupon)
 user_route.post('/remove-coupon',shopController.removeCoupon);
 
 user_route.post('/updatePaymentStatus',orderController.updatePaymentStatus)
-
 user_route.get('/retry-payment/:orderId',orderController.retryPayment)
-
 user_route.get('/download-invoice/:orderId',orderController.downloadInvoice);
 
-user_route.post('/search',shopController.searchProduct);
+
 
 
 
