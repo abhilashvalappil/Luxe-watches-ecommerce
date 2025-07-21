@@ -9,92 +9,9 @@ const Wishlist = require('../../models/wishlistModel')
 const Offer = require('../../models/offerModel');
 const { checkAndUpdateExpiredOffers } = require('./shopController');
  
-
-// const loadCart = async (req, res) => {
-//     try {
-//         await checkAndUpdateExpiredOffers();    
-//         const userId = req.session.user_id;
-//         const user = await User.findById(userId);
-
-//         const offers = await Offer.find({ expiredate: { $gte: new Date() }, status: true });
-//         console.log('recdddddddddddddd..............fff offffffffrs',offers)
-
-//         const userCart = await Cart.aggregate([
-//             { $match: { userId: new mongoose.Types.ObjectId(userId) } },
-//             { $unwind: '$cartItems' },
-//             {
-//                 $lookup: {
-//                     from: 'products',
-//                     localField: 'cartItems.productId',
-//                     foreignField: '_id',
-//                     as: 'productDetails'
-//                 }
-//             },
-//             { $unwind: '$productDetails' },
-//             {
-//                 $lookup: {
-//                     from: 'categories',
-//                     localField: 'productDetails.category',
-//                     foreignField: '_id',
-//                     as: 'categoryDetails'
-//                 }
-//             },
-//             { $unwind: '$categoryDetails' },
-//             {
-//                 $project: {
-//                     _id: 0,
-//                     productId: '$cartItems.productId',
-//                     quantity: '$cartItems.quantity',
-//                     productDetails: {
-//                         name: '$productDetails.name',
-//                         price: '$productDetails.price',
-//                         images: '$productDetails.images',
-//                         offerPercent: '$productDetails.offerPercent'
-//                     },
-//                     categoryOfferPercent: '$categoryDetails.offerPercent'
-//                 }
-//             }
-//         ]);
-        
-
-//         userCart.forEach(item => {
-//             const productOffer = item.productDetails.offerPercent || 0;  
-//             const categoryOffer = item.categoryOfferPercent || 0;  
-
-//             console.log('product offer existsssssss',productOffer)
-//             console.log('categoryOffer offer existsssssss',categoryOffer)
-
-//             if (productOffer) {
-//                 const discount = (item.productDetails.price *  item.productDetails.offerPercent) / 100;
-//                 item.offerPrice = item.productDetails.price - discount;
-//                 item.offerPercent = productOffer;
-//             } else if (!productOffer && categoryOffer) {
-//                 const discount = (item.productDetails.price * item.categoryOfferPercent) / 100;
-//                 item.offerPrice = item.productDetails.price - discount;
-//                 item.offerPercent = categoryOffer;
-//             } else {
-//                 item.offerPrice = item.productDetails.price;
-//                 item.offerPercent = 0;
-//             }
-//         });
-
-//         const totalPriceResult = userCart.reduce((total, item) => {
-//             return total + (item.offerPrice * item.quantity);
-//         }, 0);
-
-//         if (userCart.length === 0) {
-//             return res.render('cart', { user, userData: user, totalPrice: 0, userCart: [], message: 'Your cart is empty' })
-//         }
-
-//         res.render('cart', { user, userData: user, userCart, totalPrice: totalPriceResult });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send('Server Error');
-//     }
-// }
+ 
 const loadCart = async (req, res) => {
     try {
-        // Update expired offers first
         await checkAndUpdateExpiredOffers();
 
         const userId = req.session.user_id;

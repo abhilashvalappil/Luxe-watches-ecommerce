@@ -325,9 +325,7 @@ const searchProduct = async(req,res) => {
           { description: { $regex: query, $options: 'i' } },
       ],
   });
-
-  res.json({ success: true, products: results });
-    
+  res.json({ success: true, products: results }); 
   } catch (error) {
     console.error('Error searching products:', error);
   }

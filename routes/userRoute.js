@@ -42,7 +42,6 @@ user_route.get('/home', userController.loadHomePage);
 
 
 user_route.post('/logout',auth.isLogin,userController.logout)
-// user_route.get('/logout', userController.logout);
 
 user_route.get('/register',auth.isLogout, userController.loadRegister);
 user_route.post('/register',userController.registerUser);

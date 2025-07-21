@@ -637,7 +637,6 @@ document.getElementById('filterForm').addEventListener('submit', function(event)
     let selectedStrapColors = Array.from(document.querySelectorAll('input[name="strap"]:checked')).map(cb => cb.value);
     let selectedDialColors = Array.from(document.querySelectorAll('input[name="dial"]:checked')).map(cb => cb.value);
 
-    console.log('the brandddddddddddddddd',selectedBrands)
 
     let minPrice = document.getElementById('minPrice').value;
     let maxPrice = document.getElementById('maxPrice').value;

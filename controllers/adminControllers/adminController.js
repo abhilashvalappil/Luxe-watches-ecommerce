@@ -64,7 +64,9 @@ const verifyLogin = async (req, res) => {
  
 const logOut = async (req, res) => {
     try {
+        console.log("kerindooooo1111111");
         if (req.session.admin_id) {
+            console.log("kerindooo222222");
             req.session.destroy((err) => {
                 if (err) {
                     console.error('Session destruction error', err);
@@ -629,52 +631,7 @@ const editProductLoad = async(req,res) => {
         res.status(400).json({ success: false, message: 'Server error' });
     }
 }
-
-// const editProduct = async(req,res) => {
-//      try {
-//         const productId = req.body.productId;
-//         console.log('the iddddddddddddddddddd',productId)
-//         const product = await Product.findById(productId);
-
-
-
-//         if(!product){
-//             return res.status(400).json({ success: false, message: 'Product not found!'})
-//         }
-
-//         let images = [];
-
-        
-//         if (req.files) {
-//             const bodyImages = req.files;
-//             const fields = ['image1', 'image2', 'image3'];
-//             fields.forEach((field, index) => {
-//                 if (bodyImages[field] && bodyImages[field][0]) {
-//                     images[index] = bodyImages[field][0].filename;
-//                 } else if (product.images[index]) {
-//                     images[index] = product.images[index];
-//                 }
-//             });
-//         }
-
-//         const update = await Product.findByIdAndUpdate(req.body.productId,{
-//             name: req.body.name,
-//             brand: req.body.brand,
-//             model: req.body.model,
-//             category: req.body.category,
-//             price: req.body.price,
-//             dialColor: req.body.dialColor,
-//             strapColor: req.body.strapColor,
-//             stock: req.body.stock,
-//             description: req.body.description,
-//             image: req.body.image
-//         })
-//         res.status(200).json({success: true, message: 'Product updated successfully.'})
-        
-//      } catch (error) {
-//         console.log(error)
-//      }
-// }
+ 
 const editProduct = async (req, res) => {
     try {
         const productId = req.body.productId;
