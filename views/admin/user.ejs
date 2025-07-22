@@ -18,12 +18,10 @@
 							</ol>
 						</nav>
 					</div>
-
-
 				</div>
 				 
 
-        <div class="row g-3">
+        <!-- <div class="row g-3">
           <div class="col-auto">
             <div class="position-relative">
             
@@ -42,7 +40,25 @@
             <div class="d-flex align-items-center gap-2 justify-content-lg-end">
             </div>
           </div>
-        </div><!--end row-->
+        </div>  -->
+        <div class="row g-3 mb-3">
+  <div class="col-md-6">
+    <form action="/admin/users" method="GET" class="d-flex">
+      <input
+        type="text"
+        name="search"
+        class="form-control"
+        placeholder="Search by name or email"
+        value="<%= search %>"
+      />
+      <button type="submit" class="btn btn-dark ms-2">Search</button>
+      <% if (search && search.trim() !== '') { %>
+        <a href="/admin/users" class="btn btn-secondary ms-2">Clear</a>
+      <% } %>
+    </form>
+  </div>
+</div>
+
 
         <div class="card mt-4">
           <div class="card-body">
@@ -50,13 +66,10 @@
               <div class="table-responsive white-space-nowrap">
                  <table class="table align-middle">
                   <thead style="background-color: #343a40 ;font-weight: bold ;font-size: 16px;">
-                    <tr>
-                      
+                    <tr>                      
                       <th>Customer Name</th>
                       <th>Email</th>
                       <th>Mobile</th>
-                      <!-- <th>Is Verified</th> -->
-                      <!-- <th>Status</th> -->
                       <th>Action</th>
                     </tr>
                    </thead>
@@ -97,7 +110,7 @@
                 <ul class="pagination">
                     <% if (currentPage > 1) { %>
                     <li class="page-item">
-                        <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                        <a class="page-link" href="?page=<%= currentPage - 1 %>&search=<%= search %>" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
@@ -105,13 +118,13 @@
 
                     <% for (let i = 1; i <= totalPages; i++) { %>
                     <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                         <a class="page-link" href="?page=<%= i %>&search=<%= search %>"><%= i %></a>
                     </li>
                     <% } %>
 
                     <% if (currentPage < totalPages) { %>
                     <li class="page-item">
-                        <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                        <a class="page-link" href="?page=<%= currentPage + 1 %>&search=<%= search %>" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>

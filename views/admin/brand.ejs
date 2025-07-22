@@ -18,6 +18,22 @@
         </nav>
       </div>
     </div>
+    <div class="col-md-4 mb-3">
+  <form action="/admin/brand" method="GET" class="d-flex">
+    <input
+      type="text"
+      name="search"
+      class="form-control"
+      placeholder="Search by brand name"
+      value="<%= typeof search !== 'undefined' ? search : '' %>"
+    />
+    <button type="submit" class="btn btn-dark ms-2">Search</button>
+
+    <% if (search && search.trim() !== '') { %>
+      <a href="/admin/brand" class="btn btn-secondary ms-2">Clear</a>
+    <% } %>
+  </form>
+</div>
 
 
     <div class="row g-3">
@@ -74,27 +90,27 @@
         <div class="pagination">
           <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-center">
-              <% if (currentPage > 1) { %>
-                <li class="page-item">
-                  <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                  </a>
-                </li>
-              <% } %>
+            <% if (currentPage > 1) { %>
+                  <li class="page-item">
+                    <a class="page-link" href="?page=<%= currentPage - 1 %><%= search ? '&search=' + encodeURIComponent(search) : '' %>" aria-label="Previous">
+                      <span aria-hidden="true">&laquo;</span>
+                    </a>
+                  </li>
+                <% } %>
 
-              <% for (let i = 1; i <= totalPages; i++) { %>
-                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                  <a class="page-link" href="?page=<%= i %>"><%= i %></a>
-                </li>
-              <% } %>
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                  <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %><%= search ? '&search=' + encodeURIComponent(search) : '' %>"><%= i %></a>
+                  </li>
+                <% } %>
 
-              <% if (currentPage < totalPages) { %>
-                <li class="page-item">
-                  <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                  </a>
-                </li>
-              <% } %>
+                <% if (currentPage < totalPages) { %>
+                  <li class="page-item">
+                    <a class="page-link" href="?page=<%= currentPage + 1 %><%= search ? '&search=' + encodeURIComponent(search) : '' %>" aria-label="Next">
+                      <span aria-hidden="true">&raquo;</span>
+                    </a>
+                  </li>
+                <% } %>
             </ul>
           </nav>
         </div>

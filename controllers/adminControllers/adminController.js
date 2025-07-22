@@ -262,16 +262,32 @@ const loadUsers = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = 10;  
         const skip = (page - 1) * limit;
+        const search = req.query.search;
 
-        const users = await User.find({}).skip(skip).limit(limit);
+        let query = {};
 
-        const totalUsers = await User.countDocuments({});
+         if (search && search.trim() !== '') {
+      query = {
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+        ],
+      };
+    }
+
+         const [users, totalUsers] = await Promise.all([
+            User.find(query).skip(skip).limit(limit),
+            User.countDocuments(query),
+        ]);
+
+
         const totalPages = Math.ceil(totalUsers / limit);
 
         res.render('user', { 
             users,
             currentPage: page,
-            totalPages 
+            totalPages,
+            search: search || '' 
         })
 
     } catch (error) {
@@ -298,19 +314,29 @@ const blockUser = async (req, res) => {
 const loadCategory = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 10; // Categories per page
+        const limit = 10;  
         const skip = (page - 1) * limit;
+        const search = req.query.search ? req.query.search.trim() : '';
 
+        let query = {};
+        if (search !== '') {
+            query = {
+                name: { $regex: search, $options: 'i' }  
+            };
+        }
 
-        const category = await Category.find({}).skip(skip).limit(limit);
+        const [category, totalCategories] = await Promise.all([
+            Category.find(query).skip(skip).limit(limit),
+            Category.countDocuments(query)
+        ]);
 
-        const totalCategories = await Category.countDocuments({});
         const totalPages = Math.ceil(totalCategories / limit);
 
         res.render('category', { 
             category,
             currentPage: page,
-            totalPages
+            totalPages,
+            search
          })
 
     } catch (error) {
@@ -400,17 +426,22 @@ const editCategory = async (req, res) => {
 const loadBrand = async(req,res) => {
     try {
 
-         const page = parseInt(req.query.page) || 1;  
+        const page = parseInt(req.query.page) || 1;  
         const limit = 5;  
         const skip = (page - 1) * limit; 
+        const search = req.query.search || '';
 
-        const totalBrands = await Brand.countDocuments({});
+        const searchQuery = search
+      ? { brandName: { $regex: new RegExp(search, 'i') } }
+      : {};
 
-        const brand = await Brand.find({}).skip(skip) .limit(limit);
+        const totalBrands = await Brand.countDocuments(searchQuery);
+
+        const brand = await Brand.find(searchQuery).skip(skip) .limit(limit);
 
         const totalPages = Math.ceil(totalBrands / limit);
 
-        res.render('brand', {brand,currentPage: page, totalPages})
+        res.render('brand', {brand,currentPage: page, totalPages,search})
     } catch (error) {
         console.log(error)
     }
@@ -495,13 +526,17 @@ const editBrand = async (req, res) => {
 
 const loadProducts = async(req,res) => {
     try {
-
         const perPage = 5;  
         const page = parseInt(req.query.page) || 1;
+        const search = req.query.search || '';
 
-        const totalProducts = await Product.countDocuments();
+        const searchFilter = search
+            ? { name: { $regex: search, $options: 'i' } }  
+            : {};
 
-        const product = await Product.find({})
+        const totalProducts = await Product.countDocuments(searchFilter);
+
+        const product = await Product.find(searchFilter)
         .populate('brand', 'brandName')
         .populate('category', 'name')
         .skip((page - 1) * perPage).limit(perPage);
@@ -511,7 +546,8 @@ const loadProducts = async(req,res) => {
         res.render('products',{
             product,
             currentPage: page, 
-            totalPages 
+            totalPages,
+            search 
         })
     } catch (error) {
         console.log(error)
