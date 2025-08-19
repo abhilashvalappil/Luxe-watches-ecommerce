@@ -120,25 +120,34 @@
                         <div class="d-flex gap-3">
                           <div class="flex-fill">
                             <label for="AddCategory" class="form-label">Category</label>
-                            <select class="form-select" id="addCategory" name="category">
-                              <% if(categoryData.length !== 0){ %>
+                           <select class="form-select" id="addCategory" name="category">
+                            <option value="" selected disabled>Select Category</option>
+                            <% if(categoryData.length !== 0){ %>
                               <% for(let i=0; i<categoryData.length; i++) { %>
-                              <option value="<%= categoryData[i]._id %>"><%= categoryData[i].name %></option>
+                                <option value="<%= categoryData[i]._id %>">
+                                  <%= categoryData[i].name %>
+                                </option>
                               <% } %>
-                              <% } %>
-                            </select>
+                            <% } %>
+                          </select>
+                          <div id="category-error" class="message" style="color: red;"></div>
                           </div>
 
                           <div class="flex-fill">
                             <label for="addBrand" class="form-label">Brand</label>
                             <select class="form-select" id="addBrand" name="brand">
+                              <option value="" selected disabled>Select Brand</option>
                               <% if(brandData.length !== 0){ %>
-                              <% for(let i=0; i<brandData.length; i++) { %>
-                              <option value="<%= brandData[i]._id %>"><%= brandData[i].brandName %></option>
-                              <% } %>
+                                <% for(let i=0; i<brandData.length; i++) { %>
+                                  <option value="<%= brandData[i]._id %>">
+                                    <%= brandData[i].brandName %>
+                                  </option>
+                                <% } %>
                               <% } %>
                             </select>
+                             <div id="brand-error" class="message" style="color: red;"></div>
                           </div>
+
 
                           <!-- <div class="flex-fill">
                             <label for="Brand" class="form-label">Brand</label>
@@ -334,19 +343,16 @@ function closeCropModal() {
         const form = document.getElementById('addProductForm');
 
         // Retrieve the files from the file input
-    const imageInput = document.querySelector('input[type="file"]');
-    const files = imageInput.files;
+        const imageInput = document.querySelector('input[type="file"]');
+        const files = imageInput.files;
 
-    // if (files.length < 3) {
-    //     alert('Please upload at least three images before submitting the form.');
-    //     return;
-    // }
-    if (files.length < 3) {
-        document.getElementById('image-error').textContent = 'Please upload at least three images before submitting the form.'; // Show error message
-        return;
-    } else {
-        document.getElementById('image-error').textContent = ''; // Clear error message
-    }
+        
+        if (files.length < 3) { 
+            document.getElementById('image-error').textContent = 'Please upload at least three images before submitting the form.'; // Show error message
+            return;
+        } else {
+            document.getElementById('image-error').textContent = ''; // Clear error message
+        }
       
         const name = document.getElementById('name').value.trim();
         const description = document.getElementById('description').value.trim();
@@ -355,10 +361,11 @@ function closeCropModal() {
         const dialColor = document.getElementById('dialColor').value.trim();
         const strapColor = document.getElementById('strapColor').value.trim();
         const stock = document.getElementById('quantity').value.trim();
+        const category = document.getElementById('addCategory').value;
+        const brand = document.getElementById('addBrand').value;
 
   
-        // const nameRegex = /^[a-zA-Z0-9\s]+$/;
-        const nameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s]+$/;
+    const nameRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9\s]+$/;
     if (!nameRegex.test(name) || name.length < 5) {
       showError('name-error', 'Name must be required and contain only alphabets, spaces, and numbers and at least 5 characters long.');
       return;
@@ -414,6 +421,20 @@ function closeCropModal() {
       return;
     } else {
       hideError('stock-error')
+    }
+
+    if (!category) {
+    showError('category-error', 'Please select a category.');
+    return;
+    } else {
+        hideError('category-error');
+    }
+
+    if (!brand) {
+    showError('brand-error', 'Please select a brand.');
+    return;
+    } else {
+        hideError('brand-error');
     }
 
 

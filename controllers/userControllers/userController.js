@@ -10,6 +10,9 @@ const user_route = require('../../routes/userRoute');
 const Cart = require('../../models/cartModel');
 const Wallet = require('../../models/walletModel');
 const mongoose = require('mongoose')
+const HttpStatus = require('../../js/httpStatus')
+const MESSAGES  = require('../../constants/messages')
+const PATTERNS  = require('../../constants/patterns')
 const { ObjectId } = require('mongodb');
 
 
@@ -18,7 +21,6 @@ const securePassword = async (password) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         return hashedPassword;
-
     } catch (error) {
         console.log(error.message);
     }
@@ -27,63 +29,52 @@ const securePassword = async (password) => {
 
 const loadRegister = async (req, res) => {
     try {
-
         res.render('registration', { message: undefined });
-
     } catch (error) {
         console.log(error.message);
     }
 }
 
-
 function generateOTP() {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiry = Date.now() + 600000;
     console.log(expiry, "EXpiry time")
-
     return { otp, expiry };
 }
 
-
 const registerUser = async (req, res) => {
     try {
-        
         const { name, email, phone, password, confirmPassword,refId } = req.body;
 
         const userExist = await User.findOne({ email: email });
         if (userExist) {
-            return res.status(400).json({ success: false, message: "User already exist" });
+            return res.status(HttpStatus.CONFLICT).json({ success: false, message: MESSAGES.USER_ALREADY_EXISTS });
         }
 
         if (!name || !email || !phone || !password || !confirmPassword) {
-            return res.status(400).json({ message: 'All fields are required.' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ message: 'All fields are required.' });
         }
 
-        const namePattern = /^[a-zA-Z\s'-]{3,50}$/;
-        if (!namePattern.test(name)) {
-            return res.status(400).json({ message: 'Name must be 3-50 characters long and can contain letters, spaces, hyphens, and apostrophes.' });
+        if (!PATTERNS.NAME.test(name)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ message: MESSAGES.INVALID_NAME });
         }
 
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(email)) {
-            return res.status(400).json({ message: 'Invalid email address.' });
+        if (!PATTERNS.EMAIL.test(email)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ message: MESSAGES.INVALID_EMAIL });
         }
 
-        const phonePattern = /^[6-9]\d{9}$/;
-        if (!phonePattern.test(phone)) {
-            return res.status(400).json({ message: 'Invalid phone number. It should be 10 digits.' });
+        if (!PATTERNS.PHONE.test(phone)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ message: MESSAGES.INVALID_PHONE_NUMBER });
         }
 
-        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-        if (!passwordPattern.test(password)) {
-            return res.status(400).json({ message: 'Password must be at least 8 characters long and contain at least one letter and one number.' });
+        if (!PATTERNS.PASSWORD.test(password)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ message: MESSAGES.INVALID_PASSWORD });
         }
 
         if (password !== confirmPassword) {
-            return res.status(400).json({ message: 'Passwords do not match.' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ message: MESSAGES.PASSWORDS_DO_NOT_MATCH });
         }
         
-
         const spassword = await securePassword(password);
         req.session.userData = {
             name: name,
@@ -100,16 +91,12 @@ const registerUser = async (req, res) => {
         console.log(req.session.otp)
 
         await sendOtp(email, otpObj, res)
-
-
-        return res.status(200).json({ success: true, message: 'Registration successful. Please verify your email' })
-
+        return res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.REGISTRATION_SUCCESS })
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ success: false, message: 'An error occurred. Please try again.' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
-
 
 const sendOtp = async (email, otpObj, res) => {
     try {
@@ -145,34 +132,29 @@ const sendOtp = async (email, otpObj, res) => {
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
                 console.log(error);
-                res.status(500).json({ message: error });
+                res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: error });
             } else {
-                //req.session.otp = otpObj.otp;
-                //req.session.otpExpiry = otpObj.expiry;
                 res.redirect('/otp');
             }
         });
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ message: 'An error occurred. Please try again.' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
 
 const resendOtp = async (req, res) => {
     try {
-
         const email = req.session.userData.email;
         const otpObj = generateOTP();
         console.log(otpObj)
-        //delete req.session.otp;
         req.session.otp = otpObj.otp;
         req.session.otpExpiry = otpObj.expiry;
-
         await sendOtp(email, otpObj, res)
         res.redirect('/otp');
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ messge: 'An error occurred. Please try again.' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ messge: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
 
@@ -188,7 +170,6 @@ const loadOtp = async (req, res) => {
             email = req.session.userData?.email;
         }
         res.render('otp', { email, isForgot });
-
     } catch (error) {
         console.log(error.message);
     }
@@ -201,7 +182,7 @@ const verifyOtp = async (req, res) => {
         const otp = req.session.otp;
 
         if (!otp || !otpExpiry) {
-            return res.status(400).json({ success: false, message: 'OTP Expired. Please try again.' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.OTP_EXPIRED });
         }
 
         const now = new Date();
@@ -209,12 +190,12 @@ const verifyOtp = async (req, res) => {
         if (now > otpExpiry) {
             delete req.session.otp;
             delete req.session.otpExpiry;
-            return res.status(400).json({ success: false, message: 'OTP expired. Please resend OTP.' })
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.OTP_RESEND_REQUIRED })
         }
         if (req.session?.forgotOtpUser) {
             if (enteredOtp.otp == otp) {
                 const { email } = req.session.forgotOtpUser;
-                return res.status(200).json({ success: true, message: 'OTP verified successfully. Registration completed' })
+                return res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.OTP_VERIFIED_SUCCESS })
             }
         }
         if (enteredOtp.otp == otp) {
@@ -228,7 +209,6 @@ const verifyOtp = async (req, res) => {
             if (refId) {
                 
                 const referrer = await User.findById(refId)
-                console.log('reffererrrrrr',referrer)
                 if(referrer){
                     const referralBonus = 100;  
                     const description = "Referral bonus";
@@ -267,15 +247,10 @@ const verifyOtp = async (req, res) => {
         
                         await referrerWallet.save();  
                     }
-        
-                    console.log(`Referrer's wallet updated: ${referrerWallet}`);
                 }
             } else {
                 console.log('Referral ID does not exist.');
             }
-         
-              
-            
             const referralLink = `http://localhost:5000/register?refId=${referralId}`;
             newUser.referralLink = referralLink;
             await newUser.save();
@@ -284,23 +259,19 @@ const verifyOtp = async (req, res) => {
             delete req.session.otpExpiry;
             delete req.session.userData;
 
-            res.status(200).json({ success: true, message: 'OTP verified successfully.' })
+            res.status(HttpStatus.OK).json({ success: true, message: 'OTP verified successfully.' })
         } else {
-            res.status(400).json({ success: false, message: 'Invalid OTP. Please try again.' });
+            res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.INVALID_OTP });
         }
-
     } catch (error) {
         console.error('Error verifying OTP:', error);
-        res.status(500).json({ message: 'Server error. Please try again' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
-
-
 
 const loadLogin = async (req, res) => {
     try {
         res.render('login');
-
     } catch (error) {
         console.log(error.message);
     }
@@ -310,36 +281,32 @@ const verifyLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(email)) {
-            return res.status(400).json({ success: false, message: 'Invalid email address.' });
+        if (!PATTERNS.EMAIL.test(email)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.INVALID_EMAIL });
         }
-        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-        if (!passwordPattern.test(password)) {
-            return res.status(400).json({ success: false, message: 'Password must be at least 8 characters long and contain at least one letter and one number.' });
+       
+        if (!PATTERNS.PASSWORD.test(password)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.INVALID_PASSWORD });
         }
         const userData = await User.findOne({ email: email });
 
         if (!userData) {
-            return res.status(400).json({ success: false, message: "User not found!" });
+            return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found!" });
         }
-
 
         if (userData.isBlocked === true) {
-            return res.status(400).json({ success: false, message: "Your account has been blocked." })
+            return res.status(HttpStatus.FORBIDDEN).json({ success: false, message: MESSAGES.ACCOUNT_BLOCKED })
         }
-
 
         const passwordMatch = await bcrypt.compare(password, userData.password);
         if (!passwordMatch) {
-            return res.status(400).json({ success: false, message: "Invalid Password!" })
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.WRONG_PASSWORD })
         }
         req.session.user_id = userData._id;
-        res.status(200).json({ success: true, message: 'login success' })
-
+        res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.LOGIN_SUCCESS })
     } catch (error) {
         console.log(error.message);
-        res.status(400).json({ message: "Internal server error!" })
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 
 }
@@ -350,9 +317,7 @@ const googleLogin = async (req, res) => {
         const email = req.user.emails[0].value;
         const googleId = req.user.id;
 
-
         const user = await User.findOne({ email: email })
-
         if (user) {
             req.session.user_id = user._id;
             res.redirect('/home');
@@ -368,23 +333,19 @@ const googleLogin = async (req, res) => {
             req.session.user_id = newUser._id;
             res.redirect('/home')
         }
-
     } catch (error) {
         console.log(error.message)
-        res.status(500).json({ success: false, message: 'An error occurred during Google login. Please try again.' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'An error occurred during Google login. Please try again.' });
     }
 }
 
-
 const loadHomePage = async (req, res) => {
     try {
-
         const user = req?.session?.user_id;
         const products = await Product.find(
             {stock:{$gt:0}}).limit(8)
 
         if (!user) {
-            // return res.render('home', { user });
             return res.render('home', { user: null, products, title: 'home page' });
         } else {
             const userData = await User.findById({ _id: user });
@@ -428,10 +389,9 @@ const loadEditProfile = async (req, res) => {
     try {
         const userId = req.session.user_id;
         const user = await User.findById({ _id: userId });
-
         res.render('editProfile', { user })
     } catch (error) {
-
+        console.log(error)
     }
 }
 
@@ -440,26 +400,22 @@ const editProfile = async (req, res) => {
         const userId = req.session.user_id;
         const { name, phone } = req.body;
 
-
-        const fullNameRegex = /^[^\s][a-zA-Z]+(?: [a-zA-Z]+)*$/;
-        const phoneRegex = /^[6-9]\d{9}$/;
-
-        if (!fullNameRegex.test(name)) {
-            return res.status(400).json({ error: "Enter a valid name!" })
+        if (!PATTERNS.FULLNAME.test(name)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ error: MESSAGES.INVALID_NAME })
         }
-        if (!phoneRegex.test(phone)) {
-            return res.status(400).json({ error: "Invalid phone number!" })
+        if (!PATTERNS.PHONE.test(phone)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ error: MESSAGES.INVALID_PHONE_NUMBER })
         }
 
         const userExist = await User.findById(userId);
         if (!userExist) {
-            return res.status(400).json({ success: false, message: 'User not found!' })
+            return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'User not found!' })
         }
 
         if (phone && userExist.phone !== phone) {
             const phoneExist = await User.findOne({ phone: phone });
             if (phoneExist) {
-                return res.status(400).json({ success: false, message: 'Phone number already exists!' });
+                return res.status(HttpStatus.CONFLICT).json({ success: false, message: MESSAGES.PHONE_ALREADY_EXISTS });
             }
         }
 
@@ -472,11 +428,10 @@ const editProfile = async (req, res) => {
                     phone: req.body.phone
                 }
             }, options);
-        return res.status(200).json({ success: true, message: 'Profile updated successfully' })
-
+        return res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.PROFILE_UPDATED_SUCCESS })
     } catch (error) {
         console.error(error);
-        return res.status(400).json({ sucess: false, message: 'An unexpected error occured !' })
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ sucess: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
 
@@ -488,7 +443,7 @@ const loadAddress = async (req, res) => {
         const addressData = addressDoc ? addressDoc.address : [];
         res.render('address', { user, addressData })
     } catch (error) {
-
+        console.error(error);
     }
 }
 
@@ -497,44 +452,35 @@ const addAddress = async (req, res) => {
         const user = req.session.user_id;
         const { name, phone, locality, landmark, city, state, address, addresstype, pincode } = req.body;
 
-        const nameRegex = /^[^\s][a-zA-Z\s]*[^\s]$/;
-        const phoneRegex = /^[6-9]\d{9}$/;
-        const addressRegex = /^[A-Za-z0-9.,' -]{5,}$/;
-        const localityRegex = /^[A-Za-z ]{5,}$/;
-        const landmarkRegex = /^[A-Za-z ]{5,}$/;
-        const cityRegex = /^[A-Za-z ]{5,}$/;
-        const stateRegex = /^[A-Za-z ]{5,}$/;
-        const pincodeRegex = /^[0-9]{1,6}$/;
-
         const errors = {};
 
-        if (!nameRegex.test(name)) {
-            errors.name = "Name must be at least 2 characters long and can only contain letters and spaces.";
+        if (!PATTERNS.FULLNAME.test(name)) {
+            errors.name = MESSAGES.INVALID_NAME;
         }
-        if (!phoneRegex.test(phone)) {
-            errors.phone = "Phone number must be a valid 10-digit number.";
+        if (!PATTERNS.PHONE.test(phone)) {
+            errors.phone = MESSAGES.INVALID_PHONE_NUMBER;
         }
-        if (!addressRegex.test(address)) {
-            errors.address = "Address must be at least 5 characters long and can include letters, numbers, and specific symbols.";
+        if (!PATTERNS.ADDRESS.test(address)) {
+            errors.address = MESSAGES.ADDRESS_VALIDATION_ERROR;
         }
-        if (!localityRegex.test(locality)) {
-            errors.locality = "Locality must be at least 5 characters long and can only contain letters and spaces.";
+        if (!PATTERNS.LOCALITY.test(locality)) {
+            errors.locality = MESSAGES.LOCALITY_VALIDATION_ERROR;
         }
-        if (!landmarkRegex.test(landmark)) {
-            errors.landmark = "Landmark must be at least 5 characters long and can only contain letters and spaces.";
+        if (!PATTERNS.LANDMARK.test(landmark)) {
+            errors.landmark = MESSAGES.LANDMARK_VALIDATION_ERROR;
         }
-        if (!cityRegex.test(city)) {
-            errors.city = "City must be at least 5 characters long and can only contain letters and spaces.";
+        if (!PATTERNS.CITY.test(city)) {
+            errors.city = MESSAGES.CITY_VALIDATION_ERROR;
         }
-        if (!stateRegex.test(state)) {
-            errors.state = "State must be at least 5 characters long and can only contain letters and spaces.";
+        if (!PATTERNS.STATE.test(state)) {
+            errors.state = MESSAGES.STATE_VALIDATION_ERROR;
         }
-        if (!pincodeRegex.test(pincode)) {
-            errors.pincode = "Pincode must be exactly 6 digits.";
+        if (!PATTERNS.PINCODE.test(pincode)) {
+            errors.pincode = MESSAGES.PINCODE_VALIDATION_ERROR;
         }
 
         if (Object.keys(errors).length > 0) {
-            return res.status(400).json({ success: false, errors });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, errors });
         }
 
         const newAddress = {
@@ -558,9 +504,9 @@ const addAddress = async (req, res) => {
                 { new: true }
             )
             if (pushAddress) {
-                return res.status(200).json({ success: true, message: "Address added successfully" })
+                return res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.ADDRESS_ADDED_SUCCESS })
             } else {
-                return res.status(400).json({ success: false, message: "Failed to add address. Try Again!" })
+                return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Failed to add address. Try Again!" })
             }
         }
         else {
@@ -570,61 +516,51 @@ const addAddress = async (req, res) => {
             })
 
             if (insertAddress) {
-                return res.status(200).json({ success: true, message: "Address added successfully" })
+                return res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.ADDRESS_ADDED_SUCCESS })
             } else {
-                return res.status(400).json({ success: false, message: "Failed try Again!" })
+                return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Failed try Again!" })
             }
         }
     } catch (error) {
         console.log(error);
-        return res.status(400).json({ success: false, message: "An error occured!" })
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 }
 
 
 const editAddress = async (req, res) => {
     try {
-
         const user = req.session.user_id;
         const { id, name, phone, locality, landmark, city, state, address, addressType, pincode } = req.body;
 
         const addressExist = await Address.findOne({ userId: user });
-
         const addressToUpdate = addressExist.address.find(addr => addr._id.toString() === id);
 
         if (addressToUpdate) {
-            const nameRegex = /^[^\s][a-zA-Z\s]*[^\s]$/;
-            const phoneRegex = /^[6-9]\d{9}$/;
-            const addressRegex = /^[A-Za-z0-9.,' -]{5,}$/;
-            const localityRegex = /^[A-Za-z ]{5,}$/;
-            const landmarkRegex = /^[A-Za-z ]{5,}$/;
-            const cityRegex = /^[A-Za-z ]{5,}$/;
-            const stateRegex = /^[A-Za-z ]{5,}$/;
-            const pincodeRegex = /^[0-9]{1,6}$/;
 
-            if (!nameRegex.test(name) || name.length < 4) {
-                return res.status(400).json({ error: "Name must be at least 4 characters long !" });
+            if (!PATTERNS.FULLNAME.test(name) || name.length < 4) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: MESSAGES.INVALID_NAME});
             }
-            if (!phoneRegex.test(phone)) {
-                return res.status(400).json({ error: "Phone number must be a valid 10-digit number. !" });
+            if (!PATTERNS.PHONE.test(phone)) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: MESSAGES.INVALID_PHONE_NUMBER });
             }
-            if (!addressRegex.test(address)) {
-                return res.status(400).json({ error: "Address must be at least 5 characters long." });
+            if (!PATTERNS.ADDRESS.test(address)) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: MESSAGES.ADDRESS_VALIDATION_ERROR });
             }
-            if (!localityRegex.test(locality)) {
-                return res.status(400).json({ error: "Locality must be at least 5 characters long." });
+            if (!PATTERNS.LOCALITY.test(locality)) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: MESSAGES.LOCALITY_VALIDATION_ERROR });
             }
-            if (!landmarkRegex.test(landmark)) {
-                return res.status(400).json({ error: "Landmark must be at least 5 characters long." });
+            if (!PATTERNS.LANDMARK.test(landmark)) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: MESSAGES.LANDMARK_VALIDATION_ERROR });
             }
-            if (!cityRegex.test(city)) {
-                return res.status(400).json({ error: "City must be at least 5 characters long." });
+            if (!PATTERNS.CITY.test(city)) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: MESSAGES.CITY_VALIDATION_ERROR });
             }
-            if (!stateRegex.test(state)) {
-                return res.status(400).json({ error: "State must be at least 5 characters long." });
+            if (!PATTERNS.STATE.test(state)) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: MESSAGES.STATE_VALIDATION_ERROR });
             }
-            if (!pincodeRegex.test(pincode)) {
-                return res.status(400).json({ error: "Pincode must be a valid 6-digit number." });
+            if (!PATTERNS.PINCODE.test(pincode)) {
+                return res.status(HttpStatus.BAD_REQUEST).json({ error: MESSAGES.PINCODE_VALIDATION_ERROR});
             }
 
             await Address.updateOne(
@@ -652,20 +588,18 @@ const editAddress = async (req, res) => {
                 }
             );
 
-            return res.status(200).json({ success: true, message: "Address updated successfully!" });
+            return res.status(HttpStatus.OK).json({ success: true, message: "Address updated successfully!" });
         } else {
-            return res.status(400).json({ success: false, message: "Address not found, try again!" });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Address not found, try again!" });
         }
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: "Server error!" });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: MESSAGES.INTERNAL_SERVER_ERROR});
     }
 };
 
-
 const deleteAddress = async (req, res) => {
     try {
-
         const user = req.session.user_id;
         const address_obj_id = req.body.addressId;
 
@@ -679,13 +613,13 @@ const deleteAddress = async (req, res) => {
         );
 
         if (out) {
-            return res.status(200).json({ success: true, message: 'Address deleted successfully' });
+            return res.status(HttpStatus.OK).json({ success: true, message: 'Address deleted successfully' });
         } else {
-            return res.status(400).json({ success: false, message: 'Address deletion failed. Try Again !' })
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: 'Address deletion failed. Try Again !' })
         }
     } catch (error) {
         console.log(error)
-        return res.status(400).json({ success: false, message: 'Internal sever error !' })
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR })
     }
 
 }
@@ -700,17 +634,15 @@ const forgotPasswordLoad = async (req, res) => {
 
 const forgotPassword = async (req, res) => {
     try {
-
         const { email } = req.body;
         const userData = await User.findOne({ email });
-        console.log(email);
 
         if (!userData) {
-            return res.status(400).json({ success: false, message: 'User not found!' });
+            return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'User not found!' });
         }
 
         if (userData.isBlocked === true) {
-            return res.status(400).json({ success: false, message: "Your account has been blocked." })
+            return res.status(HttpStatus.FORBIDDEN).json({ success: false, message: MESSAGES.ACCOUNT_BLOCKED})
         }
 
         const otpObj = generateOTP();
@@ -719,11 +651,10 @@ const forgotPassword = async (req, res) => {
         req.session.otpExpiry = otpObj.expiry;
         req.session.forgotOtpUser = email;
         await sendOtp(email, otpObj, res)
-        return res.status(200).json({ success: true, message: "OTP sent successfully" })
-
+        return res.status(HttpStatus.OK).json({ success: true, message: "OTP sent successfully" })
     } catch (error) {
         console.log("for pass", error);
-        return res.status(500).json({ success: false, message: 'Server error' });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
 
@@ -731,7 +662,7 @@ const resetPasswordLoad = async(req,res) => {
     try {
         res.render('resetPassword')
     } catch (error) {
-        
+        console.log(error)
     }
 }
 
@@ -743,7 +674,7 @@ const resetPassword = async(req,res) => {
         const userData = await User.findOne({email});
         
         if(!userData){
-            return res.status(400).json({success: false, message: 'User not found !'})
+            return res.status(HttpStatus.NOT_FOUND).json({success: false, message: 'User not found !'})
         }
 
         if(userData){
@@ -752,20 +683,14 @@ const resetPassword = async(req,res) => {
             { password: hashedPassword },
             { new: true }
         );
-        return res.status(200).json({success: true, message: 'Password reset successfully'})
+        return res.status(HttpStatus.OK).json({success: true, message: 'Password reset successfully'})
     }else{
-        return res.status(400).json({success: false, message: 'Password reset failed'})
+        return res.status(HttpStatus.BAD_REQUEST).json({success: false, message: 'Password reset failed'})
     }
-
     } catch (error) {
         console.error(error)
     }
 }
-
-
-
-
-
 
 
 module.exports = {

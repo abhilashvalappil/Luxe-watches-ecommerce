@@ -7,6 +7,8 @@ const Address = require('../../models/addressModel')
 const Order = require('../../models/orderModel');
 const Wishlist = require('../../models/wishlistModel')
 const Offer = require('../../models/offerModel');
+const HttpStatus = require('../../js/httpStatus')
+const MESSAGES  = require('../../constants/messages')
 const { checkAndUpdateExpiredOffers } = require('./shopController');
  
  
@@ -23,7 +25,7 @@ const loadCart = async (req, res) => {
         });
         console.log('Received offers:', offers);
 
-        // Aggregate user cart with product and category details
+        //* Aggregate user cart with product and category details
         const userCart = await Cart.aggregate([
             { $match: { userId: new mongoose.Types.ObjectId(userId) } },
             { $unwind: '$cartItems' },
@@ -80,12 +82,12 @@ const loadCart = async (req, res) => {
             }
         });
 
-        // Calculate total price
+      
         const totalPriceResult = userCart.reduce((total, item) => {
             return total + (item.offerPrice * item.quantity);
         }, 0);
 
-        // Check if cart is empty
+      
         if (userCart.length === 0) {
             return res.render('cart', {
                 user,
@@ -104,7 +106,7 @@ const loadCart = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server Error');
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
     }
 };
 
@@ -132,12 +134,11 @@ const addToCart = async (req, res) => {
                 cart.cartItems.push({ productId: productId, quantity: 1 });
             }
         }
-
         await cart.save();
         res.json({ success: true })
     } catch (error) {
         console.error("Error adding to cart: ", error);
-        res.status(500).send("Server Error");
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
     }
 }
 
@@ -146,9 +147,8 @@ const removeFromCart = async (req, res) => {
         const userId = req.session.user_id;
         const { productId } = req.body;
 
-
         if (!userId || !productId) {
-            return res.status(400).json({ error: 'Invalid userId or productId' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ error: 'Invalid userId or productId' });
         }
 
         const result = await Cart.updateOne(
@@ -160,13 +160,13 @@ const removeFromCart = async (req, res) => {
         req.session.couponDiscount = 0;
 
         if (result.modifiedCount) {
-            res.status(200).json({ success: true, message: 'Item removed from cart' });
+            res.status(HttpStatus.OK).json({ success: true, message: 'Item removed from cart' });
         } else {
-            res.status(404).json({ success: false, message: 'Item not found in cart' });
+            res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Item not found in cart' });
         }
     } catch (error) {
         console.error('Error removing item from cart:', error.message);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
 
@@ -181,9 +181,9 @@ const updateQuantity = async (req, res) => {
 
         // const currentQuantity = cartItem ? cartItem.quantity : 0;
         if(quantity>stock){
-            return res.status(400).json({ success: false, message: 'Requested quantity exceeds available stock' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message:  MESSAGES.QUANTITY_EXCEEDS_STOCK });
         }else if(quantity===6){
-            return res.status(400).json({ success: false, message: 'cannot add more than 5' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message:  MESSAGES.MAX_LIMIT_REACHED });
         }
         else{
             await Cart.findOneAndUpdate(
@@ -192,11 +192,10 @@ const updateQuantity = async (req, res) => {
                 { new: true }
             );
         }
-
-        return res.status(200).json({ message: 'Quantity updated.', newQuantity: quantity });
+        return res.status(HttpStatus.OK).json({ message: 'Quantity updated.', newQuantity: quantity });
     } catch (error) {
         console.log(error);
-        return res.status(500).json({ message: 'An error occurred while updating the quantity.' });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.QUANTITY_UPDATE_ERROR });
     }
 };
  
@@ -205,13 +204,12 @@ const loadWishlist = async (req, res) => {
     try {
         const user = req?.session?.user_id;
         if(!user){
-            return res.status(400).json({success: false, message: 'Login to continue!'})
+            return res.status(HttpStatus.BAD_REQUEST).json({success: false, message: MESSAGES.LOGIN_REQUIRED })
         }
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 4;
         
         const wishlist = await Wishlist.findOne({ userId: user });
-        
         if (!wishlist) {
             return res.render('wishlist', { user, wishlist: null, products: [], page, totalPages: 0, limit });
         }
@@ -223,13 +221,8 @@ const loadWishlist = async (req, res) => {
         const endIndex = startIndex + limit;
         
         const productIds = wishlist.products.slice(startIndex, endIndex);
-        
         const products = await Product.find({ _id: { $in: productIds } });
-
-   
         const validProducts = products.filter(product => product != null);
-
-        
         const actualTotalProducts = await Product.countDocuments({ _id: { $in: wishlist.products } });
         const actualTotalPages = Math.ceil(actualTotalProducts / limit);
 
@@ -243,7 +236,7 @@ const loadWishlist = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ success: false, message: 'An error occurred' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
 
@@ -251,24 +244,22 @@ const getWishlist = async (req, res) => {
     try {
         const userId = req.session.user_id;
         if (!userId) {
-            return res.status(401).json({ success: false, message: 'Login to continue' });
+            return res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.LOGIN_REQUIRED });
         }
         const wishlist = await Wishlist.findOne({ userId: userId });
-        return res.status(200).json({ success: true, wishlist: wishlist ? wishlist.products : [] });
+        return res.status(HttpStatus.OK).json({ success: true, wishlist: wishlist ? wishlist.products : [] });
     } catch (error) {
         console.error('Error in getWishlist:', error);
-        return res.status(500).json({ success: false, message: 'An error occurred while fetching the wishlist' });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.WISHLIST_FETCH_ERROR });
     }
 };
-
 
 const addToWishlist = async(req, res) => {
     try {
         const {productId} = req.body;
         const userId = req.session.user_id;
-        
         if(!userId){
-            return res.status(400).json({message: 'Login to your account to add to wishlist !'})
+            return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.LOGIN_TO_ADD_WISHLIST })
         }
 
         await Wishlist.findOneAndUpdate(
@@ -276,8 +267,7 @@ const addToWishlist = async(req, res) => {
             {$addToSet: {products: productId}},
             {new: true, upsert: true}
         );
-
-        return res.status(200).json({success: true, message: 'Product added to wishlist'})
+        return res.status(HttpStatus.OK).json({success: true, message: 'Product added to wishlist'})
     } catch (error) {
         console.error(error)
     }
@@ -287,16 +277,15 @@ const removeFromWishlist = async(req,res) => {
     try {
         const {productId} = req.body;
         const userId = req.session.user_id;
-
         if(!userId){
-            return res.status(400).json({message: 'login to continue'})
+            return res.status(HttpStatus.UNAUTHORIZED).json({message: MESSAGES.LOGIN_REQUIRED})
         }
         await Wishlist.findOneAndUpdate(
             {userId: userId},
             {$pull:{products: productId}},
             {new:  true}
         )
-        return res.status(200).json({success: true, message: 'Remove from wishlist'})
+        return res.status(HttpStatus.OK).json({success: true, message: 'Remove from wishlist'})
     } catch (error) {
         console.error(error)
     }

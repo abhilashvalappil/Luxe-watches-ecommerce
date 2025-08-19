@@ -7,26 +7,23 @@ const Category = require('../../models/categoryModel')
 const Brand = require('../../models/brandModel');
 const Coupon = require('../../models/couponModel');
 const Offer = require('../../models/offerModel');
+const HttpStatus = require('../../js/httpStatus')
+const MESSAGES  = require('../../constants/messages')
+
 // const { default: products } = require('razorpay/dist/types/products');
 
 const checkAndUpdateExpiredOffers = async () => {
   try {
       const currentDate = new Date();
-      
-      // Find expired offers
       const expiredOffers = await Offer.find({ 
           expiredate: { $lt: currentDate },
           status: true
       });
 
-      console.log('the expireddddddddddd........ areeeeeee',expiredOffers)
-
       for (const offer of expiredOffers) {
-          // Update offer status
           offer.status = false;
           await offer.save();
 
-          // Remove offerPercent from associated products or categories
           if (offer.offerType === 'Product Offer' && offer.product) {
               await Product.findByIdAndUpdate(offer.product, {
                   $unset: { offerPercent: "" }
@@ -37,8 +34,6 @@ const checkAndUpdateExpiredOffers = async () => {
               }, { new: true });
           }
       }
-
-      console.log(`Updated ${expiredOffers.length} expired offers`);
   } catch (error) {
       console.error('Error checking and updating expired offers:', error);
   }
@@ -100,12 +95,10 @@ const loadShop = async (req, res) => {
           brandData, categoryData,
           strapColor, dialColor
       });
-
   } catch (error) {
       console.log(error);
   }
 };
-
 
 const shopDetailsLoad = async(req,res) => {
   try {
@@ -115,12 +108,6 @@ const shopDetailsLoad = async(req,res) => {
       const product = await Product.findById(productId)
       .populate('category', 'name')
       .populate('brand', 'brandName');
-
-      // const category = await Category.findById(product.category)
-      // const  brand = await Brand.findById(product.brand)
-
-      // product.category = category.name
-      // product.brand = brand.brandName
 
       const relatedProducts = await Product.find({category: product.category._id }).limit(4)
       const offers = await Offer.find({ expiredate: { $gte: new Date() }, status: true });
@@ -163,11 +150,9 @@ const productFilter = async (req, res) => {
       const filter = {  };
 
       if (selectedCategories) {
-
         const categoryName = selectedCategories.split(',');
         const includeCategory = await Category.find({ name: { $in: categoryName } }).select('_id');
         const categoryId = includeCategory.map((val) => val._id);
-
         filter.category = { $in: categoryId };
       }
 
@@ -192,7 +177,7 @@ const productFilter = async (req, res) => {
       });
     } catch (err) {
       console.log("error at product filter", err);
-      res.status(500).json({ success: false, message: "Internal server error" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
   }
 
@@ -201,7 +186,6 @@ const loadCoupons = async(req,res) => {
   try {
     const coupons = await Coupon.find();
     res.render('coupons',{coupons})
-    
   } catch (error) {
     console.error(error)
   }
@@ -209,7 +193,6 @@ const loadCoupons = async(req,res) => {
 
 const sortPrice = async(req,res) => {
   try {
-    
     const { selectedOption } = req.body;
 
     let sortCriteria = {};
@@ -222,41 +205,36 @@ const sortPrice = async(req,res) => {
     const products = await Product.find().sort(sortCriteria);
     
     res.json({success: true,products})
-    res.status(200).json({ products });
+    res.status(HttpStatus.OK).json({ products });
   } catch (error) {
-    
+    console.error(error)
   }
 }
 
-const 
-applyCoupon = async(req,res) => {
+const applyCoupon = async(req,res) => {
   try {
-
     const {couponCode,totalAmount} = req.body;
-
     const coupon = await Coupon.findOne({ couponCode: couponCode });
     if (!coupon) {
-      return res.status(400).json({ success: false, message: 'Invalid coupon code' });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.COUPON_NOT_FOUND });
     }
 
     const currentDate = new Date();
     if (coupon.validFrom > currentDate) {
-      return res.status(400).json({ success: false, message: "Coupon offer not started!" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Coupon offer not started!" });
     }
     if (coupon.validTo < currentDate) {
-      return res.status(400).json({ success: false, message: 'Coupon has expired' });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: 'Coupon has expired' });
     }
     if (coupon.minPurchase > totalAmount) {
-      return res.status(400).json({ success: false, message: `This coupon is only valid for Purchases Over ${coupon.minPurchase}` });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: `This coupon is only valid for Purchases Over ${coupon.minPurchase}` });
     }
  
     let discount = Math.floor((totalAmount * coupon.discountPercent) / 100);
- 
     if (discount > coupon.maxRedeemAmount) {
       discount = coupon.maxRedeemAmount;
     }
 
-    // const newTotal = totalAmount - discount;
     const deliveryCharge = 60; 
     const newTotal = totalAmount - discount + deliveryCharge;
 
@@ -272,7 +250,6 @@ applyCoupon = async(req,res) => {
       newTotal: newTotal.toFixed(2),
       discount: discount.toFixed(2)
     });
-
   } catch (error) {
     console.error(error)
   }
@@ -282,24 +259,19 @@ applyCoupon = async(req,res) => {
 const removeCoupon = async (req, res) => { 
   try {
       if (!req.session.coupon) {
-          return res.status(400).json({ success: false, message: 'No coupon applied' });
+          return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: 'No coupon applied' });
       }
 
       const cart = await Cart.findOne({ userId: req.session.user_id });
       if (!cart) {
-          return res.status(404).json({ success: false, message: 'Cart not found' });
+          return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Cart not found' });
       }
 
       const { subtotal } = req.body;
-      console.log('Current subtotal:', subtotal);
-
       const couponDiscount = req.session.coupon.discount || 0; 
       const deliveryCharge = 60;
 
-      console.log('Coupon discount:', couponDiscount);
-
       const newTotal = subtotal + deliveryCharge;  
-
       req.session.coupon = null;  
 
       res.json({
@@ -307,18 +279,15 @@ const removeCoupon = async (req, res) => {
           message: 'Coupon removed successfully!',
           newTotal: newTotal,  
       });
-
   } catch (error) {
       console.error('Error removing coupon:', error);
-      res.status(500).json({ success: false, message: 'An error occurred. Please try again.' });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
   }
 }
 
 const searchProduct = async(req,res) => {
   try {
-
     const { query } = req.body;
-
     const results = await Product.find({
       $or: [
           { name: { $regex: query, $options: 'i' } },
@@ -330,8 +299,6 @@ const searchProduct = async(req,res) => {
     console.error('Error searching products:', error);
   }
 }
-
-
 
 
 module.exports = {

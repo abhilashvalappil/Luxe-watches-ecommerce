@@ -113,22 +113,30 @@
                             <label for="AddCategory" class="form-label">Category</label>
                             <select class="form-select" id="AddCategory" name="category">
                               <% if(categoryData.length !== 0){ %>
-                              <% for(let i=0; i<categoryData.length; i++) { %>
-                              <option value="<%= categoryData[i]._id %>" <% if (categoryData[i]._id === product.category) { %> selected <% } %>><%= categoryData[i].name %></option>
-                              <% } %>
+                                <% for(let i=0; i<categoryData.length; i++) { %>
+                                  <option value="<%= categoryData[i]._id %>" 
+                                    <% if (String(categoryData[i]._id) === String(product.category)) { %> selected <% } %>>
+                                    <%= categoryData[i].name %>
+                                  </option>
+                                <% } %>
                               <% } %>
                             </select>
+
                           </div>
 
                           <div class="flex-fill">
                             <label for="addBrand" class="form-label">Brand</label>
                             <select class="form-select" id="addBrand" name="brand">
                               <% if(brandData.length !== 0){ %>
-                              <% for(let i=0; i<brandData.length; i++) { %>
-                              <option value="<%= brandData[i]._id %>" <% if (brandData[i]._id === product.brand) { %> selected <% } %>><%= brandData[i].brandName %></option>
-                              <% } %>
+                                <% for(let i=0; i<brandData.length; i++) { %>
+                                  <option value="<%= brandData[i]._id %>" 
+                                    <% if (String(brandData[i]._id) === String(product.brand)) { %> selected <% } %>>
+                                    <%= brandData[i].brandName %>
+                                  </option>
+                                <% } %>
                               <% } %>
                             </select>
+
                           </div>
 
                           <!-- <div class="flex-fill">

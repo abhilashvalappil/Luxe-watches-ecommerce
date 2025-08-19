@@ -6,6 +6,9 @@ const Brand = require('../../models/brandModel');
 const Product = require('../../models/productModel');
 const Order = require('../../models/orderModel');
 const Wallet = require('../../models/walletModel')
+const HttpStatus = require('../../js/httpStatus')
+const MESSAGES  = require('../../constants/messages')
+const PATTERNS  = require('../../constants/patterns')
 const moment = require('moment');
 const sharp = require('sharp')
 const multer = require('multer');
@@ -23,16 +26,14 @@ const loadAdminLogin = async (req, res) => {
 
 const verifyLogin = async (req, res) => {
     try {
- 
         const { email, password } = req.body;
-
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(email)) {
-            return res.status(400).json({ success: false, message: 'Invalid email address.' });
+ 
+        if (!PATTERNS.EMAIL.test(email)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.INVALID_EMAIL });
         }
-        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-        if (!passwordPattern.test(password)) {
-            return res.status(400).json({ success: false, message: 'Password must be at least 8 characters long and contain at least one letter and one number.' });
+
+        if (!PATTERNS.PASSWORD.test(password)) {
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.INVALID_PASSWORD });
         }
 
         const adminData = await Admin.findOne({ email: email });
@@ -43,19 +44,16 @@ const verifyLogin = async (req, res) => {
                 if (passwordMatch) {
                     req.session.admin_id = adminData._id;
                     console.log("ses", req.session.admin_id)
-                    // res.redirect('/admin/dashbord');
-                    res.status(200).json({ success: true, message: 'login success' })
+                    res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.LOGIN_SUCCESS})
                 } else {
-
-                    return res.status(400).json({ success: false, message: "wrong password" })
+                    return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.WRONG_PASSWORD })
                 }
             } else {
-                return res.status(400).json({ success: false, message: "You have no access" })
+                return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.NO_ACCESS})
             }
         } else {
-            return res.status(400).json({ success: false, message: "Couldn't find your email" })
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.EMAIL_NOT_FOUND })
         }
-
     } catch (error) {
         console.log(error.message);
     }
@@ -64,30 +62,24 @@ const verifyLogin = async (req, res) => {
  
 const logOut = async (req, res) => {
     try {
-        console.log("kerindooooo1111111");
         if (req.session.admin_id) {
-            console.log("kerindooo222222");
             req.session.destroy((err) => {
                 if (err) {
                     console.error('Session destruction error', err);
-                    return res.status(500).json({ message: 'Failed to log out' });
-                }else{
-                    console.log("kerindooooooooooooo");
-                    
-                    return res.status(200).json({ message: 'Logged out successfully' });
-
+                    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.LOGOUT_FAILED });
+                }else{       
+                    return res.status(HttpStatus.OK).json({ message: MESSAGES.LOGOUT_SUCCESS });
                 }
             });
         } else {
-            return res.status(401).json({ message: 'Not logged in' });
+            return res.status(HttpStatus.UNAUTHORIZED).json({ message: MESSAGES.NO_ACCESS });
         }
     } catch (error) {
         console.error('Error occurred during logout', error);
-        return res.status(500).json({ message: 'Internal server error' });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
 
- 
  
 const loadDashboard = async (req, res) => {
     try {
@@ -107,7 +99,6 @@ const loadDashboard = async (req, res) => {
             'orderedItems.orderStatus': 'Delivered'
         });
 
-       
         const deliveredOrders = await Order.find({
             'orderedItems.orderStatus': 'Delivered'
         }).sort({ orderDate: 1 });
@@ -252,7 +243,7 @@ const loadDashboard = async (req, res) => {
 
     } catch (error) {
         console.error('Error in loadDashboard:', error);
-        res.status(500).send('Internal Server Error');
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal Server Error');
     }
 };
  
@@ -280,16 +271,13 @@ const loadUsers = async (req, res) => {
             User.countDocuments(query),
         ]);
 
-
         const totalPages = Math.ceil(totalUsers / limit);
-
         res.render('user', { 
             users,
             currentPage: page,
             totalPages,
             search: search || '' 
         })
-
     } catch (error) {
         console.log(error.message)
     }
@@ -331,14 +319,12 @@ const loadCategory = async (req, res) => {
         ]);
 
         const totalPages = Math.ceil(totalCategories / limit);
-
         res.render('category', { 
             category,
             currentPage: page,
             totalPages,
             search
          })
-
     } catch (error) {
         console.log(error.message);
     }
@@ -349,13 +335,12 @@ const listCategory = async (req, res) => {
         const categoryId = req.params.categoryId;
         const category = await Category.findById(categoryId);
         if (!category) {
-            return res.status(400).json({ success: false, message: 'Category not found' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.CATEGORY_NOT_FOUND });
         }
 
         category.is_listed = !category.is_listed;
         await category.save();
         res.json({ success: true, is_listed: category.is_listed })
-
     } catch (error) {
         console.error(error.message)
     }
@@ -364,28 +349,23 @@ const listCategory = async (req, res) => {
 const loadAddCategory = async (req, res) => {
     try {
         res.render('addCategory')
-
     } catch (error) {
         console.log(error.message);
     }
 }
-
 
 const addCategory = async (req, res) => {
     try {
         const { name, description } = req.body;
         const categoryData = await Category.findOne({ name: name });
         const newCategory = new Category({ name, description })
-        console.log(newCategory)
         if (categoryData) {
-            return res.status(400).json({ success: false, message: 'Data Already Exist !' })
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: 'Data Already Exist !' })
         }
         else {
-
             await newCategory.save()
-            res.status(200).json({ success: true, message: 'Data Saved Successfully' });
+            res.status(HttpStatus.OK).json({ success: true, message: 'Data Saved Successfully' });
         }
-
     } catch (error) {
         console.log(error.message);
     }
@@ -398,7 +378,7 @@ const loadEditCategory = async (req, res) => {
         res.render('editCategory', { category })
     } catch (error) {
         console.log(error.message)
-        res.status(400).json({ success: false, message: 'Server error' });
+        res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
 
@@ -408,24 +388,21 @@ const editCategory = async (req, res) => {
         const { name, description } = req.body;
 
         const category = await Category.findById(categoryId)
-
         if (!category) {
-            return res.status(400).json({ success: false, message: 'Category not found' })
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.CATEGORY_NOT_FOUND })
         }
         category.name = name;
         category.description = description;
         await category.save();
-        return res.status(200).json({ success:true, message: 'Category updated' })
-        
+        return res.status(HttpStatus.OK).json({ success:true, message: 'Category updated' })
     } catch (error) {
         console.log(error.message)
-        res.status(500).json({ success: false, message: 'Category not updated' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Category not updated' });
     }
 }
 
 const loadBrand = async(req,res) => {
     try {
-
         const page = parseInt(req.query.page) || 1;  
         const limit = 5;  
         const skip = (page - 1) * limit; 
@@ -436,11 +413,8 @@ const loadBrand = async(req,res) => {
       : {};
 
         const totalBrands = await Brand.countDocuments(searchQuery);
-
         const brand = await Brand.find(searchQuery).skip(skip) .limit(limit);
-
         const totalPages = Math.ceil(totalBrands / limit);
-
         res.render('brand', {brand,currentPage: page, totalPages,search})
     } catch (error) {
         console.log(error)
@@ -461,16 +435,16 @@ const addBrand = async (req, res) => {
         const brandData = await Brand.findOne({ brandName: brandName });
          
         if (brandData) {
-            return res.status(400).json({ success: false, message: 'Brand Already Exists!' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: 'Brand Already Exists!' });
         } else {
             const newBrand = new Brand({ brandName, description });
             console.log(newBrand);
             await newBrand.save();
-            res.status(200).json({ success: true, message: 'Brand Saved Successfully' });
+            res.status(HttpStatus.OK).json({ success: true, message: 'Brand Saved Successfully' });
         }
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ success: false, message: 'Internal Server Error' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
 
@@ -479,13 +453,11 @@ const listBrand = async (req, res) => {
         const brandId = req.params.brandId;
         const brand = await Brand.findById(brandId);
         if (!brand) {
-            return res.status(400).json({ success: false, message: 'Brand not found' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.BRAND_NOT_FOUND });
         }
-
         brand.is_listed = !brand.is_listed;
         await brand.save();
         res.json({ success: true, is_listed: brand.is_listed })
-
     } catch (error) {
         console.error(error.message)
     }
@@ -498,7 +470,7 @@ const loadEditBrand = async (req, res) => {
         res.render('editBrand', { brand })
     } catch (error) {
         console.log(error.message)
-        res.status(400).json({ success: false, message: 'Server error' });
+        res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
 
@@ -508,18 +480,16 @@ const editBrand = async (req, res) => {
         const { brandName, description } = req.body;
 
         const brand = await Brand.findById(brandId)
-
         if (!brand) {
-            return res.status(400).json({ success: false, message: 'Brand not found' })
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.BRAND_NOT_FOUND })
         }
         brand.brandName = brandName;
         brand.description = description;
         await brand.save();
-        return res.status(200).json({ success:true, message: 'Brand updated successfully' })
-        
+        return res.status(HttpStatus.OK).json({ success:true, message: 'Brand updated successfully' })
     } catch (error) {
         console.log(error.message)
-        res.status(500).json({ success: false, message: 'Brand not updated' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Brand not updated' });
     }
 }
 
@@ -542,7 +512,6 @@ const loadProducts = async(req,res) => {
         .skip((page - 1) * perPage).limit(perPage);
 
         const totalPages = Math.ceil(totalProducts / perPage);
-
         res.render('products',{
             product,
             currentPage: page, 
@@ -558,30 +527,24 @@ const loadAddProduct = async(req,res) => {
     try {
         const categoryData = await Category.find({})
         const brandData = await Brand.find({})
-        console.log()
         res.render('addProduct',{categoryData , brandData})
     } catch (error) {
         console.log(error)
     }
 }
 
-
 const addProduct = async (req, res, next) => {
-    
     try {
         const { name, description, category, brand, model, dialColor, strapColor, stock, price } = req.body;
- 
         const existingProduct = await Product.findOne({
             $or: [{ name: name }, { model: model }]
         });
 
         if (existingProduct) {
-            return res.status(400).json({ success: false, warning: 'Product already exists' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, warning: 'Product already exists' });
         }
-
-        // Check if images were uploaded
         if (!req.files || req.files.length < 3) {
-            return res.status(400).json({ success: false, warning: 'Please upload at least three images.' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, warning: 'Please upload at least three images.' });
         }
 
         const images = [];
@@ -598,13 +561,11 @@ const addProduct = async (req, res, next) => {
                     .toFile(outputFilePath);
                 
                 images.push(outputFileName);
-                 
             } catch (error) {
                 console.error('Error processing file:', error);
                 return res.status(400).json({ success: false, warning: 'Error processing file' });
             }
         }
-
         const newProduct = new Product({
             name,
             description,
@@ -619,11 +580,10 @@ const addProduct = async (req, res, next) => {
         });
 
         await newProduct.save();
-        return res.status(200).json({ success: true, message: 'Product added successfully.' });
-
+        return res.status(HttpStatus.OK).json({ success: true, message: 'Product added successfully.' });
     } catch (error) {
         console.error('Error adding product:', error);
-        return res.status(400).json({ success: false, warning: 'Error: Product not added' });
+        return res.status(HttpStatus.BAD_REQUEST).json({ success: false, warning: 'Error: Product not added' });
     }
 };
 
@@ -632,26 +592,22 @@ const listProduct = async(req,res) => {
     try {
         const productId = req.params.productId;
         const product  = await Product.findById({_id:productId})
-
         if(!product){
-            return res.status(400).json({success: false, message:'Product not found!'})
+            return res.status(400).json({success: false, message:MESSAGES.PRODUCT_NOT_FOUND})
         }
 
         product.is_listed = !product.is_listed;
         await product.save();
-        return res.status(200).json({success: true, is_listed: product.is_listed })
-
-        
+        return res.status(HttpStatus.OK).json({success: true, is_listed: product.is_listed })
     } catch (error) {
         console.log(error.message);
-        return res.status(400).json({sucess: false, message: 'An error occured!'})
+        return res.status(HttpStatus.BAD_REQUEST).json({sucess: false, message: MESSAGES.INTERNAL_SERVER_ERROR})
     }
 }
 
 const editProductLoad = async(req,res) => {
     try {
-
-         const id = req.query.id;
+        const id = req.query.id;
         const product = await Product.findOne({_id: id})
         const categoryData = await Category.find({})
         const brandData = await Brand.find({})
@@ -661,10 +617,9 @@ const editProductLoad = async(req,res) => {
         }else{
             res.redirect('/products')
         }
-        
     } catch (error) {
         console.log(error.message)
-        res.status(400).json({ success: false, message: 'Server error' });
+        res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 }
  
@@ -672,30 +627,28 @@ const editProduct = async (req, res) => {
     try {
         const productId = req.body.productId;
         const product = await Product.findById(productId);
-
         if (!product) {
-            return res.status(400).json({ success: false, message: 'Product not found!' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.PRODUCT_NOT_FOUND });
         }
 
         let images = [];
         
-        // Check if files are uploaded
+        //* Check if files are uploaded
         if (req.files) {
             const bodyImages = req.files;
             const fields = ['image1', 'image2', 'image3'];
 
             fields.forEach((field, index) => {
                 if (bodyImages[field] && bodyImages[field][0]) {
-                    images[index] = bodyImages[field][0].filename; // New image file
+                    images[index] = bodyImages[field][0].filename;  
                 } else if (product.images[index]) {
-                    images[index] = product.images[index]; // Retain old image if not uploaded
+                    images[index] = product.images[index];  
                 }
             });
         } else {
-            images = product.images; // Retain old images if no new images are uploaded
+            images = product.images;  
         }
 
-        // Update the product with new details and images
         await Product.findByIdAndUpdate(productId, {
             name: req.body.name,
             brand: req.body.brand,
@@ -706,35 +659,29 @@ const editProduct = async (req, res) => {
             strapColor: req.body.strapColor,
             stock: req.body.stock,
             description: req.body.description,
-            images: images // Updated images array
+            images: images 
         });
 
-        res.status(200).json({ success: true, message: 'Product updated successfully.' });
+        res.status(HttpStatus.OK).json({ success: true, message: 'Product updated successfully.' });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
 
-
- 
 const loadOrders = async (req, res) => {
     try {
-        
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 6; 
         const skip = (page - 1) * limit;
        
         const totalOrders = await Order.countDocuments();
-      
         const orders = await Order.find({})
             .populate('orderedItems.productId')
             .limit(limit)
             .skip(skip);
-
        
         const totalPages = Math.ceil(totalOrders / limit);
- 
         res.render('orders', {
             orders,
             currentPage: page,
@@ -743,20 +690,17 @@ const loadOrders = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
-        res.status(500).send('Server error');
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server error');
     }
 };
 
-
 const orderDetailsLoad = async(req,res) => {
     try {
-        
         const order = await Order.findOne({ _id: req.params.order_id }).populate({
             path: 'orderedItems.productId',
             model: 'Product',
         });
         res.render('orderDetails',{order})
-        
     } catch (error) {
         console.error('Error loading order details',error)
     }
@@ -765,24 +709,20 @@ const orderDetailsLoad = async(req,res) => {
 const orderStatusUpdate = async(req,res) => {
     try {
         const {orderId , itemId, orderStatus} = req.body;
-        console.log('the satusssssssssssssssssss',orderStatus)
         const order = await Order.findOne({_id:orderId,"orderedItems._id": itemId});
         const item = order.orderedItems.find(item => item._id.toString() === itemId);
 
         if(item.orderStatus === 'Delivered' || item.orderStatus === 'Returned'){
-            return res.status(400).json({message: 'Status cannot be changed once it is Delivered or Returned'})
+            return res.status(400).json({message: MESSAGES.STATUS_CHANGE_NOT_ALLOWED })
         }
-        
         
         item.orderStatus = orderStatus;
 
         if (orderStatus === 'Delivered' && order.paymentMethod === 'cash') {
             order.paymentStatus = 'Completed';
         }
-
         await order.save();
-        return res.status(200).json({message: 'Status updated successfully'})
-        
+        return res.status(HttpStatus.OK).json({message: MESSAGES.STATUS_UPDATED_SUCCESS})
     } catch (error) {
         console.log(error)
     }
@@ -816,11 +756,11 @@ const returnStatus = async (req, res) => {
         const item = order.orderedItems.find(item => item._id.toString() === itemId);
 
         if (!order) {
-            return res.status(404).json({ success: false, message: 'Order not found' });
+            return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: MESSAGES.ORDER_NOT_FOUND });
         }
 
         if (!item) {
-            return res.status(404).json({ success: false, message: 'Item not found' });
+            return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: MESSAGES.ITEM_NOT_FOUND });
         }
 
         item.returnStatus = status;
@@ -833,8 +773,6 @@ const returnStatus = async (req, res) => {
 
             let refundAmount = item.totalPrice - discountForThisItem;
             refundAmount = Math.round(refundAmount);
-
-            console.log('the deducteddddddddd.......discounnnnnnnnnt',refundAmount)
 
             await Wallet.findOneAndUpdate(
                 { userId: order.userId },
@@ -858,7 +796,7 @@ const returnStatus = async (req, res) => {
                     { $inc: { stock: item.quantity } }
                 );
             } else {
-                return res.status(400).json({ message: 'Product not found!' });
+                return res.status(HttpStatus.BAD_REQUEST).json({ message: MESSAGES.PRODUCT_NOT_FOUND });
             }
         } else if (item.returnStatus == 'rejected') {
             item.orderStatus = 'Delivered';
@@ -869,7 +807,7 @@ const returnStatus = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({ success: false, message: 'Internal server error' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
 
@@ -986,9 +924,6 @@ const loadSalesReport = async(req,res) => {
 }
  
 
-
-
-
 module.exports = {
     loadAdminLogin,
     verifyLogin,
@@ -1020,7 +955,6 @@ module.exports = {
     returnStatus,
     loadSalesReport,
     logOut
-     
 }
 
 

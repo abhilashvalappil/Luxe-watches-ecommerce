@@ -5,19 +5,18 @@ const Order = require('../../models/orderModel');
 const Category = require('../../models/categoryModel');
 const Coupon = require('../../models/couponModel');
 const Offer = require('../../models/offerModel');
+const HttpStatus = require('../../js/httpStatus')
+const MESSAGES  = require('../../constants/messages')
 const moment = require('moment');
 
 const loadCouponManagement = async(req,res) => {
     try {
-
         const perPage = parseInt(req.query.perPage) || 10;  
         const page = parseInt(req.query.page) || 1; 
-
         const totalCoupons = await Coupon.countDocuments();
 
         const coupons = await Coupon.find().skip((page - 1) * perPage).limit(perPage);
         const totalPages = Math.ceil(totalCoupons / perPage);
-
         res.render('couponManagement',{
             coupons,
             currentPage: page,
@@ -30,29 +29,28 @@ const loadCouponManagement = async(req,res) => {
 }
 
 const addCoupon = async(req,res) => {
-    try {
-        // console.log('the newwwwwwwwwwwwwwww',req.body)
+    try {    
         const{couponCode, discountPercent, minPurchase, maxRedeemAmount, validFrom, validTo, listed} = req.body;
 
         const isExist = await Coupon.findOne({couponCode: couponCode})
         if(isExist){
-            return res.status(403).json({success: false, message: "This CODE is already exists, please enter another one" })
+            return res.status(HttpStatus.CONFLICT).json({success: false, message: MESSAGES.CODE_ALREADY_EXISTS })
         }
 
         if(couponCode[0] == ' '){
-            return res.status(403).json({success: false, message: "Enter Proper Coupen Code" })
+            return res.status(HttpStatus.BAD_REQUEST).json({success: false, message: MESSAGES.COUPON_CODE_INVALID })
         }
 
         if (discountPercent < 1 || discountPercent > 100) {
-            return res.status(400).json({success: false, message: "Discount percent must be between 1 and 100." });
+            return res.status(HttpStatus.BAD_REQUEST).json({success: false, message: MESSAGES.DISCOUNT_PERCENT_RANGE });
         }
 
         if (minPurchase <= 0 || maxRedeemAmount <= 0) {
-            return res.status(400).json({success: false, message: "Minimum Purchase and Max Redeem must be positive numbers." });
+            return res.status(HttpStatus.BAD_REQUEST).json({success: false, message: MESSAGES.MIN_PURCHASE_MAX_REDEEM_POSITIVE });
         }
 
         if (new Date(validFrom) > new Date(validTo)) {
-            return res.status(400).json({success: false, message: "Valid From date cannot be after Valid To date." });
+            return res.status(HttpStatus.BAD_REQUEST).json({success: false, message: MESSAGES.VALID_DATE_RANGE });
         }
 
         const coupon = new Coupon({
@@ -64,42 +62,37 @@ const addCoupon = async(req,res) => {
             validTo: validTo
         });
         await coupon.save()
-        return res.status(200).json({success: true, message: 'Coupon added successfully.'})
-        
+        return res.status(HttpStatus.OK).json({success: true, message: MESSAGES.COUPON_ADDED_SUCCESS})
     } catch (error) {
         console.error(error)
-        return res.status(500).json({ message: "An error occurred while adding the coupon." });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.COUPON_ADD_ERROR });
     }
 }
 
 const updateCoupon = async (req, res) => {
     try {
-        console.log('the coupon data:', req.body);
         const { couponId, couponCode, discountPercent, minimumPurchase, maxRedeem, validFrom, validTo } = req.body;
 
         const existingCoupon = await Coupon.findById(couponId);
         if (!existingCoupon) {
-            return res.status(404).json({ success: false, message: 'Coupon not found' });
+            return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: MESSAGES.COUPON_NOT_FOUND });
         }
 
         if (couponCode[0] === ' ') {
-            return res.status(403).json({ success: false, message: "Enter a proper coupon code." });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.COUPON_CODE_INVALID });
         }
 
         if (discountPercent < 1 || discountPercent > 100) {
-            return res.status(400).json({ success: false, message: "Discount percent must be between 1 and 100." });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.DISCOUNT_PERCENT_RANGE });
         }
 
         if (minimumPurchase <= 0 || maxRedeem <= 0) {
-            return res.status(400).json({ success: false, message: "Minimum purchase and max redeem must be positive numbers." });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.MIN_PURCHASE_MAX_REDEEM_POSITIVE });
         }
 
         if (new Date(validFrom) > new Date(validTo)) {
-            return res.status(400).json({ success: false, message: "Valid From date cannot be after Valid To date." });
+            return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({ success: false, message: MESSAGES.VALID_DATE_RANGE });
         }
-
-        console.log('hellllllssssssssssss')
-
         await Coupon.findByIdAndUpdate(couponId, {
             couponCode,
             discountPercent,
@@ -108,11 +101,10 @@ const updateCoupon = async (req, res) => {
             validFrom,
             validTo
         }, { new: true });
-
         res.json({success: true, message: 'Coupon updated successfully', coupon: updatedCoupon });
     } catch (error) {
         console.error('Error updating coupon:', error);
-        res.status(500).json({ error: 'Server error' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
 
@@ -120,12 +112,10 @@ const deleteCoupon = async(req,res) => {
     try {
         const couponId = req.params.id;
         if(!couponId){
-            return res.status(400).json({message: 'Coupon not found'})
+            return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.COUPON_NOT_FOUND})
         }
-
         await Coupon.findByIdAndDelete(couponId)
-        return res.status(200).json({ success: true, message: 'Coupon deleted successfully' });
-        
+        return res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.COUPON_DELETED_SUCCESS });
     } catch (error) {
         console.error('Error found when deleting',error)
     }
@@ -135,16 +125,13 @@ const listCoupon = async(req,res) => {
     try {
         const couponId = req.params.id;
         const coupon = await Coupon.findById(couponId);
-        
         if(!coupon){
-            return res.status(404).json({ success: false, message: 'Coupon not found' });
+            return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: MESSAGES.COUPON_NOT_FOUND });
         }
         
         coupon.listed = !coupon.listed;
         await coupon.save()
-
-        return res.status(200).json({ success: true, listed: coupon.listed });
-        
+        return res.status(HttpStatus.OK).json({ success: true, listed: coupon.listed });
     } catch (error) {
         console.error(error)
     }
@@ -153,7 +140,6 @@ const listCoupon = async(req,res) => {
 
 const loadOfferManagement = async(req,res) => {
     try {
-
         const page = parseInt(req.query.page) || 1;  
         const limit = 2;  
         const skip = (page - 1) * limit; 
@@ -182,10 +168,8 @@ const loadOfferManagement = async(req,res) => {
     }
 }
 
-
 const loadAddOffer = async (req, res) => {
     try {
-
     const categoriesWithOffers = await Offer.distinct('category', { status: true });
     const productsWithOffers = await Offer.distinct('product', { status: true });
   
@@ -202,7 +186,7 @@ const loadAddOffer = async (req, res) => {
       res.render('addOffer', { categories, products });
     } catch (error) {
       console.error('Error occurred when loading', error);
-      res.status(500).send('An error occurred');
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('An error occurred');
     }
   };
 
@@ -214,44 +198,43 @@ const addOffer = async(req,res) => {
         const endOfToday = new Date(currentDate.setHours(23, 59, 59, 999));
 
         if(!offerName || offerName.length < 3){
-            return res.status(400).json({message: 'Offer Name must be at least 3 characters long.'})
+            return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.OFFER_NAME_MIN_LENGTH})
         }
 
         if(!disPercentage || isNaN(disPercentage) || disPercentage <= 0 || disPercentage > 100){
-            return res.status(400).json({message: 'Discount percentage must be a number between 1 and 100.'})
+            return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.DISCOUNT_PERCENT_RANGE })
         }
 
         if(!startDate){
-            return res.status(400).json({message: 'Start date is required.'})
+            return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.START_DATE_REQUIRED})
         }
 
         const selectedStartDate = new Date(startDate);
         if (selectedStartDate < startOfToday) {
-            return res.status(400).json({message: 'Start date must be today or in the future.'})
+            return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.START_DATE_FUTURE})
         }
             
-
         if(!expiryDate){
-            return res.status(400).json({message: 'Expiry date is required.'})
+            return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.EXPIRY_DATE_REQUIRED})
         }
 
         const selectedExpiryDate = new Date(expiryDate);
         if (selectedExpiryDate <= endOfToday) {
-            return res.status(400).json({message: 'Expiry date must be in the future.'})
+            return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.EXPIRY_DATE_FUTURE})
         }
              
 
         if (selectedStartDate > selectedExpiryDate) {
-            return res.status(400).json({ message: 'Expiry date must be after the start date.' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ message: MESSAGES.EXPIRY_DATE_AFTER_START });
         }
 
         if(!offerType || offerType === 'Select One'){
-            return res.status(400).json({message: 'offerType must be required'});
+            return res.status(HttpStatus.BAD_REQUEST).json({message: 'offerType must be required'});
         }
 
         const existingOffer = await Offer.findOne({ offerName: offerName });
         if (existingOffer) {
-            return res.status(400).json({ message: "An offer with this name already exists" });
+            return res.status(HttpStatus.BAD_REQUEST).json({ message: MESSAGES.OFFER_NAME_EXISTS });
         }
 
         let productIdToSave = null;
@@ -259,12 +242,12 @@ const addOffer = async(req,res) => {
 
         if(offerType === 'Product Offer'){
             if(!productId || productId === 'Select One'){
-                return res.status(400).json({message: 'Select a valid Product'})
+                return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.INVALID_PRODUCT})
             }
             productIdToSave = productId;
         } else if(offerType === 'Category Offer'){
             if(!categoryId || categoryId === 'Select One'){
-                return res.status(400).json({message: 'Select a valid Category'})
+                return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.INVALID_CATEGORY})
             }
             categoryIdToSave = categoryId;
         }
@@ -278,7 +261,6 @@ const addOffer = async(req,res) => {
                 $set:{offerPercent: disPercentage}
             })
         }
-        
 
         const newOffer = new Offer({
             offerName: offerName,   
@@ -288,15 +270,12 @@ const addOffer = async(req,res) => {
             offerType: offerType,
             product: productIdToSave,   
             category: categoryIdToSave
-            // product: productId !== 'Select One' ? productId : null,   
-            // category: categoryId !== 'Select One' ? categoryId : null
         });
-
         await newOffer.save();
-        res.status(200).json({ message: "Offer added successfully" });  
+        res.status(HttpStatus.OK).json({ message: MESSAGES.OFFER_ADDED_SUCCESS });  
     } catch (error) {
         console.error('Error adding offer',error)
-        res.status(500).json({ message: "Error adding offer", error: error.message });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Error adding offer", error: error.message });
     }
 }
 
@@ -304,27 +283,26 @@ const loadEditCoupon = async (req, res) => {
     try {
         const coupon = await Coupon.findById(req.params.id);  
         if (!coupon) {
-            return res.status(404).json({ error: 'Coupon not found' });
+            return res.status(HttpStatus.NOT_FOUND).json({ error: MESSAGES.COUPON_NOT_FOUND });
         }
         res.json(coupon);
     } catch (error) {
         console.error('Error fetching coupon:', error);
-        res.status(500).json({ error: 'Server error' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ error: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };
  
 const updateOffer = async (req, res) => {
     try {
         const { offerName, discountPercent, startDate, expiryDate, offerType, productId, categoryId, offerId } = req.body;
-
         const offer = await Offer.findById(offerId);
         if (!offer) {
-            return res.status(400).json({ message: 'Offer not found!' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ message:  MESSAGES.OFFER_NOT_FOUND });
         }
 
         if (offerType === 'Product Offer') {
             if (!productId || productId === 'Select One') {
-                return res.status(400).json({ message: 'Select a valid Product' });
+                return res.status(HttpStatus.BAD_REQUEST).json({ message: MESSAGES.INVALID_PRODUCT });
             }
            
             await Product.findByIdAndUpdate(productId, {
@@ -332,7 +310,7 @@ const updateOffer = async (req, res) => {
             });
         } else if (offerType === 'Category Offer') {
             if (!categoryId || categoryId === 'Select One') {
-                return res.status(400).json({ message: 'Select a valid Category' });
+                return res.status(HttpStatus.BAD_REQUEST).json({ message: MESSAGES.INVALID_CATEGORY });
             }
          
             await Category.findByIdAndUpdate(categoryId, {
@@ -352,10 +330,10 @@ const updateOffer = async (req, res) => {
             }
         }, { new: true });
 
-        res.status(200).json({ message: 'Offer updated successfully.' });
+        res.status(HttpStatus.OK).json({ message: MESSAGES.OFFER_UPDATED_SUCCESS  });
     } catch (error) {
         console.error('Error updating offer', error);
-        res.status(500).json({ message: 'An error occurred while updating the offer' });
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: MESSAGES.OFFER_UPDATE_ERROR });
     }
 };
 
@@ -370,31 +348,21 @@ function compareDates(expiryDate) {
 const deactivateOffer = async(req,res) => {
     try {
         const offerId = req.params.id;
-
         if (!offerId) {
-            return res.status(400).json({ success: false, message: 'Offer ID is required' });
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: 'Offer ID is required' });
         }
-         
+
         await Offer.findByIdAndUpdate(
             offerId, 
             { status: false }, 
             { new: true });
 
-            return res.status(200).json({ success: true, message: 'Offer deactivated successfully'})
-        
+        return res.status(HttpStatus.OK).json({ success: true, message: 'Offer deactivated successfully'})
     } catch (error) {
         console.error('Error deactivating offer:', error);
-        return res.status(500).json({ success: false, message: 'An error occurred while deactivating the offer' });
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'An error occurred while deactivating the offer' });
     }
 }
-
-
-
-
-
-
-
-
 
 
 module.exports = {
