@@ -55,7 +55,16 @@
                                         Out of Stock
                                     <% } %>
                                 </td>  
-                                <td>₹<%= product.price %></td>
+                                <td>
+    <% if (product.offerPercent && product.offerPercent > 0) { %>
+        <span class="text-success fw-bold">₹<%= product.discountedPrice.toFixed(2) %></span>
+        <span class="text-muted text-decoration-line-through ms-2">₹<%= product.price %></span>
+        <small class="text-danger ms-1">(Save <%= product.offerPercent %>%)</small>
+    <% } else { %>
+        ₹<%= product.price %>
+    <% } %>
+</td>
+
                                 <td>
                                     <button class="btn btn-primary addCart-btn">Add</button>
                                 </td>
@@ -189,7 +198,7 @@
                 
 
                 try {
-                    const response = await fetch('/addToCart', {
+                    const response = await fetch('/cart', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'

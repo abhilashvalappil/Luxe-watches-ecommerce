@@ -8,7 +8,7 @@
           font-weight: bold;
       }
 
-             .out-of-stock {
+        .out-of-stock {
           position: absolute;
           top: 10px;
           right: 10px;
@@ -309,19 +309,13 @@ color: #ff0000;
                                     <li><a href="/shopdetails?productId=<%= product._id %>"><img src="/uploadedImages/<%= product.images[0] %>" alt=""></a></li>
                                 </ul>
                             <div class="product__item__text">
-                                <h6><%=product.name%></h6>
-                                <!-- <div class="rating">
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                    <i class="fa fa-star-o"></i>
-                                </div> -->
+                                <h6><%=product.name%></h6>      
 
                                 <% if (product.stock === 0) { %>
                                   <h5>₹<%= product.price %></h5>
                               <% } else { %>
-                                  <% if (product.offerPercent) { %>
+                                  
+                                  <% if (product.offerPercent && product.discountedPrice && product.discountedPrice < product.price) { %>
                                       <h5>₹<%= product.discountedPrice.toFixed(2) %> <span class="original-price">₹<%= product.price %></span></h5>
                                       <p class="offer-percent">Save <%= product.offerPercent %>%</p>
                                   <% } else { %>
@@ -457,7 +451,7 @@ document.addEventListener('DOMContentLoaded', initializeWishlistIcons);
   
   async function addToWishlist(productId,icon){
     try {
-      const response = await fetch('/addToWishlist',{
+      const response = await fetch('wishlist',{
         method: 'POST',
         headers:{
           'Content-Type' : 'application/json'
@@ -522,7 +516,6 @@ document.addEventListener('DOMContentLoaded', initializeWishlistIcons);
 async function handleSearch(event) {
     event.preventDefault();  
     const searchTerm = document.getElementById('searchInput').value;
-    console.log('the searchhhhh',searchTerm)
 
     if (!searchTerm) {
         await fetchAllProducts();
@@ -571,8 +564,8 @@ document.getElementById('searchInput').addEventListener('input', async (event) =
     }
 });
 document.getElementById('clearSearch').addEventListener('click', async () => {
-    document.getElementById('searchInput').value = ''; // Clear the input
-    await fetchAllProducts(); // Fetch and display all products
+    document.getElementById('searchInput').value = '';  
+    await fetchAllProducts();  
 });
 
  

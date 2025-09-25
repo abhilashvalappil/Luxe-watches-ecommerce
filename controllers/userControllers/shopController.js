@@ -66,18 +66,21 @@ const loadShop = async (req, res) => {
       .skip((perPage * page) - perPage)
       .limit(perPage);
 
-      const offers = await Offer.find({ expiredate: { $gte: new Date() }, status: true });
+      // const offers = await Offer.find({ expiredate: { $gte: new Date() }, status: true });
+      const offers = await Offer.find({ startDate: { $lte: new Date() }, expiredate: { $gte: new Date() }, status: true });
 
       products = products.map(product => {
           let offer = offers.find(offer => offer.offerType === 'Product Offer' && offer.product.equals(product._id)) ||
                       offers.find(offer => offer.offerType === 'Category Offer' && offer.category.equals(product.category));
           
-          if (offer) {
+          if (offer) {  
               const discount = (product.price * offer.discountPercent) / 100;
               product.discountedPrice = product.price - discount;
               product.offerPercent = offer.discountPercent;  
           } else {
-              product.discountedPrice = product.price;
+              // product.discountedPrice = product.price;
+              product.discountedPrice = null;
+              product.offerPercent = 0;
           }
           return product;
       });
@@ -110,7 +113,8 @@ const shopDetailsLoad = async(req,res) => {
       .populate('brand', 'brandName');
 
       const relatedProducts = await Product.find({category: product.category._id }).limit(4)
-      const offers = await Offer.find({ expiredate: { $gte: new Date() }, status: true });
+      // const offers = await Offer.find({ expiredate: { $gte: new Date() }, status: true });
+      const offers = await Offer.find({ startDate: { $lte: new Date() }, expiredate: { $gte: new Date() }, status: true });
       
       let offerPrice = null;
       let categoryOfferPrice = null;

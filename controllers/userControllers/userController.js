@@ -8,6 +8,7 @@ const Product = require('../../models/productModel');
 const Address = require('../../models/addressModel');
 const user_route = require('../../routes/userRoute');
 const Cart = require('../../models/cartModel');
+const Offer = require('../../models/offerModel');
 const Wallet = require('../../models/walletModel');
 const mongoose = require('mongoose')
 const HttpStatus = require('../../js/httpStatus')
@@ -339,28 +340,78 @@ const googleLogin = async (req, res) => {
     }
 }
 
+// const loadHomePage = async (req, res) => {
+//     try {
+//         const user = req?.session?.user_id;
+//         const products = await Product.find(
+//             {stock:{$gt:0}}).limit(8)
+
+//         if (!user) {
+//             return res.render('home', { user: null, products, title: 'home page' });
+//         } else {
+//             const userData = await User.findById({ _id: user });
+
+//             if (!userData) {
+//                 return res.redirect('/login');
+//             } else {
+//                 res.render('home', { user,products, title: 'home page' });
+//             }
+//         }
+
+//     } catch (error) {
+//         console.error('Error occured on loading home page',error)
+//     }
+// }
 const loadHomePage = async (req, res) => {
-    try {
-        const user = req?.session?.user_id;
-        const products = await Product.find(
-            {stock:{$gt:0}}).limit(8)
+  try {
+    const user = req?.session?.user_id;
 
-        if (!user) {
-            return res.render('home', { user: null, products, title: 'home page' });
-        } else {
-            const userData = await User.findById({ _id: user });
+    // Fetch 8 in-stock products
+    let products = await Product.find({ stock: { $gt: 0 } }).limit(8);
 
-            if (!userData) {
-                return res.redirect('/login');
-            } else {
-                res.render('home', { user,products, title: 'home page' });
-            }
-        }
+    // Get only valid, ongoing offers
+    const offers = await Offer.find({
+      startDate: { $lte: new Date() },   // offer already started
+      expiredate: { $gte: new Date() },  // not expired
+      status: true
+    });
 
-    } catch (error) {
-        console.error('Error occured on loading home page',error)
+    // Attach offer prices to products
+    products = products.map(product => {
+      let applicableOffer =
+        offers.find(offer => offer.offerType === "Product Offer" && offer.product.equals(product._id)) ||
+        offers.find(offer => offer.offerType === "Category Offer" && offer.category.equals(product.category));
+
+      if (applicableOffer) {
+        const discount = (product.price * applicableOffer.discountPercent) / 100;
+        product = product.toObject(); // convert Mongoose doc to plain object
+        product.discountedPrice = product.price - discount;
+        product.offerPercent = applicableOffer.discountPercent;
+      } else {
+        product = product.toObject();
+        product.discountedPrice = product.price;
+        product.offerPercent = 0;
+      }
+
+      return product;
+    });
+
+    if (!user) {
+      return res.render("home", { user: null, products, title: "home page" });
     }
-}
+
+    const userData = await User.findById(user);
+    if (!userData) {
+      return res.redirect("/login");
+    }
+
+    res.render("home", { user, products, title: "home page" });
+
+  } catch (error) {
+    console.error("Error occurred on loading home page", error);
+  }
+};
+
 
 const logout = async (req, res) => {
     try {

@@ -5,6 +5,7 @@ const user_route = require('../../routes/userRoute');
 const Cart = require('../../models/cartModel');
 const mongoose = require('mongoose');
 const Address = require('../../models/addressModel')
+const Offer = require('../../models/offerModel');
 const Order = require('../../models/orderModel');
 const Wallet = require('../../models/walletModel');
 const Coupon = require('../../models/couponModel');
@@ -21,80 +22,176 @@ const razorpayInstance = new Razorpay({
     key_secret: process.env.RAZORPAY_SECRET_KEY    
 });
 
-const loadCheckout = async (req, res) => {
-    try {
-        const user = req.session.user_id;
-        const userData = await User.findOne({ _id: user });
-        const address = await Address.findOne({ userId: user });
-        const cart = await Cart.findOne({ userId: user });
-        const coupons = await Coupon.find();
+// const loadCheckout = async (req, res) => {
+//     try {
+//         const user = req.session.user_id;
+//         const userData = await User.findOne({ _id: user });
+//         const address = await Address.findOne({ userId: user });
+//         const cart = await Cart.findOne({ userId: user });
+//         const coupons = await Coupon.find();
 
-        const cartedProducts = [];
+//         const cartedProducts = [];
 
-        if (cart && cart.cartItems.length > 0) {
-            for (let i = 0; i < cart.cartItems.length; i++) {
-                const item = cart.cartItems[i];
-                const product = await Product.findOne({ _id: item.productId });
+//         if (cart && cart.cartItems.length > 0) {
+//             for (let i = 0; i < cart.cartItems.length; i++) {
+//                 const item = cart.cartItems[i];
+//                 const product = await Product.findOne({ _id: item.productId });
 
-                if (product) {
-                    const productWithQuantity = product.toObject();
-                    productWithQuantity.quantity = item.quantity;
-                    cartedProducts.push(productWithQuantity);
-                }
-            }
-        }
+//                 if (product) {
+//                     const productWithQuantity = product.toObject();
+//                     productWithQuantity.quantity = item.quantity;
+//                     cartedProducts.push(productWithQuantity);
+//                 }
+//             }
+//         }
 
-        for (let product of cartedProducts) {
-            const categoryId = product.category;   
-            const categoryData = await Category.findOne({ _id: categoryId });
+//         for (let product of cartedProducts) {
+//             const categoryId = product.category;   
+//             const categoryData = await Category.findOne({ _id: categoryId });
 
-            if (product.offerPercent) {
-                let productOffer = product.price - (product.offerPercent * product.price) / 100;
-                product.offer = productOffer;  
-            } else if (!product.offerPercent && categoryData?.offerPercent) {
-                const catOffer = product.price - (categoryData.offerPercent * product.price) / 100;
-                product.CatOffer = catOffer; 
-            }
-        }
+//             if (product.offerPercent) {
+//                 let productOffer = product.price - (product.offerPercent * product.price) / 100;
+//                 product.offer = productOffer;  
+//             } else if (!product.offerPercent && categoryData?.offerPercent) {
+//                 const catOffer = product.price - (categoryData.offerPercent * product.price) / 100;
+//                 product.CatOffer = catOffer; 
+//             }
+//         }
 
-        const subtotal = cartedProducts.reduce((total, product) => {
-            let productTotal = 0;
-            if (product.offer) {
-                productTotal = product.offer * product.quantity;
-            } else if (product.CatOffer) {
-                productTotal = product.CatOffer * product.quantity;
-            } else {
-                productTotal = product.price * product.quantity;
-            }
-            return total + productTotal;
-        }, 0);
+//         const subtotal = cartedProducts.reduce((total, product) => {
+//             let productTotal = 0;
+//             if (product.offer) {
+//                 productTotal = product.offer * product.quantity;
+//             } else if (product.CatOffer) {
+//                 productTotal = product.CatOffer * product.quantity;
+//             } else {
+//                 productTotal = product.price * product.quantity;
+//             }
+//             return total + productTotal;
+//         }, 0);
 
      
-        const coupon = req.session.coupon || null;
-        const couponDiscount = coupon ? coupon.discount : 0;  
-        const couponCode = coupon ? coupon.code : '';
+//         const coupon = req.session.coupon || null;
+//         const couponDiscount = coupon ? coupon.discount : 0;  
+//         const couponCode = coupon ? coupon.code : '';
        
-        const deliveryCharge = 60;
-        const newTotal = subtotal - couponDiscount + deliveryCharge;
+//         const deliveryCharge = 60;
+//         const newTotal = subtotal - couponDiscount + deliveryCharge;
         
-        if(cart.cartItems.length > 0){
-        res.render('checkout', {
-            user,
-            userData,
-            address,
-            cartedProducts,
-            coupons,
-            couponDiscount,
-            newTotal,
-            subtotal,
-            deliveryCharge,
-            couponCode  
-        });
+//         if(cart.cartItems.length > 0){
+//         res.render('checkout', {
+//             user,
+//             userData,
+//             address,
+//             cartedProducts,
+//             coupons,
+//             couponDiscount,
+//             newTotal,
+//             subtotal,
+//             deliveryCharge,
+//             couponCode  
+//         });
+//     }
+//     } catch (error) {
+//         console.error(error);
+//         res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server error');  
+//     }
+// };
+
+const loadCheckout = async (req, res) => {
+  try {
+    const user = req.session.user_id;
+    const userData = await User.findOne({ _id: user });
+    const address = await Address.findOne({ userId: user });
+    const cart = await Cart.findOne({ userId: user });
+    const coupons = await Coupon.find();
+
+    const cartedProducts = [];
+
+    if (cart && cart.cartItems.length > 0) {
+      for (let i = 0; i < cart.cartItems.length; i++) {
+        const item = cart.cartItems[i];
+        const product = await Product.findById(item.productId).lean();
+
+        if (product) {
+          product.quantity = item.quantity;
+          cartedProducts.push(product);
+        }
+      }
     }
-    } catch (error) {
-        console.error(error);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server error');  
+
+    // ✅ Fetch only active offers
+    const offers = await Offer.find({
+      startDate: { $lte: new Date() },
+      expiredate: { $gte: new Date() },
+      status: true,
+    });
+
+    // Apply dynamic offers
+    for (let product of cartedProducts) {
+      const categoryId = product.category;
+
+      // Find product offer
+      const productOffer = offers.find(
+        (offer) =>
+          offer.offerType === "Product Offer" &&
+          offer.product &&
+          offer.product.equals(product._id)
+      );
+
+      // Find category offer
+      const categoryOffer = offers.find(
+        (offer) =>
+          offer.offerType === "Category Offer" &&
+          offer.category &&
+          offer.category.equals(categoryId)
+      );
+
+      // Choose best discount
+      const bestDiscount = Math.max(
+        productOffer ? productOffer.discountPercent : 0,
+        categoryOffer ? categoryOffer.discountPercent : 0
+      );
+
+      if (bestDiscount > 0) {
+        product.offerPrice = product.price - (bestDiscount * product.price) / 100;
+        product.offerPercent = bestDiscount;
+      } else {
+        product.offerPrice = product.price;
+        product.offerPercent = 0;
+      }
     }
+
+    // ✅ Correct subtotal calculation
+    const subtotal = cartedProducts.reduce((total, product) => {
+      return total + product.offerPrice * product.quantity;
+    }, 0);
+
+    const coupon = req.session.coupon || null;
+    const couponDiscount = coupon ? coupon.discount : 0;
+    const couponCode = coupon ? coupon.code : "";
+
+    const deliveryCharge = 60;
+    const newTotal = subtotal - couponDiscount + deliveryCharge;
+
+    if (cart.cartItems.length > 0) {
+      res.render("checkout", {
+        user,
+        userData,
+        address,
+        cartedProducts,
+        coupons,
+        couponDiscount,
+        newTotal,
+        subtotal,
+        deliveryCharge,
+        couponCode,
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error");
+  }
 };
 
 
@@ -135,22 +232,53 @@ const placeOrder = async (req, res) => {
             }
         }
 
+        const offers = await Offer.find({
+  startDate: { $lte: new Date() },
+  expiredate: { $gte: new Date() },
+  status: true
+});
+
         const orderedItems = await Promise.all(cart.cartItems.map(async (item) => {
             const product = await Product.findById(item.productId);  
-            const actualPrice = product.price;  
-            const offerPrice = cartItems.find(cartItem => cartItem._id.toString() === item.productId.toString()).price;
-            const offerDiscount = actualPrice - offerPrice;  
+            // const actualPrice = product.price;  
+            // const offerPrice = cartItems.find(cartItem => cartItem._id.toString() === item.productId.toString()).price;
+            // const offerDiscount = actualPrice - offerPrice;  
 
-            const totalPrice = offerPrice * item.quantity;  
+            // const totalPrice = offerPrice * item.quantity;  
 
-            return {
-                productId: item.productId,
-                quantity: item.quantity,
-                price: offerPrice,
-                totalPrice: totalPrice,
-                offerDiscount: offerDiscount, 
-                orderStatus: 'Pending'
-            };
+            // return {
+            //     productId: item.productId,
+            //     quantity: item.quantity,
+            //     price: offerPrice,
+            //     totalPrice: totalPrice,
+            //     offerDiscount: offerDiscount, 
+            //     orderStatus: 'Pending'
+            // };
+            const productOffer = offers.find(
+      (o) => o.offerType === "Product Offer" && o.product && o.product.equals(product._id)
+    );
+    const categoryOffer = offers.find(
+      (o) => o.offerType === "Category Offer" && o.category && o.category.equals(product.category)
+    );
+
+    const bestDiscount = Math.max(
+      productOffer ? productOffer.discountPercent : 0,
+      categoryOffer ? categoryOffer.discountPercent : 0
+    );
+
+    let finalPrice = product.price;
+    if (bestDiscount > 0) {
+      finalPrice = product.price - (bestDiscount * product.price) / 100;
+    }
+
+    return {
+      productId: item.productId,
+      quantity: item.quantity,
+      price: finalPrice,                   // ✅ snapshot with offer applied
+      totalPrice: finalPrice * item.quantity,
+      offerDiscount: product.price - finalPrice,
+      orderStatus: "Pending"
+    };
         }));
 
         let finalTotalPrice = 0;
@@ -199,14 +327,15 @@ const placeOrder = async (req, res) => {
             discountAmount: discountAmount,
             invoiceNumber: Date.now()
         });
-
+       
         if (paymentMethod === 'Razorpay') {
             const razorpayOrder = await razorpayInstance.orders.create({
                 amount: order.totalPrice * 100,
                 currency: 'INR',
                 receipt: `receipt_order_${order._id}`,
-                payment_capture: '1'
+                payment_capture: '1',
             });
+            
 
             order.razorpayOrderId = razorpayOrder.id;
             await order.save();
@@ -235,10 +364,10 @@ const placeOrder = async (req, res) => {
 };
 
 
-const verifyPayment = async (req, res, next) => {
+const verifyPayment = async (req, res) => {
     const { paymentId, orderId, razorpaySignature } = req.body;
     try {
-        const order = await Order.findById(orderId);
+         const order = await Order.findById(orderId);
         if (!order) {
             return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: MESSAGES.ORDER_NOT_FOUND });
         }
@@ -253,8 +382,7 @@ const verifyPayment = async (req, res, next) => {
             await order.save();
             return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid signature provided" });
         }
-
-        order.orderStatus = "Order confirmed";
+         order.orderStatus = "Order confirmed";
         order.paymentStatus = 'Completed';
         await order.save();
 

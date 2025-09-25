@@ -20,10 +20,11 @@ const loadCart = async (req, res) => {
         const user = await User.findById(userId);
 
         const offers = await Offer.find({
+            startDate: { $lte: new Date() },
             expiredate: { $gte: new Date() },
             status: true
         });
-        console.log('Received offers:', offers);
+        
 
         //* Aggregate user cart with product and category details
         const userCart = await Cart.aggregate([
@@ -56,30 +57,68 @@ const loadCart = async (req, res) => {
                         name: '$productDetails.name',
                         price: '$productDetails.price',
                         images: '$productDetails.images',
-                        offerPercent: '$productDetails.offerPercent'
+                        offerPercent: '$productDetails.offerPercent',
+                        category: '$productDetails.category' 
                     },
-                    categoryOfferPercent: '$categoryDetails.offerPercent'
+                    // categoryOfferPercent: '$categoryDetails.offerPercent'
+                    categoryDetails: {
+                        _id: '$categoryDetails._id',   // 👈 include category id
+                        offerPercent: '$categoryDetails.offerPercent'
+                    }
                 }
             }
         ]);
 
         // Calculate offer price and discount
         userCart.forEach(item => {
-            const productOffer = item.productDetails.offerPercent || 0;
-            const categoryOffer = item.categoryOfferPercent || 0;
+            // const productOffer = item.productDetails.offerPercent || 0;
+            // const categoryOffer = item.categoryOfferPercent || 0;
+            let productOffer = null;
+            let categoryOffer = null; 
 
-            if (productOffer) {
-                const discount = (item.productDetails.price * productOffer) / 100;
+            const matchedProductOffer = offers.find(
+                o => o.offerType === 'Product Offer' && o.product && o.product.equals(item.productId)
+            );
+
+             if (matchedProductOffer) {
+                productOffer = matchedProductOffer.discountPercent;
+            }
+
+            // const matchedCategoryOffer = offers.find(
+            //     o => o.offerType === 'Category Offer' && o.category && o.category.equals(item.categoryDetails._id)
+            // );
+            const matchedCategoryOffer = offers.find(
+                o => o.offerType === 'Category Offer' && o.category && o.category.equals(item.productDetails.category)
+            );
+
+
+            if (matchedCategoryOffer) {
+                categoryOffer = matchedCategoryOffer.discountPercent;
+            }
+
+            const bestOffer = Math.max(productOffer || 0, categoryOffer || 0);
+
+            if (bestOffer > 0) {
+                const discount = (item.productDetails.price * bestOffer) / 100;
                 item.offerPrice = item.productDetails.price - discount;
-                item.offerPercent = productOffer;
-            } else if (!productOffer && categoryOffer) {
-                const discount = (item.productDetails.price * categoryOffer) / 100;
-                item.offerPrice = item.productDetails.price - discount;
-                item.offerPercent = categoryOffer;
+                item.offerPercent = bestOffer;
             } else {
                 item.offerPrice = item.productDetails.price;
                 item.offerPercent = 0;
             }
+
+            // if (productOffer) {
+            //     const discount = (item.productDetails.price * productOffer) / 100;
+            //     item.offerPrice = item.productDetails.price - discount;
+            //     item.offerPercent = productOffer;
+            // } else if (!productOffer && categoryOffer) {
+            //     const discount = (item.productDetails.price * categoryOffer) / 100;
+            //     item.offerPrice = item.productDetails.price - discount;
+            //     item.offerPercent = categoryOffer;
+            // } else {
+            //     item.offerPrice = item.productDetails.price;
+            //     item.offerPercent = 0;
+            // }
         });
 
       
@@ -200,45 +239,136 @@ const updateQuantity = async (req, res) => {
 };
  
 
+// const loadWishlist = async (req, res) => {
+//     try {
+//         const user = req?.session?.user_id;
+//         if(!user){
+//             return res.status(HttpStatus.BAD_REQUEST).json({success: false, message: MESSAGES.LOGIN_REQUIRED })
+//         }
+//         const page = parseInt(req.query.page) || 1;
+//         const limit = parseInt(req.query.limit) || 4;
+        
+//         const wishlist = await Wishlist.findOne({ userId: user });
+//         if (!wishlist) {
+//             return res.render('wishlist', { user, wishlist: null, products: [], page, totalPages: 0, limit });
+//         }
+
+//         const totalProducts = wishlist.products.length;
+//         const totalPages = Math.ceil(totalProducts / limit);
+        
+//         const startIndex = (page - 1) * limit;
+//         const endIndex = startIndex + limit;
+        
+//         const productIds = wishlist.products.slice(startIndex, endIndex);
+//         const products = await Product.find({ _id: { $in: productIds } });
+//         const validProducts = products.filter(product => product != null);
+//         const actualTotalProducts = await Product.countDocuments({ _id: { $in: wishlist.products } });
+//         const actualTotalPages = Math.ceil(actualTotalProducts / limit);
+
+//         res.render('wishlist', { 
+//             user, 
+//             wishlist, 
+//             products: validProducts, 
+//             page, 
+//             totalPages: actualTotalPages, 
+//             limit 
+//         });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
+//     }
+// }
 const loadWishlist = async (req, res) => {
-    try {
-        const user = req?.session?.user_id;
-        if(!user){
-            return res.status(HttpStatus.BAD_REQUEST).json({success: false, message: MESSAGES.LOGIN_REQUIRED })
-        }
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 4;
-        
-        const wishlist = await Wishlist.findOne({ userId: user });
-        if (!wishlist) {
-            return res.render('wishlist', { user, wishlist: null, products: [], page, totalPages: 0, limit });
-        }
-
-        const totalProducts = wishlist.products.length;
-        const totalPages = Math.ceil(totalProducts / limit);
-        
-        const startIndex = (page - 1) * limit;
-        const endIndex = startIndex + limit;
-        
-        const productIds = wishlist.products.slice(startIndex, endIndex);
-        const products = await Product.find({ _id: { $in: productIds } });
-        const validProducts = products.filter(product => product != null);
-        const actualTotalProducts = await Product.countDocuments({ _id: { $in: wishlist.products } });
-        const actualTotalPages = Math.ceil(actualTotalProducts / limit);
-
-        res.render('wishlist', { 
-            user, 
-            wishlist, 
-            products: validProducts, 
-            page, 
-            totalPages: actualTotalPages, 
-            limit 
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
+  try {
+    const user = req?.session?.user_id;
+    if (!user) {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: MESSAGES.LOGIN_REQUIRED });
     }
-}
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 4;
+
+    const wishlist = await Wishlist.findOne({ userId: user });
+    if (!wishlist) {
+      return res.render("wishlist", {
+        user,
+        wishlist: null,
+        products: [],
+        page,
+        totalPages: 0,
+        limit,
+      });
+    }
+
+    const totalProducts = wishlist.products.length;
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    const productIds = wishlist.products.slice(startIndex, endIndex);
+    let products = await Product.find({ _id: { $in: productIds } });
+    const validProducts = products.filter((product) => product != null);
+
+    // ✅ Fetch only valid offers (started & not expired)
+    const offers = await Offer.find({
+      startDate: { $lte: new Date() },
+      expiredate: { $gte: new Date() },
+      status: true,
+    });
+
+    // ✅ Attach offers to each product
+    const productsWithOffers = validProducts.map((product) => {
+      let applicableOffer =
+        offers.find(
+          (offer) =>
+            offer.offerType === "Product Offer" &&
+            offer.product.equals(product._id)
+        ) ||
+        offers.find(
+          (offer) =>
+            offer.offerType === "Category Offer" &&
+            offer.category.equals(product.category)
+        );
+
+      product = product.toObject(); // convert to plain object
+
+      if (applicableOffer) {
+        const discount =
+          (product.price * applicableOffer.discountPercent) / 100;
+        product.discountedPrice = product.price - discount;
+        product.offerPercent = applicableOffer.discountPercent;
+      } else {
+        product.discountedPrice = product.price;
+        product.offerPercent = 0;
+      }
+
+      return product;
+    });
+
+    const actualTotalProducts = await Product.countDocuments({
+      _id: { $in: wishlist.products },
+    });
+    const actualTotalPages = Math.ceil(actualTotalProducts / limit);
+
+    res.render("wishlist", {
+      user,
+      wishlist,
+      products: productsWithOffers,
+      page,
+      totalPages: actualTotalPages,
+      limit,
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
+  }
+};
+
 
 const getWishlist = async (req, res) => {
     try {

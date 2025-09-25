@@ -50,12 +50,7 @@ user_route.post('/register',userController.registerUser);
 user_route.get('/otp',auth.isLogout, userController.loadOtp);
 user_route.post('/verifyOtp',userController.verifyOtp);
 
-// user_route.post('/register', otpController.createAndSendOtp)
-// user_route.get('/otp', userController.loadOtp)
-// user_route.post('/otp', userController.createAndSendOtp);
 user_route.get('/resendOtp',userController.resendOtp)
-
-// user_route.get('/',auth.isLogout, userController.loadLogin);
 user_route.get('/login',auth.isLogout, userController.loadLogin);
 user_route.post('/login',userController.verifyLogin);
 
@@ -65,38 +60,32 @@ user_route.get('/auth/google/callback', passport.authenticate('google', {failure
 
 
 user_route.get('/shop', shopController.loadShop);
-
-
-//user_route.get('/home',auth.isLoggedin, userController.loadHomePage);
-
 user_route.get('/shopdetails',shopController.shopDetailsLoad);
 
 user_route.get('/profile',auth.isLogin,userController.loadProfile);
-
 user_route.get('/editprofile',auth.isLogin,userController.loadEditProfile);
 user_route.put('/editprofile',userController.editProfile);
 
 user_route.get('/address',auth.isLogin,userController.loadAddress);
-user_route.post('/add-address',userController.addAddress);
+user_route.post('/address',userController.addAddress);
 user_route.post('/edit-address', userController.editAddress);
 user_route.post('/delete-address', userController.deleteAddress)
 
 user_route.get('/wishlist',auth.isLogin,cartController.loadWishlist);
 user_route.get('/get-wishlist',cartController.getWishlist);
-user_route.post('/addToWishlist',cartController.addToWishlist);
+user_route.post('/wishlist',cartController.addToWishlist);
 user_route.post('/removeFromWishlist',cartController.removeFromWishlist);
 
 user_route.get('/cart',auth.isLogin,cartController.loadCart);
-user_route.post('/addToCart',auth.isLoggedin, cartController.addToCart);
+user_route.post('/cart',auth.isLoggedin, cartController.addToCart);
 user_route.post('/removeFromCart',cartController.removeFromCart);
 user_route.post('/update-Quantity',cartController.updateQuantity)
 // user_route.post('/update-cart', cartController.updateCart)
 
 user_route.get('/checkout',auth.isLogin,orderController.loadCheckout);
- 
+
 user_route.get('/forgotpassword',userController.forgotPasswordLoad)
 user_route.post('/forgotpassword',userController.forgotPassword);
-
 user_route.get('/resetPassword',userController.resetPasswordLoad);
 user_route.post('/resetPassword',userController.resetPassword);
 
@@ -109,7 +98,6 @@ user_route.post('/verifyPayment',orderController.verifyPayment);
 
 user_route.post('/cancel-order/:order_id',orderController.cancelOrder);
 user_route.get('/cancel-confirm',orderController.cancelConfirm);
-// user_route.post('/return-order/:order_id',orderController.requestReturn);
 user_route.post('/return-order',orderController.requestReturn);
 
 user_route.post('/search',shopController.searchProduct);
@@ -118,7 +106,6 @@ user_route.post('/sort-products',shopController.sortPrice)
 
 
 user_route.get('/wallet',auth.isLogin,orderController.loadWallet)
-
 user_route.get('/coupons',auth.isLogin,shopController.loadCoupons);
 user_route.post('/apply-coupon',shopController.applyCoupon)
 user_route.post('/remove-coupon',shopController.removeCoupon);

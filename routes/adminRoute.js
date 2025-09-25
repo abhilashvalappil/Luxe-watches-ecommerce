@@ -34,14 +34,14 @@ admin_route.put('/users/block/:userId',adminController.blockUser)
 
 admin_route.get('/category',auth.isLogin,adminController.loadCategory);
 admin_route.get('/addcategory',auth.isLogin,adminController.loadAddCategory);
-admin_route.post('/addcategory',auth.isLogin,adminController.addCategory);
+admin_route.post('/category',auth.isLogin,adminController.addCategory);
 admin_route.put('/listcategory/:categoryId',auth.isLogin,adminController.listCategory)
 admin_route.get('/editcategory/:categoryId',auth.isLogin,adminController.loadEditCategory);
 admin_route.put('/editcategory/:categoryId',auth.isLogin,adminController.editCategory);
 
 admin_route.get('/brand',auth.isLogin,adminController.loadBrand);
 admin_route.get('/add-brand',auth.isLogin,adminController.loadAddBrand);
-admin_route.post('/add-brand',auth.isLogin,adminController.addBrand);
+admin_route.post('/brand',auth.isLogin,adminController.addBrand);
 admin_route.put('/listbrand/:brandId',auth.isLogin,adminController.listBrand);
 admin_route.get('/edit-brand/:brandId',auth.isLogin,adminController.loadEditBrand);
 admin_route.put('/edit-brand/:brandId',auth.isLogin,adminController.editBrand);

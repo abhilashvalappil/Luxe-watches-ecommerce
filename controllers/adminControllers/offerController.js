@@ -93,7 +93,7 @@ const updateCoupon = async (req, res) => {
         if (new Date(validFrom) > new Date(validTo)) {
             return res.status(HttpStatus.UNPROCESSABLE_ENTITY).json({ success: false, message: MESSAGES.VALID_DATE_RANGE });
         }
-        await Coupon.findByIdAndUpdate(couponId, {
+        const updatedCoupon = await Coupon.findByIdAndUpdate(couponId, {
             couponCode,
             discountPercent,
             minimumPurchase,

@@ -80,7 +80,7 @@ document.getElementById('save-btn').addEventListener('click',async function(even
     const addresstype = document.getElementById('newAddressType').value;
 
     try {
-        const response = await fetch('/add-address',{
+        const response = await fetch('/address',{
             method: 'POST',
             headers:{
                 'Content-Type' : 'application/json'

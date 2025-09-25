@@ -16,7 +16,7 @@ const addresstype = document.getElementById('addresstype').value;
  
 
 try {
-    const response = await fetch('/add-address',{
+    const response = await fetch('/address',{
         method: 'POST',
         headers:{
             'Content-Type' : 'application/json'
