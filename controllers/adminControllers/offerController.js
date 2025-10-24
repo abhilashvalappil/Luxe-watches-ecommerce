@@ -37,11 +37,12 @@ const addCoupon = async(req,res) => {
             return res.status(HttpStatus.CONFLICT).json({success: false, message: MESSAGES.CODE_ALREADY_EXISTS })
         }
 
-        if(couponCode[0] == ' '){
+        if(!couponCode || couponCode.trim().length < 5 || couponCode[0] === " "){
             return res.status(HttpStatus.BAD_REQUEST).json({success: false, message: MESSAGES.COUPON_CODE_INVALID })
         }
 
-        if (discountPercent < 1 || discountPercent > 100) {
+        const discount = Number(discountPercent);
+        if (isNaN(discount) || discount < 10 || discount > 70) {
             return res.status(HttpStatus.BAD_REQUEST).json({success: false, message: MESSAGES.DISCOUNT_PERCENT_RANGE });
         }
 
@@ -82,7 +83,8 @@ const updateCoupon = async (req, res) => {
             return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.COUPON_CODE_INVALID });
         }
 
-        if (discountPercent < 1 || discountPercent > 100) {
+        const discount = Number(discountPercent);
+        if (isNaN(discount) || discount < 10 || discount > 70) {
             return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.DISCOUNT_PERCENT_RANGE });
         }
 
@@ -197,11 +199,12 @@ const addOffer = async(req,res) => {
         const startOfToday = new Date(currentDate.setHours(0, 0, 0, 0)); 
         const endOfToday = new Date(currentDate.setHours(23, 59, 59, 999));
 
-        if(!offerName || offerName.length < 3){
+        if(!offerName || offerName.trim().length < 3){
             return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.OFFER_NAME_MIN_LENGTH})
         }
 
-        if(!disPercentage || isNaN(disPercentage) || disPercentage <= 0 || disPercentage > 100){
+        const discount = Number(disPercentage);
+        if (isNaN(discount) || discount < 10 || discount > 70) {
             return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.DISCOUNT_PERCENT_RANGE })
         }
 
@@ -298,6 +301,11 @@ const updateOffer = async (req, res) => {
         const offer = await Offer.findById(offerId);
         if (!offer) {
             return res.status(HttpStatus.BAD_REQUEST).json({ message:  MESSAGES.OFFER_NOT_FOUND });
+        }
+
+        const discount = Number(discountPercent);
+        if (isNaN(discount) || discount < 10 || discount > 70) {
+            return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.DISCOUNT_PERCENT_RANGE })
         }
 
         if (offerType === 'Product Offer') {

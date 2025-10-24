@@ -152,12 +152,13 @@
     async function addOffer() {
 
     const messageElement = document.getElementById('offerMessage');
-    messageElement.style.display = 'none'; // Hide the message initially
-    messageElement.textContent = ''; // Clear previous messages
+    messageElement.style.display = 'none';  
+    messageElement.textContent = '';  
 
     if (!validateOfferForm()) return;
 
-        const offerName = document.getElementById('offerName')?.value || '';
+        // const offerName = document.getElementById('offerName')?.value || '';
+        const offerName = (document.getElementById('offerName')?.value || '').trim();
         const disPercentage = document.getElementById('DPercentage')?.value || '';
         const startDate = document.getElementById('startDatePicker')?.value || '';
         const expiryDate = document.getElementById('datePicker')?.value || '';
@@ -166,6 +167,11 @@
         const productId = document.getElementById('selctProduct') ? document.getElementById('selctProduct').value : null;
         const categoryId = document.getElementById('selectCategory') ? document.getElementById('selectCategory').value : null;
 
+        const discountValue = Number(disPercentage);
+        if (isNaN(discountValue) || discountValue < 10 || discountValue > 70) {
+            document.getElementById('discountError').textContent = 'Discount must be between 10% and 70%';
+            return;
+        }
 
         const formData = {
             offerName,

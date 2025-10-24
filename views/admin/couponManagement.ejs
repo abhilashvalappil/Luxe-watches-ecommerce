@@ -130,6 +130,7 @@
                             <div class="mb-3">
                                 <label for="discountValue" class="form-label">Discount Value (%)</label>
                                 <input type="number" class="form-control" id="discountValue" name="discountPercent" required>
+                                <span id="discountPercentError" style="color: red;"></span>
                             </div>
                             <div class="mb-3">
                                 <label for="minimumPurchase" class="form-label">Minimum Purchase</label>
@@ -246,37 +247,7 @@
             const couponId = $(this).data('coupon-id');
         });
 
-//         async function toggleCouponStatus(couponId, buttonElement) {
-//     try {
-//         const response = await fetch(`/admin/toggle-coupon-status/${couponId}`, {
-//             method: 'PUT',
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             }
-//         });
-
-//         const data = await response.json();
-
-//         if (data.success) {
-//             if (data.listed) {
-//                 buttonElement.textContent = 'Unlist';
-//                 buttonElement.classList.remove('btn-success');
-//                 buttonElement.classList.add('btn-secondary');
-//             } else {
-//                 buttonElement.textContent = 'List';
-//                 buttonElement.classList.remove('btn-secondary');
-//                 buttonElement.classList.add('btn-success');
-//             }
-    
-//             const statusCell = buttonElement.closest('tr').querySelector('td:nth-child(6)');
-//             statusCell.textContent = data.listed ? 'Listed' : 'Unlisted';
-//         } else {
-//             console.error('Failed to toggle coupon status:', data.message);
-//         }
-//     } catch (error) {
-//         console.error('Error toggling coupon status:', error.message);
-//     }
-// }
+ 
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

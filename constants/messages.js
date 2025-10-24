@@ -44,7 +44,7 @@ const MESSAGES = {
     ITEM_NOT_FOUND: 'Item not found',
     CODE_ALREADY_EXISTS: 'This CODE already exists, please enter another one',
     COUPON_CODE_INVALID: 'Enter Proper Coupen Code',
-    DISCOUNT_PERCENT_RANGE: 'Discount percent must be between 1 and 100.',
+    DISCOUNT_PERCENT_RANGE: 'Discount percent must be between 10% and 70%.',
     START_DATE_REQUIRED: 'Start date is required.',
     MIN_PURCHASE_MAX_REDEEM_POSITIVE: 'Minimum Purchase and Max Redeem must be positive numbers.',
     VALID_DATE_RANGE: 'Valid From date cannot be after Valid To date.',
