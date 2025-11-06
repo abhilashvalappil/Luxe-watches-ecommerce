@@ -52,7 +52,17 @@
                             <% if (transactions.length > 0) { %>
                                 <% transactions.forEach(function(transaction) { %>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <%= transaction.description || 'Transaction' %>
+                                    <div>
+                                        <strong><%= transaction.description || 'Transaction' %></strong><br>
+                                        <small class="text-muted">
+                                            <%= new Date(transaction.date).toLocaleString('en-IN', { 
+                                                day: '2-digit', month: 'short', year: 'numeric',
+                                                hour: '2-digit', minute: '2-digit'
+                                            }) %>
+                                        </small>
+                                    </div>
+                                        
+                                        
                                         <% if (transaction.type === 'credit') { %>
                                             <span class="badge bg-success rounded-pill">+<%= transaction.amount.toFixed(2) %></span>
                                         <% } else { %>
