@@ -24,27 +24,17 @@ const fileFilter = function( req, file, cb){
     }
 }
 
-// const upload = multer({
-//     storage: storage, 
-//     limits: { fileSize: 1024 * 1024 * 5 },
-//     fileFilter: fileFilter
-//  }).fields([
-//     {name: 'image1', maxCount: 1 },
-//     {name: 'image2', maxCount: 1},
-//     {name: 'image3', maxCount: 1}
-//  ]);
-
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 1024 * 1024 * 5 // 5 MB limit per file
+        fileSize: 1024 * 1024 * 5  
     }
 }).array('images', 10);
 
 const Upload = multer({
     storage: storage,
     limits: {
-        fileSize: 1024 * 1024 * 5, // 5 MB limit per file
+        fileSize: 1024 * 1024 * 5,  
     },
     fileFilter: fileFilter,
 }).fields([{ name: 'image1' }, { name: 'image2' }, { name: 'image3' }]);

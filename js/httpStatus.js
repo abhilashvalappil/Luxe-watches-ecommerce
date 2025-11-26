@@ -1,14 +1,14 @@
 // httpStatus.js
 const Http_Status = Object.freeze({
-  OK: 200,              // General success
-  CREATED: 201,         // Resource created
-  NO_CONTENT: 204,      // No content
-  BAD_REQUEST: 400,     // Invalid input
-  UNAUTHORIZED: 401,    // Auth failure
-  FORBIDDEN: 403,       // No permission
-  NOT_FOUND: 404,       // Resource not found
-  CONFLICT: 409,        // Duplicate
-  INTERNAL_SERVER_ERROR: 500, // Server error
+  OK: 200,               
+  CREATED: 201,          
+  NO_CONTENT: 204,      
+  BAD_REQUEST: 400,      
+  UNAUTHORIZED: 401,    
+  FORBIDDEN: 403,        
+  NOT_FOUND: 404,       
+  CONFLICT: 409,        
+  INTERNAL_SERVER_ERROR: 500,  
   UNPROCESSABLE_ENTITY: 422,
 });
 
