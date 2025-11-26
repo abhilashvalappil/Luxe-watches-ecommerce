@@ -39,7 +39,8 @@ const userSchema = new mongoose.Schema({
     },
     referralLink:{
         type:String,
-        unique:true
+        unique:true,
+        sparse: true
     }
 });
 

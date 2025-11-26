@@ -7,7 +7,7 @@ const path = require('path');
 const session = require('express-session');
 const passport = require('passport');
 const uri = process.env.MONGODB_URI;
-// mongoose.connect("mongodb://127.0.0.1:27017/luxewatches").then(() => console.log('mongodb connected'));
+ 
 
 mongoose.connect(uri, {
   useNewUrlParser: true,
@@ -16,24 +16,35 @@ mongoose.connect(uri, {
 
 const app = express();
 
-//app.use(express.static('public'))
+ 
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(nocache());
-// app.use(morgan("dev"))
+ 
 app.use(express.static('public'))
 
-require('dotenv').config();
+ 
  
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.static(path.join(__dirname, 'public/homeAssets')));
 app.use(express.static(path.join(__dirname, 'public/adminHomeAssets')));
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false }  
+}));
+
+require('./passport')
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 const userRoute = require('./routes/userRoute');

@@ -1,5 +1,6 @@
 const User = require('../../models/userModel');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const session = require('express-session');
 const otpGenerator = require('otp-generator');
@@ -323,12 +324,14 @@ const googleLogin = async (req, res) => {
             req.session.user_id = user._id;
             res.redirect('/home');
         } else {
+            const referralCode = crypto.randomBytes(8).toString('hex');
             const newUser = new User({
                 name: username,
                 email: email,
                 googleId: googleId,
                 phone: '',
                 password: '',
+                referralLink: referralCode,
             })
             await newUser.save();
             req.session.user_id = newUser._id;
@@ -339,44 +342,19 @@ const googleLogin = async (req, res) => {
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'An error occurred during Google login. Please try again.' });
     }
 }
-
-// const loadHomePage = async (req, res) => {
-//     try {
-//         const user = req?.session?.user_id;
-//         const products = await Product.find(
-//             {stock:{$gt:0}}).limit(8)
-
-//         if (!user) {
-//             return res.render('home', { user: null, products, title: 'home page' });
-//         } else {
-//             const userData = await User.findById({ _id: user });
-
-//             if (!userData) {
-//                 return res.redirect('/login');
-//             } else {
-//                 res.render('home', { user,products, title: 'home page' });
-//             }
-//         }
-
-//     } catch (error) {
-//         console.error('Error occured on loading home page',error)
-//     }
-// }
+ 
 const loadHomePage = async (req, res) => {
   try {
     const user = req?.session?.user_id;
 
-    // Fetch 8 in-stock products
     let products = await Product.find({ stock: { $gt: 0 } }).limit(8);
 
-    // Get only valid, ongoing offers
     const offers = await Offer.find({
-      startDate: { $lte: new Date() },   // offer already started
-      expiredate: { $gte: new Date() },  // not expired
+      startDate: { $lte: new Date() },    
+      expiredate: { $gte: new Date() },   
       status: true
     });
 
-    // Attach offer prices to products
     products = products.map(product => {
       let applicableOffer =
         offers.find(offer => offer.offerType === "Product Offer" && offer.product.equals(product._id)) ||
@@ -384,7 +362,7 @@ const loadHomePage = async (req, res) => {
 
       if (applicableOffer) {
         const discount = (product.price * applicableOffer.discountPercent) / 100;
-        product = product.toObject(); // convert Mongoose doc to plain object
+        product = product.toObject();  
         product.discountedPrice = product.price - discount;
         product.offerPercent = applicableOffer.discountPercent;
       } else {
