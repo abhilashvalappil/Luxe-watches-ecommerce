@@ -1,4 +1,4 @@
-name: CI/CD - Deploy to Azure VM
+name: CI/CD - Deploy to VM
 
 on:
   push:
@@ -10,31 +10,44 @@ jobs:
     name: Deploy to remote VM
     runs-on: ubuntu-latest
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create access.pem from secret
+      - name: Create SSH private key from secret
         run: |
-          printf '%s\n' "${{ secrets.ACCESS_PEM }}" > access.pem
-          chmod 600 access.pem
+          printf '%s\n' "${{ secrets.SSH_ACCESS_KEY }}" > ssh_key
+          chmod 600 ssh_key
 
       - name: SSH to server and deploy
         env:
-          PEM: access.pem
+          SSH_KEY: ssh_key
         run: |
-          ssh -i "$PEM" -o StrictHostKeyChecking=no azureuser@135.237.121.55 << 'EOF'
+          ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no sudheerkumarv117@34.56.57.158 << 'EOF'
             set -euo pipefail
-            cd Luxe-watches-ecommerce || exit 1
-            git pull
-            # stop/delete any existing pm2 process named "index" (avoid failing if it doesn't exist)
+
+            # If directory exists → pull
+            # If not → clone the repo
+            if [ -d "Luxe-watches-ecommerce" ]; then
+              echo "Directory exists — pulling latest changes..."
+              cd Luxe-watches-ecommerce
+              git pull || true
+            else
+              echo "Directory not found — cloning repository..."
+              git clone https://github.com/abhilashvalappil/Luxe-watches-ecommerce.git
+              cd Luxe-watches-ecommerce
+            fi
+
+            # Stop/delete old pm2 process
             pm2 stop index || true
             pm2 delete index || true
-            # start the app and name the process "index"
+
+            # Start the app
             pm2 start index.js --name index
             pm2 save
           EOF
 
-      - name: Remove local pem
+      - name: Remove SSH key
         if: always()
         run: |
-          shred -u access.pem || rm -f access.pem || true
+          shred -u ssh_key || rm -f ssh_key || true
