@@ -34,18 +34,6 @@ app.use(express.static(path.join(__dirname, 'public/homeAssets')));
 app.use(express.static(path.join(__dirname, 'public/adminHomeAssets')));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'lskjfsljsdljfk',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false }  
-}));
-
-require('./passport')
-
-app.use(passport.initialize());
-app.use(passport.session());
-
 
 const userRoute = require('./routes/userRoute');
 const adminRoute = require('./routes/adminRoute');
