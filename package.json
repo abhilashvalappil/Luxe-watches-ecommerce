@@ -13,7 +13,6 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
-    "cloudinary": "^2.8.0",
     "dotenv": "^16.4.5",
     "easyinvoice": "^3.0.47",
     "ejs": "^3.1.10",
@@ -25,7 +24,6 @@
     "mongoose": "^8.4.4",
     "morgan": "^1.10.0",
     "multer": "^2.0.2",
-    "multer-storage-cloudinary": "^4.0.0",
     "nocache": "^4.0.0",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.14",
