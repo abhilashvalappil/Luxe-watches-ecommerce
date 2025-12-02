@@ -2,6 +2,10 @@ const express = require('express');
 const admin_route = express();
 const adminController = require('../controllers/adminControllers/adminController');
 const offerController = require('../controllers/adminControllers/offerController');
+const categoryController = require('../controllers/adminControllers/categoryController')
+const brandController = require('../controllers/adminControllers/brandController')
+const productController = require('../controllers/adminControllers/productController')
+const orderController = require('../controllers/adminControllers/orderController')
 const session = require('express-session');
 const config = require('../config/config');
 const path = require('path');
@@ -32,41 +36,41 @@ admin_route.get('/dashboard',adminController.loadDashboard)
 admin_route.get('/users',auth.isLogin,adminController.loadUsers)
 admin_route.put('/users/block/:userId',adminController.blockUser)
 
-admin_route.get('/category',auth.isLogin,adminController.loadCategory);
-admin_route.get('/addcategory',auth.isLogin,adminController.loadAddCategory);
-admin_route.post('/category',auth.isLogin,adminController.addCategory);
-admin_route.put('/listcategory/:categoryId',auth.isLogin,adminController.listCategory)
-admin_route.get('/editcategory/:categoryId',auth.isLogin,adminController.loadEditCategory);
-admin_route.put('/editcategory/:categoryId',auth.isLogin,adminController.editCategory);
+admin_route.get('/category',auth.isLogin,categoryController.loadCategory);
+admin_route.get('/addcategory',auth.isLogin,categoryController.loadAddCategory);
+admin_route.post('/category',auth.isLogin,categoryController.addCategory);
+admin_route.put('/listcategory/:categoryId',auth.isLogin,categoryController.listCategory)
+admin_route.get('/editcategory/:categoryId',auth.isLogin,categoryController.loadEditCategory);
+admin_route.put('/editcategory/:categoryId',auth.isLogin,categoryController.editCategory);
 
-admin_route.get('/brand',auth.isLogin,adminController.loadBrand);
-admin_route.get('/add-brand',auth.isLogin,adminController.loadAddBrand);
-admin_route.post('/brand',auth.isLogin,adminController.addBrand);
-admin_route.put('/listbrand/:brandId',auth.isLogin,adminController.listBrand);
-admin_route.get('/edit-brand/:brandId',auth.isLogin,adminController.loadEditBrand);
-admin_route.put('/edit-brand/:brandId',auth.isLogin,adminController.editBrand);
+admin_route.get('/brand',auth.isLogin,brandController.loadBrand);
+admin_route.get('/add-brand',auth.isLogin,brandController.loadAddBrand);
+admin_route.post('/brand',auth.isLogin,brandController.addBrand);
+admin_route.put('/listbrand/:brandId',auth.isLogin,brandController.listBrand);
+admin_route.get('/edit-brand/:brandId',auth.isLogin,brandController.loadEditBrand);
+admin_route.put('/edit-brand/:brandId',auth.isLogin,brandController.editBrand);
 
-admin_route.get('/products',auth.isLogin,adminController.loadProducts);
-admin_route.get('/addproduct',auth.isLogin,adminController.loadAddProduct);
-admin_route.post('/addproduct',upload,adminController.addProduct)
-admin_route.put('/listproduct/:productId',auth.isLogin,adminController.listProduct);
-admin_route.get('/editproduct',auth.isLogin,adminController.editProductLoad);
-admin_route.post('/editproduct',Upload,adminController.editProduct);
+admin_route.get('/products',auth.isLogin,productController.loadProducts);
+admin_route.get('/addproduct',auth.isLogin,productController.loadAddProduct);
+admin_route.post('/addproduct',upload,productController.addProduct)
+admin_route.put('/listproduct/:productId',auth.isLogin,productController.listProduct);
+admin_route.get('/editproduct',auth.isLogin,productController.editProductLoad);
+admin_route.post('/editproduct',Upload,productController.editProduct);
 
-admin_route.get('/orders',auth.isLogin,adminController.loadOrders);
-admin_route.post('/update-orderstatus',auth.isLogin,adminController.orderStatusUpdate);
+admin_route.get('/orders',auth.isLogin,orderController.loadOrders);
+admin_route.post('/update-orderstatus',auth.isLogin,orderController.orderStatusUpdate);
 
-admin_route.get('/order-details/:order_id',auth.isLogin,adminController.orderDetailsLoad);
+admin_route.get('/order-details/:order_id',auth.isLogin,orderController.orderDetailsLoad);
 
-admin_route.get('/return-requests',auth.isLogin,adminController.loadreturnRequests);
-admin_route.post('/update-return-status',auth.isLogin,adminController.returnStatus);
+admin_route.get('/return-requests',auth.isLogin,orderController.loadreturnRequests);
+admin_route.post('/update-return-status',auth.isLogin,orderController.returnStatus);
 
 admin_route.get('/coupon-management',auth.isLogin, offerController.loadCouponManagement);
 admin_route.post('/add-coupon',auth.isLogin,offerController.addCoupon);
 // admin_route.patch('/coupons/list',couponController.listCoupon);
 admin_route.put('/toggle-coupon-status/:couponId',auth.isLogin, offerController.listCoupon);
 
-admin_route.get('/sales-report',auth.isLogin,adminController.loadSalesReport);
+admin_route.get('/sales-report',auth.isLogin,orderController.loadSalesReport);
 
 admin_route.get('/offer-management',auth.isLogin,offerController.loadOfferManagement)
 admin_route.get('/addOffer',auth.isLogin,offerController.loadAddOffer);
