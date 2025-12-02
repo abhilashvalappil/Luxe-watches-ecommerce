@@ -23,7 +23,7 @@ jobs:
         env:
           SSH_KEY: ssh_key
         run: |
-          ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no sudheerkumarv117@34.56.57.158 << 'EOF'
+          ssh -i "$SSH_KEY" -o StrictHostKeyChecking=no sudheerkumarv117@34.132.119.152 << 'EOF'
             set -euo pipefail
 
             # If directory exists → pull
