@@ -120,8 +120,9 @@
                     <div class="mb-3">
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editAddressModal">Edit
                             Selected Address</button>
-                        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addAddressModal">Add
-                            New Address</button>
+                        <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                            Add New Address
+                        </button>
                     </div>
 
                     <!-- Cart Summary -->
@@ -488,7 +489,6 @@
             document.getElementById('final-total').textContent = `₹${result.newTotal}`;  
             document.getElementById('coupon-code').value = '';  
             document.getElementById('remove-coupon-btn').classList.add('d-none');  
-            // alert(result.message);
             Swal.fire({
                     icon: 'info',
                     title: 'Coupon Removed',
@@ -496,7 +496,6 @@
                 });
         } else {
             document.getElementById('coupon-message').innerHTML = `<div class="alert alert-danger">${result.message}</div>`;
-            // alert(result.message);
             Swal.fire({
                     icon: 'warning',
                     title: 'Action Failed',

@@ -90,18 +90,6 @@ function hideError(elementId) {
     }
 }
 
-// function showError(errorId, message) {
-//     let errorElement = document.getElementById(errorId);
-//     errorElement.textContent = message;
-// }
-
-// function hideError(errorId) {
-//     let errorElement = document.getElementById(errorId);
-//     errorElement.textContent = '';
-// }
-
-
-
 ///************************** edit
 
 document.querySelectorAll('.update-address-btn').forEach(button => {

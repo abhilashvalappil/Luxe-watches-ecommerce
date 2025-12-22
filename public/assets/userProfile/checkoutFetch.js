@@ -98,23 +98,43 @@ document.getElementById('save-btn').addEventListener('click',async function(even
             })
         })
         const data = await response.json();
-        if(data.success){
-            Swal.fire({
-                icon: 'success',
-                title: data.message
-            }).then(() => {
-                window.location.reload();
-            })
-        }else{
-            Swal.fire({
-                icon: 'warning',
-                title: data.message
-            })
-        }
-        
-    } catch (error) {
-        console.log(error)
-    }
+
+  if (data.success) {
+    Swal.fire({
+      icon: 'success',
+      title: data.message
+    }).then(() => {
+      window.location.reload();
+    });
+    return;
+  }
+
+  
+  if (data.errors) {
+    const errorMessages = Object.values(data.errors).join('<br>');
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Validation Error',
+      html: errorMessages
+    });
+    return;
+  }
+
+  
+  Swal.fire({
+    icon: 'warning',
+    title: data.message || 'Something went wrong'
+  });
+
+} catch (error) {
+  console.error(error);
+  Swal.fire({
+    icon: 'error',
+    title: 'Network Error',
+    text: 'Please try again later'
+  });
+}
 })
 
 //************************** */
