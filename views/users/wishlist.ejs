@@ -56,17 +56,22 @@
                                     <% } %>
                                 </td>  
                                 <td>
-    <% if (product.offerPercent && product.offerPercent > 0) { %>
-        <span class="text-success fw-bold">₹<%= product.discountedPrice.toFixed(2) %></span>
-        <span class="text-muted text-decoration-line-through ms-2">₹<%= product.price %></span>
-        <small class="text-danger ms-1">(Save <%= product.offerPercent %>%)</small>
-    <% } else { %>
-        ₹<%= product.price %>
-    <% } %>
-</td>
-
+                                <% if (product.offerPercent && product.offerPercent > 0) { %>
+                                    <span class="text-success fw-bold">₹<%= product.discountedPrice.toFixed(2) %></span>
+                                    <span class="text-muted text-decoration-line-through ms-2">₹<%= product.price %></span>
+                                    <small class="text-danger ms-1">(Save <%= product.offerPercent %>%)</small>
+                                <% } else { %>
+                                    ₹<%= product.price %>
+                                <% } %>
+                            </td>
                                 <td>
+                                    <% if (product.stock > 0) { %>   
                                     <button class="btn btn-primary addCart-btn">Add</button>
+                                    <% } else {  %>
+                                         <button class="btn btn-secondary" disabled>
+                                            Out of Stock
+                                            </button>
+                                        <% } %>
                                 </td>
                                 <td>
                                     <button class="btn btn-danger remove-wishlist-btn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Remove">
@@ -173,13 +178,6 @@
             removeCell.appendChild(removeButton);
             const tooltip = new bootstrap.Tooltip(removeButton);
         }
-
-        // const product1 = {
-        //     image: 'product1.jpg',
-        //     name: 'Product 1',
-        //     status: 'In Stock',
-        //     price: '$19.99'
-        // };
 
         addProductToWishlist();
     </script>

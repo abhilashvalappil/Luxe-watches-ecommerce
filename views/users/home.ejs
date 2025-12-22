@@ -324,9 +324,7 @@
     <h2 class="product-heading">Explore the Collection</h2>
 </div>
 <style>
-    /* If your previous CSS used an ID selector */
- 
-
+    
 /* Update it to target the class */
 .add-btn {
     background-color: #ff5a5f; /* Example background color */
@@ -355,7 +353,6 @@
                         <div class="cont">
                             <div class="product-card">
                                 <div class="product-card__image">
-                                    <!-- <img src="/uploadedImages/<%= product.images[0] %>" alt="<%= product.name %>"> -->
                                     <a href="/shopdetails?productId=<%= product._id %>"><img src="/uploadedImages/<%= product.images[0] %>" alt=""></a>
                                 </div>
                                 <div class="product-card__info">
@@ -418,6 +415,7 @@
             if (data.success) {
                 window.location.href = `/cart`;
             } else {
+                window.location.href = `/login`;
                 console.error('Failed to add item to cart.');
             }
         } catch (err) {

@@ -53,6 +53,7 @@ user_route.post('/verifyOtp',userController.verifyOtp);
 user_route.get('/resendOtp',userController.resendOtp)
 user_route.get('/login',auth.isLogout, userController.loadLogin);
 user_route.post('/login',userController.verifyLogin);
+user_route.get('/faq',userController.loadFaq);
 
 user_route.get('/auth/google', passport.authenticate('google',{scope: [ 'profile', 'email' ]}));
 user_route.get('/auth/google/callback', passport.authenticate('google', {failureRedirect: '/login'}), userController.googleLogin);

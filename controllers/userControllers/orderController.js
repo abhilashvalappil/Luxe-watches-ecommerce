@@ -22,81 +22,6 @@ const razorpayInstance = new Razorpay({
     key_secret: process.env.RAZORPAY_SECRET_KEY    
 });
 
-// const loadCheckout = async (req, res) => {
-//     try {
-//         const user = req.session.user_id;
-//         const userData = await User.findOne({ _id: user });
-//         const address = await Address.findOne({ userId: user });
-//         const cart = await Cart.findOne({ userId: user });
-//         const coupons = await Coupon.find();
-
-//         const cartedProducts = [];
-
-//         if (cart && cart.cartItems.length > 0) {
-//             for (let i = 0; i < cart.cartItems.length; i++) {
-//                 const item = cart.cartItems[i];
-//                 const product = await Product.findOne({ _id: item.productId });
-
-//                 if (product) {
-//                     const productWithQuantity = product.toObject();
-//                     productWithQuantity.quantity = item.quantity;
-//                     cartedProducts.push(productWithQuantity);
-//                 }
-//             }
-//         }
-
-//         for (let product of cartedProducts) {
-//             const categoryId = product.category;   
-//             const categoryData = await Category.findOne({ _id: categoryId });
-
-//             if (product.offerPercent) {
-//                 let productOffer = product.price - (product.offerPercent * product.price) / 100;
-//                 product.offer = productOffer;  
-//             } else if (!product.offerPercent && categoryData?.offerPercent) {
-//                 const catOffer = product.price - (categoryData.offerPercent * product.price) / 100;
-//                 product.CatOffer = catOffer; 
-//             }
-//         }
-
-//         const subtotal = cartedProducts.reduce((total, product) => {
-//             let productTotal = 0;
-//             if (product.offer) {
-//                 productTotal = product.offer * product.quantity;
-//             } else if (product.CatOffer) {
-//                 productTotal = product.CatOffer * product.quantity;
-//             } else {
-//                 productTotal = product.price * product.quantity;
-//             }
-//             return total + productTotal;
-//         }, 0);
-
-     
-//         const coupon = req.session.coupon || null;
-//         const couponDiscount = coupon ? coupon.discount : 0;  
-//         const couponCode = coupon ? coupon.code : '';
-       
-//         const deliveryCharge = 60;
-//         const newTotal = subtotal - couponDiscount + deliveryCharge;
-        
-//         if(cart.cartItems.length > 0){
-//         res.render('checkout', {
-//             user,
-//             userData,
-//             address,
-//             cartedProducts,
-//             coupons,
-//             couponDiscount,
-//             newTotal,
-//             subtotal,
-//             deliveryCharge,
-//             couponCode  
-//         });
-//     }
-//     } catch (error) {
-//         console.error(error);
-//         res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server error');  
-//     }
-// };
 
 const loadCheckout = async (req, res) => {
   try {
@@ -104,7 +29,13 @@ const loadCheckout = async (req, res) => {
     const userData = await User.findOne({ _id: user });
     const address = await Address.findOne({ userId: user });
     const cart = await Cart.findOne({ userId: user });
-    const coupons = await Coupon.find();
+    // const coupons = await Coupon.find();
+    const today = new Date();
+    const coupons = await Coupon.find({
+      listed: true,
+      validFrom: { $lte: today },
+      validTo: { $gte: today }
+    });
 
     const cartedProducts = [];
 

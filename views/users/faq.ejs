@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FAQ — Your Project</title>
+  <style>
+    :root{
+      --bg:#f6f9fb;
+      --card:#ffffff;
+      --accent:#0f62fe;
+      --muted:#6b7280;
+      --radius:12px;
+      --glass: rgba(15,98,254,0.06);
+      --max:1100px;
+      --gap:18px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,var(--bg),#eef5ff);
+      color:#0b1220;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:40px 16px;
+      box-sizing:border-box;
+    }
+
+    .wrap{
+      max-width:var(--max);
+      margin:0 auto;
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:32px;
+      align-items:start;
+    }
+
+    /* header */
+    header{
+      grid-column: 1 / -1;
+      margin-bottom:6px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .logo{
+      width:46px; height:46px;
+      background:var(--accent);
+      border-radius:10px;
+      display:inline-grid;
+      place-items:center;
+      color:#fff;
+      font-weight:700;
+      box-shadow:0 6px 18px rgba(15,98,254,0.14);
+    }
+    h1{
+      margin:0;
+      font-size:20px;
+    }
+    p.lead{ margin:6px 0 0; color:var(--muted); }
+
+    /* left nav (categories) */
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow: 0 6px 20px rgba(12,20,40,0.06);
+    }
+    nav.categories { display:flex; flex-direction:column; gap:8px; }
+    nav.categories a{
+      display:block;
+      padding:10px 12px;
+      border-radius:8px;
+      color:var(--accent);
+      text-decoration:none;
+      font-weight:600;
+      background:transparent;
+      transition:all .15s ease;
+      border:1px solid transparent;
+    }
+    nav.categories a:hover{ background:var(--glass); transform:translateY(-2px); box-shadow:0 6px 14px rgba(12,20,40,0.04)}
+    nav.categories a.active { background:var(--accent); color:#fff; box-shadow:none; }
+
+    /* search box */
+    .search {
+      margin-top:14px;
+      display:flex;
+      gap:8px;
+    }
+    .search input{
+      flex:1;
+      padding:10px 12px;
+      border-radius:8px;
+      border:1px solid #e6eefb;
+      outline:none;
+      background:#fbfdff;
+      font-size:14px;
+    }
+    .search button{
+      padding:10px 12px;
+      border-radius:8px;
+      border:0;
+      background:var(--accent);
+      color:#fff;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    /* FAQ list */
+    .faq-area{ display:flex; flex-direction:column; gap:16px; }
+    section.faq-section{ margin-bottom:12px; }
+    section.faq-section h2{
+      margin:0 0 10px 0;
+      font-size:16px;
+      color:#102a43;
+    }
+
+    details{
+      background:linear-gradient(180deg,#fff,#fbfdff);
+      border:1px solid #edf3ff;
+      padding:12px 14px;
+      border-radius:10px;
+      margin-bottom:10px;
+      transition:all .12s ease;
+      box-shadow: 0 6px 18px rgba(12,20,40,0.04);
+    }
+    details[open]{ transform:translateY(-2px); box-shadow:0 10px 30px rgba(12,20,40,0.06) }
+    summary{
+      list-style:none;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      color:#0b1220;
+      font-weight:600;
+      font-size:15px;
+      outline:none;
+    }
+    summary::-webkit-details-marker { display:none; } /* hide default arrow */
+    .arrow{
+      width:34px; height:34px;
+      display:inline-grid; place-items:center;
+      border-radius:8px;
+      background:transparent;
+      color:var(--accent);
+      border:1px solid rgba(15,98,254,0.12);
+    }
+    details p.answer{
+      margin:10px 0 0 0;
+      color:var(--muted);
+      line-height:1.5;
+      font-size:14px;
+    }
+
+    /* small helpers */
+    .muted { color:var(--muted); font-size:13px }
+    .cta-row{ display:flex; gap:10px; margin-top:12px; }
+    .btn { padding:9px 12px; border-radius:8px; text-decoration:none; display:inline-block; }
+    .btn.primary{ background:var(--accent); color:#fff; font-weight:700; border:0; }
+    .btn.ghost{ background:transparent; border:1px solid #e7eefc; color:var(--accent) }
+
+    /* responsive */
+    @media (max-width:900px){
+      .wrap{ grid-template-columns:1fr; padding:0 6px }
+      nav.categories{ flex-direction:row; flex-wrap:wrap }
+      nav.categories a{ font-size:13px; }
+      .search{ margin-top:10px }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+
+    <header>
+      <div class="brand">
+        <div class="logo">LW</div>
+        <div>
+          <h1>Help Center — Frequently Asked Questions</h1>
+          <p class="lead">Answers about orders, shipping, payments, returns and accounts.</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Left column: categories + quick links -->
+    <aside class="card">
+      <nav class="categories" aria-label="FAQ categories">
+        <a href="#orders" class="active">Orders</a>
+        <a href="#shipping">Shipping</a>
+        <a href="#payments">Payments</a>
+        <a href="#returns">Returns & Refunds</a>
+        <a href="#account">Account</a>
+        <a href="#other">Other</a>
+      </nav>
+
+      <div class="search" style="margin-top:14px">
+        <input type="search" placeholder="Search keywords (Ctrl+F also works)" aria-label="Search FAQs" />
+        <button type="button">Search</button>
+      </div>
+
+      <div style="margin-top:14px" class="muted">
+        Still need help? <br>
+        <!-- <a class="btn ghost" href="/contact">Contact Support</a> -->
+      </div>
+    </aside>
+
+    <!-- Right column: FAQs -->
+    <main>
+      <div class="faq-area card" style="padding:22px;">
+        <!-- Orders -->
+        <section id="orders" class="faq-section" aria-labelledby="orders-title">
+          <h2 id="orders-title">Orders</h2>
+
+          <details>
+            <summary>
+              How do I place an order?
+              <span class="arrow">?</span>
+            </summary>
+            <p class="answer">
+              Browse products, add them to your cart, then go to the Checkout page. Choose or add your shipping address,
+              select a payment method and click "Place Order".
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              Can I cancel or change my order after placing it?
+              <span class="arrow">!</span>
+            </summary>
+            <p class="answer">
+              Orders can be modified or cancelled within a short window before they are processed. Visit "My Orders"
+              and choose the specific order to see available actions. If the order is already shipped, you'll need to follow returns.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              I haven't received my order confirmation email — what now?
+              <span class="arrow">✉️</span>
+            </summary>
+            <p class="answer">
+              First check your spam/junk folder. If it's still missing, confirm the email address on your account or contact support with your order reference.
+            </p>
+          </details>
+        </section>
+
+        <!-- Shipping -->
+        <section id="shipping" class="faq-section" aria-labelledby="shipping-title">
+          <h2 id="shipping-title">Shipping</h2>
+
+          <details>
+            <summary>
+              What shipping methods do you offer?
+              <span class="arrow">🚚</span>
+            </summary>
+            <p class="answer">
+              We offer standard and express shipping. Costs and delivery estimates are shown at checkout based on your address.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              How long will delivery take?
+              <span class="arrow">⏱</span>
+            </summary>
+            <p class="answer">
+              Delivery times depend on the shipping method and your location. Typical standard delivery is 3–7 business days; express is 1–3 business days.
+            </p>
+          </details>
+        </section>
+
+        <!-- Payments -->
+        <section id="payments" class="faq-section" aria-labelledby="payments-title">
+          <h2 id="payments-title">Payments</h2>
+
+          <details>
+            <summary>
+              Which payment methods are accepted?
+              <span class="arrow">💳</span>
+            </summary>
+            <p class="answer">
+              We accept major debit/credit cards, Razorpay and Cash on Delivery (where available). Selected payment options are shown during checkout.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              Is my payment information secure?
+              <span class="arrow">🔒</span>
+            </summary>
+            <p class="answer">
+              Yes. We use industry-standard encryption and trusted payment providers. We do not store full card details on our servers.
+            </p>
+          </details>
+        </section>
+
+        <!-- Returns -->
+        <section id="returns" class="faq-section" aria-labelledby="returns-title">
+          <h2 id="returns-title">Returns & Refunds</h2>
+
+          <details>
+            <summary>
+              Can I return an item?
+              <span class="arrow">↩️</span>
+            </summary>
+            <p class="answer">
+              Most items are eligible for return within 30 days. Visit "My Orders" and open the order to start a return.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              How long does a refund take?
+              <span class="arrow">💸</span>
+            </summary>
+            <p class="answer">
+              Refunds are processed after we receive and inspect the returned item. It typically takes 5–7 business days for the amount to appear in your account.
+            </p>
+          </details>
+        </section>
+
+        <!-- Account -->
+        <section id="account" class="faq-section" aria-labelledby="account-title">
+          <h2 id="account-title">Account</h2>
+
+          <details>
+            <summary>
+              How do I reset my password?
+              <span class="arrow">🔁</span>
+            </summary>
+            <p class="answer">
+              Use the "Forgot password" link on the login page. We'll send an email with instructions to reset it.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              How do I update my shipping address?
+              <span class="arrow">🏠</span>
+            </summary>
+            <p class="answer">
+              Go to Account → Addresses and add or edit your saved addresses. The updated address will appear at checkout.
+            </p>
+          </details>
+        </section>
+
+        <!-- Other -->
+        <section id="other" class="faq-section" aria-labelledby="other-title">
+          <h2 id="other-title">Other</h2>
+
+          <details>
+            <summary>
+              Do you ship internationally?
+              <span class="arrow">🌍</span>
+            </summary>
+            <p class="answer">
+              At the moment we ship within supported countries only. Check the shipping destinations listed in the footer or contact support for special requests.
+            </p>
+          </details>
+
+          <details>
+            <summary>
+              Where can I find product warranties?
+              <span class="arrow">🧾</span>
+            </summary>
+            <p class="answer">
+              Warranty details are on each product page under "Specifications" or "Warranty". Contact support for additional warranty claims.
+            </p>
+          </details>
+        </section>
+        <div class="cta-row">
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+</body>
+</html>

@@ -279,6 +279,14 @@ const loadLogin = async (req, res) => {
     }
 }
 
+const loadFaq = async(req,res) => {
+    try {
+        res.render('faq')
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 const verifyLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -745,7 +753,7 @@ module.exports = {
     forgotPassword,
     resetPasswordLoad,
     resetPassword,
-    
+    loadFaq
 }
 
 

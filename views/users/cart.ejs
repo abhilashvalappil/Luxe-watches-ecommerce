@@ -68,11 +68,11 @@
                                         </td>
                                         <td class="quantity__item">
                                             <div class="quantity">
-                                                <button class="quantity-btn decrease" onclick="updateQuantity('<%= item.productId %>', -1)">-</button>
-                                                <input type="number" id="quantity-input" value="<%= Math.min(item.quantity, 5) %>" min="1" max="5" class="quantity-input" data-product-id="<%= item.productId %>" data-price="<%= item.offerPrice || item.productDetails.price %>" readonly>
-                                                <button class="quantity-btn increase" onclick="updateQuantity('<%= item.productId %>', 1)">+</button>
+                                                <button class="quantity-btn decrease" onclick="updateQuantity(this,'<%= item.productId %>', -1)">-</button>
+                                                <input type="number" value="<%= Math.min(item.quantity, 5) %>" min="1" max="5" class="quantity-input" data-product-id="<%= item.productId %>" data-price="<%= item.offerPrice || item.productDetails.price %>" readonly>
+                                                <button class="quantity-btn increase" onclick="updateQuantity(this,'<%= item.productId %>', 1)">+</button>
                                             </div>
-                                            <p id="error-message" style="color: red; display: none;"></p>
+                                            <p class="error-message" style="color: red; display: none;"></p>
                                         </td>
                                         <td class="cart__price" data-product-id="<%= item.productId %>"> 
                                             <span class="price-value">₹<%= ((item.offerPrice || item.productDetails.price) * item.quantity).toFixed(2) %></span>
@@ -91,22 +91,9 @@
                                 <a href="/shop">Continue Shopping</a>
                             </div>
                         </div>
-                        <!-- <div class="col-lg-6 col-md-6 col-sm-6"> -->
-                            <!-- <div class="continue__btn update__btn">
-                                <a href="#"><i class="fa fa-spinner"></i> Update cart</a>
-                            </div> -->
-                        <!-- </div> -->
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <!-- <div class="cart__discount">
-                       
-                        <a style="margin-bottom: 2rem;" href="/coupons" class="btn btn-primary mt-2">Available Coupons</a>
-                        <form id="couponForm">
-                            <input type="text" id="couponcode" placeholder="Enter Coupon Code">
-                            <button type="submit" id="applyRemove-btn" >Apply</button>
-                        </form>
-                    </div> -->
                     <div class="cart__total">
                         <h6>Cart total</h6>
                         <ul>
@@ -139,7 +126,7 @@
             cursor: pointer;
         }
     
-        #quantity-input {
+        .quantity-input {
             width: 50px;
             height: 30px;
             text-align: center;
@@ -231,10 +218,13 @@
 
      <script>
 
-    async function updateQuantity(productId, quantityChange){
-      const quantity=1
-      const errorMessageElement = document.getElementById('error-message');
-        const inputElement = document.querySelector(`input[data-product-id="${productId}"]`);
+    async function updateQuantity(button,productId, quantityChange){
+    //   const quantity=1
+    //   const errorMessageElement = document.getElementById('error-message');
+    //     const inputElement = document.querySelector(`input[data-product-id="${productId}"]`);
+        const row = button.closest('tr');
+        const inputElement = row.querySelector('.quantity-input');
+        const errorMessageElement = row.querySelector('.error-message');
         let newQuantity = parseInt(inputElement.value) + quantityChange;
 
         if (newQuantity < 1) {
@@ -242,7 +232,6 @@
         errorMessageElement.style.display = 'block';
         return;
     }
-
 
         try{
         const response = await fetch('/update-Quantity',{
@@ -271,10 +260,10 @@
                errorMessageElement.textContent = data.message || 'An error occurred while updating the quantity.';
             errorMessageElement.style.display = 'block';
             inputElement.value = newQuantity - quantityChange;
-         inputElement.value = newQuantity - quantityChange;
+        //  inputElement.value = newQuantity - quantityChange;
         }
     }catch(error){
-        errorMessageElement.textContent = data.message || 'An error occurred while updating the quantity.';
+        errorMessageElement.textContent = 'An error occurred while updating the quantity.';
         errorMessageElement.style.display = 'block';
         inputElement.value = newQuantity - quantityChange;
     }

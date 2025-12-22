@@ -37,7 +37,7 @@ display: inline-block; /* Ensures the icon doesn't hide */
                                 <%if(!user){%>
                                     <a href="/login">Sign in</a>
                                     <%}%>
-                                        <a href="#">FAQs</a>
+                                        <a href="/faq">FAQs</a>
                             </div>
                             <%if(user){%>
                                 <div class="header__top__hover">
@@ -58,7 +58,8 @@ display: inline-block; /* Ensures the icon doesn't hide */
             <div class="row">
                 <div class="col-lg-3 col-md-3">
                     <div class="header__logo">
-                        <a href="./index.html"><img src="img/logo.png" alt=""></a>
+                        <!-- <a href="./index.html"><img src="img/logo.png" alt=""></a> -->
+                        <a href="/"><img src="img/logo.png" alt=""></a>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6">
@@ -66,17 +67,6 @@ display: inline-block; /* Ensures the icon doesn't hide */
                         <ul>
                             <li class="active"><a href="/home">Home</a></li>
                             <li><a href="/shop">Shop</a></li>
-                            <!-- <li><a href="#">Pages</a>
-                                <ul class="dropdown">
-                                    <li><a href="./about.html">About Us</a></li>
-                                    <li><a href="./shop-details.html">Shop Details</a></li>
-                                    <li><a href="/cart">Shopping Cart</a></li>
-                                    <li><a href="./checkout.html">Check Out</a></li>
-                                    <li><a href="./blog-details.html">Blog Details</a></li>
-                                </ul>
-                            </li> -->
-                            <!-- <li><a href="./blog.html">Blog</a></li> -->
-                            <!-- <li><a href="./contact.html">Contacts</a></li>  -->
                         </ul>
                     </nav>
                 </div>
@@ -94,9 +84,6 @@ display: inline-block; /* Ensures the icon doesn't hide */
                           </a>
                         <a href="/profile" class="profile-icon"><i class="fas fa-user"></i></a>
                         <% } %>
-                         
-                        <!-- <a href="/profile"><i class="fas fa-user"></i></a> -->
-                        <!-- <div class="price">$0.00</div> -->
                     </div>
                 </div>
             </div>
