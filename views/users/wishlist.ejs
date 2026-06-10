@@ -42,9 +42,9 @@
                             <tr data-product-id="<%= product._id %>">
                                 <td>
                                     <% if (product.images && product.images.length > 0) { %>
-                                        <img src="/uploadedImages/<%= product.images[0] %>" alt="<%= product.name %>" width="50" height="50" class="me-2">
+                                        <img src="<%= product.images[0].startsWith('http') ? product.images[0] : '/uploadedImages/' + product.images[0] %>" alt="<%= product.name %>" width="50" height="50" class="me-2">
                                     <% } else { %>
-                                        <img src="/path/to/placeholder-image.jpg" alt="No image available" width="50" height="50" class="me-2">
+                                        <img src="/uploadedImages/default-image.jpg" alt="No image available" width="50" height="50" class="me-2">
                                     <% } %>
                                     <%= product.name %>
                                 </td>
@@ -188,7 +188,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('wishlistTable').addEventListener('click', async function (event) {
-            if (event.target.classList.contains('addCart-btn')) {
+            if (event.target.closest('.addCart-btn')) {
                 event.preventDefault();
                 
                 const row = event.target.closest('tr');
@@ -240,7 +240,7 @@
                 }
             }
 
-            if (event.target.classList.contains('remove-wishlist-btn')) {
+            if (event.target.closest('.remove-wishlist-btn')) {
                 event.preventDefault();
                 
                 const row = event.target.closest('tr');

@@ -94,13 +94,13 @@
 
                     <div class="col-12 d-flex justify-content-between p-5" style="background-color: rgb(191, 191, 191); border-radius: 5px; box-shadow: 0px 0px 5px black;">
                      <div class="selectedPic" id="selectedImageId" style="width: 450px; height: 450px;">
-                        <img id="zoomed-pic" alt="img-for-zoom" src="/uploadedImages/<%= product.images[0] %>" >
+                        <img id="zoomed-pic" alt="img-for-zoom" src="<%= (product.images && product.images.length > 0) ? (product.images[0].startsWith('http') ? product.images[0] : '/uploadedImages/' + product.images[0]) : '/uploadedImages/default-image.jpg' %>" >
                      </div>
 
                      <div class="product-pic-wrapper flex" style="width: 600px; height: 250px;">
                         <% for(let i=0; i < product.images.length; i++) { %>
                             <div class="pic-number-<%= i %> flex">
-                                <img style="width: 150px; height: 150px;" src="/uploadedImages/<%= product.images[i] %>" class="product-pic py-2" data-product-pic="<%= i %>" alt="img">
+                                <img style="width: 150px; height: 150px;" src="<%= product.images[i].startsWith('http') ? product.images[i] : '/uploadedImages/' + product.images[i] %>" class="product-pic py-2" data-product-pic="<%= i %>" alt="img">
                             </div>
                             <% } %>
                      </div>
@@ -249,7 +249,7 @@
 
                                 <div class="product__item__pic">
                                     <a href="/shopdetails?productId=<%= relatedProducts[i]._id %>"><img
-                                            src="/uploadedImages/<%= relatedProducts[i].images[0] %>"
+                                            src="<%= (relatedProducts[i].images && relatedProducts[i].images.length > 0) ? (relatedProducts[i].images[0].startsWith('http') ? relatedProducts[i].images[0] : '/uploadedImages/' + relatedProducts[i].images[0]) : '/uploadedImages/default-image.jpg' %>"
                                             alt="<%= relatedProducts[i].name %>" class="img-fluid"></a>
                                     <ul class="product__hover">
                                         <li><a href="#"><img src="img/icon/heart.png" alt=""></a></li>
