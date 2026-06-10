@@ -117,7 +117,7 @@
                 <tbody>
                     <% order.orderedItems.forEach(item => { %>
                     <tr>
-                        <td><img src="/uploadedImages/<%= item.productId.images[0] %>" alt="Product 1"></td>
+                        <td><img src="<%= (item.productId.images && item.productId.images.length > 0) ? (item.productId.images[0].startsWith('http') ? item.productId.images[0] : '/uploadedImages/' + item.productId.images[0]) : '/uploadedImages/default-image.jpg' %>" alt="Product 1"></td>
                         <td><%= item.productId.name %></td>
                         <td><%= item.quantity %></td>
                         <td>₹<%= item.price %></td>

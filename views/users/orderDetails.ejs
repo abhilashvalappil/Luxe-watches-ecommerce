@@ -67,7 +67,7 @@
             <!-- <a href="/download-invoice/<%= order._id %>" class="btn btn-primary">Download Invoice</a> -->
             <% if(order.orderedItems.some(item => item.orderStatus === 'Delivered')) { %>
             <!-- <a href="" class="btn btn-primary" onclick="downloadInvoice('<%= order._id %>')">Download Invoice</a> -->
-            <a href="#" class="btn btn-primary" onclick="downloadInvoice('<%= order._id %>'); return false;">Download Invoice</a>
+            <a href="" class="btn btn-primary" onclick="downloadInvoice('<%= order._id %>'); return false;">Download Invoice</a>
 
             <% } %>
         </div>
@@ -108,7 +108,7 @@
                 <% order.orderedItems.forEach(item => { %>
                 <div class="row mb-4">
                     <div class="col-md-2">
-                        <img src="/uploadedImages/<%= item.productId.images[0] %>" alt="Product Image" class="img-fluid">
+                        <img src="<%= (item.productId.images && item.productId.images.length > 0) ? (item.productId.images[0].startsWith('http') ? item.productId.images[0] : '/uploadedImages/' + item.productId.images[0]) : '/uploadedImages/default-image.jpg' %>" alt="Product Image" class="img-fluid">
                     </div>
                     <div class="col-md-10">
                         <h6><%= item.productId.name %></h6>
