@@ -55,7 +55,7 @@
                                         <td class="product__cart__item">
                                             <div class="product__cart__item__pic">
                                                 <!-- <div class="product__cart__item__pic" style="width: 30px; height: 60px; "></div> -->
-                                                <img style="width: 200px;" src="/uploadedImages/<%= item.productDetails.images[0] %>" alt="">
+                                                <img style="width: 200px;" src="<%= (item.productDetails.images && item.productDetails.images.length > 0) ? (item.productDetails.images[0].startsWith('http') ? item.productDetails.images[0] : '/uploadedImages/' + item.productDetails.images[0]) : '/uploadedImages/default-image.jpg' %>" alt="">
                                             </div>
                                             <div class="product__cart__item__text">
                                                 <h6><%= item.productDetails.name %></h6>

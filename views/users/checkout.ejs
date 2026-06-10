@@ -132,7 +132,7 @@
                             <li class="list-group-item d-flex justify-content-between lh-sm">
                                 <div class="d-flex">
                                     <!-- Product Image -->
-                                    <img src="/uploadedImages/<%= product.images?.[0] %>" alt="Product Image"
+                                    <img src="<%= (product.images && product.images.length > 0) ? (product.images[0].startsWith('http') ? product.images[0] : '/uploadedImages/' + product.images[0]) : '/uploadedImages/default-image.jpg' %>" alt="Product Image"
                                         class="img-fluid me-3" style="width: 60px; height: 60px;">
                                     <div>
                                         <h6 class="my-0"><%= product.name %></h6>

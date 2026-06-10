@@ -353,7 +353,7 @@
                         <div class="cont">
                             <div class="product-card">
                                 <div class="product-card__image">
-                                    <a href="/shopdetails?productId=<%= product._id %>"><img src="/uploadedImages/<%= product.images[0] %>" alt=""></a>
+                                    <a href="/shopdetails?productId=<%= product._id %>"><img src="<%= (product.images && product.images.length > 0) ? (product.images[0].startsWith('http') ? product.images[0] : '/uploadedImages/' + product.images[0]) : '/uploadedImages/default-image.jpg' %>" alt=""></a>
                                 </div>
                                 <div class="product-card__info">
                                     <h2 class="product-card__title"><%= product.name %></h2>

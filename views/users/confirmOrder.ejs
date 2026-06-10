@@ -131,7 +131,7 @@
                 <div class="order-container">
                    <%  order.orderedItems.forEach(function (item){  %>
                     <div class="d-flex order-summary">
-                        <img src="/uploadedImages/<%= item.productId.images[0]%>" alt="Product Image">
+                        <img src="<%= (item.productId.images && item.productId.images.length > 0) ? (item.productId.images[0].startsWith('http') ? item.productId.images[0] : '/uploadedImages/' + item.productId.images[0]) : '/uploadedImages/default-image.jpg' %>" alt="Product Image">
                         <div class="item-details">
                             <h5><%= item.productId.name%></h5>
                             <p><%= item.productId.strapColor%></p>

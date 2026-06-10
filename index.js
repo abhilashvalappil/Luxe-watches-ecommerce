@@ -8,6 +8,7 @@ const session = require('express-session');
 const passport = require('passport');
 const uri = process.env.MONGODB_URI;
  
+console.log(process.env.MONGODB_URI);
 
 mongoose.connect(uri, {
   useNewUrlParser: true,

@@ -302,13 +302,18 @@ const loadWishlist = async (req, res) => {
       });
     }
 
-    const totalProducts = wishlist.products.length;
+    // Normalize all IDs to ObjectId to handle any legacy string IDs in the DB
+    const allProductIds = wishlist.products.map(id => {
+      try { return new mongoose.Types.ObjectId(id.toString()); } catch(e) { return null; }
+    }).filter(Boolean);
+
+    const totalProducts = allProductIds.length;
     const totalPages = Math.ceil(totalProducts / limit);
 
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
 
-    const productIds = wishlist.products.slice(startIndex, endIndex);
+    const productIds = allProductIds.slice(startIndex, endIndex);
     let products = await Product.find({ _id: { $in: productIds } });
     const validProducts = products.filter((product) => product != null);
 
@@ -349,7 +354,7 @@ const loadWishlist = async (req, res) => {
     });
 
     const actualTotalProducts = await Product.countDocuments({
-      _id: { $in: wishlist.products },
+      _id: { $in: allProductIds },
     });
     const actualTotalPages = Math.ceil(actualTotalProducts / limit);
 
@@ -392,9 +397,10 @@ const addToWishlist = async(req, res) => {
             return res.status(HttpStatus.BAD_REQUEST).json({message: MESSAGES.LOGIN_TO_ADD_WISHLIST })
         }
 
+        const productObjectId = new mongoose.Types.ObjectId(productId);
         await Wishlist.findOneAndUpdate(
             {userId: userId},
-            {$addToSet: {products: productId}},
+            {$addToSet: {products: productObjectId}},
             {new: true, upsert: true}
         );
         return res.status(HttpStatus.OK).json({success: true, message: 'Product added to wishlist'})
@@ -410,9 +416,10 @@ const removeFromWishlist = async(req,res) => {
         if(!userId){
             return res.status(HttpStatus.UNAUTHORIZED).json({message: MESSAGES.LOGIN_REQUIRED})
         }
+        const productObjectId = new mongoose.Types.ObjectId(productId);
         await Wishlist.findOneAndUpdate(
             {userId: userId},
-            {$pull:{products: productId}},
+            {$pull:{products: productObjectId}},
             {new:  true}
         )
         return res.status(HttpStatus.OK).json({success: true, message: 'Remove from wishlist'})
