@@ -49,8 +49,11 @@
                           <input type="file" name="image1" accept=".jpg, .png, image/jpeg, image/png" hidden onchange="openCropModal(event, 'imagePreview1')">
                         </label>
                         <% if(product.images[0]) { %>
-                          <img id="imagePreview1" src="/uploadedImages/<%= product.images[0] %>" alt="Image 1 Preview" style="display: block; max-width: 100px;">
+                          <input type="hidden" name="existingImage1" value="<%= product.images[0] %>">
+                          <img id="imagePreview1" src="<%= product.images[0].startsWith('http') ? product.images[0] : '/uploadedImages/' + product.images[0] %>" alt="Image 1 Preview" style="display: block; max-width: 100px;">
                           <button type="button" class="btn btn-danger" onclick="removeImage('image1')">Remove</button>
+                        <% } else { %>
+                          <img id="imagePreview1" src="" alt="Image 1 Preview" style="display: none; max-width: 100px;">
                         <% } %>
                       </div>
                       
@@ -60,8 +63,11 @@
                           <input type="file" name="image2" accept=".jpg, .png, image/jpeg, image/png" hidden onchange="openCropModal(event, 'imagePreview2')">
                         </label>
                         <% if(product.images[1]) { %>
-                          <img id="imagePreview2" src="/uploadedImages/<%= product.images[1] %>" alt="Image 2 Preview" style="display: block; max-width: 100px;">
+                          <input type="hidden" name="existingImage2" value="<%= product.images[1] %>">
+                          <img id="imagePreview2" src="<%= product.images[1].startsWith('http') ? product.images[1] : '/uploadedImages/' + product.images[1] %>" alt="Image 2 Preview" style="display: block; max-width: 100px;">
                           <button type="button" class="btn btn-danger" onclick="removeImage('image2')">Remove</button>
+                        <% } else { %>
+                          <img id="imagePreview2" src="" alt="Image 2 Preview" style="display: none; max-width: 100px;">
                         <% } %>
                       </div>
                       
@@ -71,8 +77,11 @@
                           <input type="file" name="image3" accept=".jpg, .png, image/jpeg, image/png" hidden onchange="openCropModal(event, 'imagePreview3')">
                         </label>
                         <% if(product.images[2]) { %>
-                          <img id="imagePreview3" src="/uploadedImages/<%= product.images[2] %>" alt="Image 3 Preview" style="display: block; max-width: 100px;">
+                          <input type="hidden" name="existingImage3" value="<%= product.images[2] %>">
+                          <img id="imagePreview3" src="<%= product.images[2].startsWith('http') ? product.images[2] : '/uploadedImages/' + product.images[2] %>" alt="Image 3 Preview" style="display: block; max-width: 100px;">
                           <button type="button" class="btn btn-danger" onclick="removeImage('image3')">Remove</button>
+                        <% } else { %>
+                          <img id="imagePreview3" src="" alt="Image 3 Preview" style="display: none; max-width: 100px;">
                         <% } %>
                       </div>
                     </div>
@@ -337,10 +346,17 @@ function cropImage() {
   //   imagePreview.style.display = 'none'; // Hide the preview
   // }
   function removeImage(imageInputName) {
-    const imagePreviewId = 'imagePreview' + imageInputName.charAt(imageInputName.length - 1); // Match preview ID with input
-    document.querySelector(`input[name="${imageInputName}"]`).value = ""; // Clear the file input
-    document.getElementById(imagePreviewId).src = ""; // Clear the image preview
-    document.getElementById(imagePreviewId).style.display = "none"; // Hide the preview image
+    const imagePreviewId = 'imagePreview' + imageInputName.charAt(imageInputName.length - 1); 
+    document.querySelector(`input[name="${imageInputName}"]`).value = ""; 
+    document.getElementById(imagePreviewId).src = ""; 
+    document.getElementById(imagePreviewId).style.display = "none";
+    
+    // Also clear the hidden existing image input if it exists
+    const existingInputName = 'existingImage' + imageInputName.charAt(imageInputName.length - 1);
+    const existingInput = document.querySelector(`input[name="${existingInputName}"]`);
+    if (existingInput) {
+      existingInput.value = "";
+    }
 }
 
     
@@ -385,9 +401,6 @@ function cropImage() {
     
         const form = document.getElementById('editProductForm');
         let formData = new FormData(form);
-
-        formData.category =  document.getElementById('AddCategory').value;
-        formData.brand = document.getElementById('addBrand').value;
         const name = document.getElementById('name').value.trim();
         const description = document.getElementById('description').value.trim();
         const price = document.getElementById('price').value.trim();

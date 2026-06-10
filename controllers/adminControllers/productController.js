@@ -11,9 +11,9 @@ const MESSAGES  = require('../../constants/messages')
 const PATTERNS  = require('../../constants/patterns')
 const moment = require('moment');
 const sharp = require('sharp')
-const multer = require('multer');
 const fs = require('fs')
 const path = require('path')
+const cloudinary = require('../../config/cloudinary');
 
 
 const loadProducts = async(req,res) => {
@@ -73,7 +73,7 @@ const addProduct = async (req, res, next) => {
 
         for (const file of req.files) {
             const inputFilePath = file.path;
-            const outputFileName = `${path.basename(file.filename.trim().replace(/\s+/g, '_'), path.extname(file.filename))}.png`;
+            const outputFileName = `processed-${Date.now()}-${path.basename(file.filename.trim().replace(/\s+/g, '_'), path.extname(file.filename))}.png`;
             const outputFilePath = path.join('public/uploadedImages', outputFileName);
 
             try {
@@ -82,7 +82,21 @@ const addProduct = async (req, res, next) => {
                     .toFormat('png')
                     .toFile(outputFilePath);
                 
-                images.push(outputFileName);
+                // Upload to Cloudinary
+                const result = await cloudinary.uploader.upload(outputFilePath, {
+                    folder: 'luxewatches/products'
+                });
+
+                images.push(result.secure_url);
+
+                // Delete local processed file
+                if (fs.existsSync(outputFilePath)) {
+                    fs.unlinkSync(outputFilePath);
+                }
+                // Also delete the original multer file
+                if (fs.existsSync(inputFilePath)) {
+                    fs.unlinkSync(inputFilePath);
+                }
             } catch (error) {
                 console.error('Error processing file:', error);
                 return res.status(400).json({ success: false, warning: 'Error processing file' });
@@ -147,28 +161,53 @@ const editProductLoad = async(req,res) => {
 const editProduct = async (req, res) => {
     try {
         const productId = req.body.productId;
+        
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.PRODUCT_NOT_FOUND });
         }
 
         let images = [];
-        
-        //* Check if files are uploaded
-        if (req.files) {
-            const bodyImages = req.files;
-            const fields = ['image1', 'image2', 'image3'];
+        const bodyImages = req.files || {};
+        const fields = ['image1', 'image2', 'image3'];
 
-            fields.forEach((field, index) => {
-                if (bodyImages[field] && bodyImages[field][0]) {
-                    images[index] = bodyImages[field][0].filename;  
-                } else if (product.images[index]) {
-                    images[index] = product.images[index];  
+        for (let index = 0; index < fields.length; index++) {
+            const field = fields[index];
+            const existingImageField = `existingImage${index + 1}`;
+            
+            if (bodyImages[field] && bodyImages[field][0]) {
+                const file = bodyImages[field][0];
+                const inputFilePath = file.path;
+                const outputFileName = `processed-${Date.now()}-${path.basename(file.filename.trim().replace(/\s+/g, '_'), path.extname(file.filename))}.png`;
+                const outputFilePath = path.join('public/uploadedImages', outputFileName);
+
+                try {
+                    await sharp(inputFilePath)
+                        .resize(500, 500)
+                        .toFormat('png')
+                        .toFile(outputFilePath);
+
+                    const result = await cloudinary.uploader.upload(outputFilePath, {
+                        folder: 'luxewatches/products'
+                    });
+
+                    images[index] = result.secure_url;
+
+                    if (fs.existsSync(outputFilePath)) fs.unlinkSync(outputFilePath);
+                    if (fs.existsSync(inputFilePath)) fs.unlinkSync(inputFilePath);
+
+                } catch (error) {
+                    console.error(`Error processing ${field}:`, error);
+                    if (req.body[existingImageField]) {
+                        images[index] = req.body[existingImageField];
+                    }
                 }
-            });
-        } else {
-            images = product.images;  
+            } else if (req.body[existingImageField] && req.body[existingImageField].trim() !== "") {
+                images[index] = req.body[existingImageField];
+            }
         }
+        
+        const finalImages = images.filter(img => img !== undefined && img !== null && img !== "");
 
         await Product.findByIdAndUpdate(productId, {
             name: req.body.name,
@@ -180,12 +219,12 @@ const editProduct = async (req, res) => {
             strapColor: req.body.strapColor,
             stock: req.body.stock,
             description: req.body.description,
-            images: images 
-        });
+            images: finalImages
+        }, { new: true });
 
         res.status(HttpStatus.OK).json({ success: true, message: 'Product updated successfully.' });
     } catch (error) {
-        console.log(error);
+        console.error('CRITICAL ERROR in editProduct:', error);
         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: MESSAGES.INTERNAL_SERVER_ERROR });
     }
 };

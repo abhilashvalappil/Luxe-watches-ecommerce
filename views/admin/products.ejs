@@ -83,11 +83,10 @@
                       <div class="d-flex align-items-center gap-3">
                         <div class="product-box">
                           <% if (product[i].images && product[i].images.length > 0) { %>
-                            <img src="/uploadedImages/<%= product[i].images[0] %>" width="70" class="rounded-3" alt="Product Image">
+                            <img src="<%= (product[i].images && product[i].images.length > 0) ? (product[i].images[0].startsWith('http') ? product[i].images[0] : '/uploadedImages/' + product[i].images[0]) : '/uploadedImages/default-image.jpg' %>" width="70" class="rounded-3" alt="Product Image">
                           <% } else { %>
                             <img src="/uploadedImages/default-image.jpg" width="70" class="rounded-3" alt="Default Image">
                           <% } %>
-                          <!-- <p class="mb-0 product-category">Category : Fashion</p> -->
                         </div>
                       </div> 
                     </td>
