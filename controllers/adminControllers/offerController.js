@@ -72,7 +72,8 @@ const addCoupon = async(req,res) => {
 
 const updateCoupon = async (req, res) => {
     try {
-        const { couponId, couponCode, discountPercent, minimumPurchase, maxRedeem, validFrom, validTo } = req.body;
+        console.log("updated coupon datas@@@",req.body)
+        const { couponId, couponCode, discountPercent, minPurchase, maxRedeemAmount, validFrom, validTo } = req.body;
 
         const existingCoupon = await Coupon.findById(couponId);
         if (!existingCoupon) {
@@ -88,7 +89,7 @@ const updateCoupon = async (req, res) => {
             return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.DISCOUNT_PERCENT_RANGE });
         }
 
-        if (minimumPurchase <= 0 || maxRedeem <= 0) {
+        if (minPurchase <= 0 || maxRedeemAmount <= 0) {
             return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: MESSAGES.MIN_PURCHASE_MAX_REDEEM_POSITIVE });
         }
 
@@ -98,8 +99,8 @@ const updateCoupon = async (req, res) => {
         const updatedCoupon = await Coupon.findByIdAndUpdate(couponId, {
             couponCode,
             discountPercent,
-            minimumPurchase,
-            maxRedeemAmount: maxRedeem,
+            minPurchase,
+            maxRedeemAmount,
             validFrom,
             validTo
         }, { new: true });
